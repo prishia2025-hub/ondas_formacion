@@ -1,0 +1,170 @@
+import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from models import db, Lead, Curso, CursoLead, Nota
+from dotenv import load_dotenv
+from datetime import datetime
+from flasgger import Swagger
+
+load_dotenv()
+
+app = Flask(__name__)
+CORS(app)
+Swagger(app, template={
+    "info": {
+        "title": "Ondasformación CRM API",
+        "description": "API para la gestión de leads y cursos de Ondasformación",
+        "version": "1.0.0"
+    }
+})
+
+# Database configuration
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+DB_HOST = os.getenv("DB_HOST", "db")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "ondas_crm")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+# Create tables (Optional: Only if they don't exist)
+# with app.app_context():
+#     db.create_all()
+
+@app.route('/api/leads', methods=['GET', 'POST'])
+def manage_leads():
+    if request.method == 'GET':
+        leads = Lead.query.all()
+        return jsonify([lead.to_dict() for lead in leads])
+    
+    data = request.json
+    new_lead = Lead(
+        nombre=data['nombre'],
+        telefono=data.get('telefono'),
+        mail=data.get('mail')
+    )
+    db.session.add(new_lead)
+    db.session.commit()
+    return jsonify(new_lead.to_dict()), 201
+
+@app.route('/api/leads/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def lead_detail(id):
+    lead = Lead.query.get_or_404(id)
+    if request.method == 'GET':
+        return jsonify(lead.to_dict())
+    
+    if request.method == 'PUT':
+        data = request.json
+        lead.nombre = data.get('nombre', lead.nombre)
+        lead.telefono = data.get('telefono', lead.telefono)
+        lead.mail = data.get('mail', lead.mail)
+        db.session.commit()
+        return jsonify(lead.to_dict())
+    
+    if request.method == 'DELETE':
+        CursoLead.query.filter_by(id_lead=id).delete()
+        Nota.query.filter_by(id_lead=id).delete()
+        db.session.delete(lead)
+        db.session.commit()
+        return '', 204
+
+@app.route('/api/leads/<int:id_lead>/notas', methods=['GET', 'POST'])
+def manage_lead_notas(id_lead):
+    if request.method == 'GET':
+        notas = Nota.query.filter_by(id_lead=id_lead).all()
+        return jsonify([nota.to_dict() for nota in notas])
+    
+    data = request.json
+    new_nota = Nota(
+        id_lead=id_lead,
+        id_curso=data['id_curso'],
+        contenido=data['contenido'],
+        titulo=data.get('titulo'),
+        fecha=datetime.utcnow()
+    )
+    db.session.add(new_nota)
+    db.session.commit()
+    return jsonify(new_nota.to_dict()), 201
+
+@app.route('/api/cursos', methods=['GET', 'POST'])
+def manage_cursos():
+    if request.method == 'GET':
+        cursos = Curso.query.all()
+        return jsonify([curso.to_dict() for curso in cursos])
+    
+    data = request.json
+    new_curso = Curso(
+        nombre=data['nombre'],
+        max_alumnos=data.get('max_alumnos'),
+        codigo=data.get('codigo'),
+        fecha_inicio=datetime.fromisoformat(data['fecha_inicio']).date() if data.get('fecha_inicio') else None,
+        fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None
+    )
+    db.session.add(new_curso)
+    db.session.commit()
+    return jsonify(new_curso.to_dict()), 201
+
+@app.route('/api/cursos/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def curso_detail(id):
+    curso = Curso.query.get_or_404(id)
+    if request.method == 'GET':
+        return jsonify(curso.to_dict())
+    
+    if request.method == 'PUT':
+        data = request.json
+        curso.nombre = data.get('nombre', curso.nombre)
+        curso.max_alumnos = data.get('max_alumnos', curso.max_alumnos)
+        curso.lleno = data.get('lleno', curso.lleno)
+        curso.codigo = data.get('codigo', curso.codigo)
+        if 'fecha_inicio' in data:
+            curso.fecha_inicio = datetime.fromisoformat(data['fecha_inicio']).date() if data['fecha_inicio'] else None
+        if 'fecha_fin' in data:
+            curso.fecha_fin = datetime.fromisoformat(data['fecha_fin']).date() if data['fecha_fin'] else None
+        db.session.commit()
+        return jsonify(curso.to_dict())
+    
+    if request.method == 'DELETE':
+        CursoLead.query.filter_by(id_curso=id).delete()
+        Nota.query.filter_by(id_curso=id).delete()
+        db.session.delete(curso)
+        db.session.commit()
+        return '', 204
+
+@app.route('/api/cursos/<int:id_curso>/leads', methods=['GET', 'POST'])
+def manage_curso_leads(id_curso):
+    if request.method == 'GET':
+        relations = CursoLead.query.filter_by(id_curso=id_curso).all()
+        return jsonify([rel.to_dict() for rel in relations])
+    
+    data = request.json
+    new_rel = CursoLead(
+        id_curso=id_curso,
+        id_lead=data['id_lead'],
+        estado=data.get('estado', 'Nuevo'),
+        fecha_formulario=datetime.utcnow()
+    )
+    db.session.add(new_rel)
+    db.session.commit()
+    return jsonify(new_rel.to_dict()), 201
+
+@app.route('/api/cursos/<int:id_curso>/leads/<int:id_lead>', methods=['PUT', 'DELETE'])
+def curso_lead_detail(id_curso, id_lead):
+    rel = CursoLead.query.filter_by(id_curso=id_curso, id_lead=id_lead).first_or_404()
+    
+    if request.method == 'PUT':
+        data = request.json
+        if 'estado' in data:
+            rel.estado = data['estado']
+        db.session.commit()
+        return jsonify(rel.to_dict())
+    
+    if request.method == 'DELETE':
+        db.session.delete(rel)
+        db.session.commit()
+        return '', 204
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

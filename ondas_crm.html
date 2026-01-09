@@ -1,0 +1,1612 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ONDASFORMACIÓN · Gestor de Leads</title>
+    <style>
+        :root {
+            --bg: #070A13;
+            --bg2: #0A1022;
+            --card: rgba(255, 255, 255, .06);
+            --card2: rgba(255, 255, 255, .08);
+            --stroke: rgba(255, 255, 255, .10);
+            --stroke2: rgba(255, 255, 255, .14);
+            --text: rgba(255, 255, 255, .92);
+            --muted: rgba(255, 255, 255, .66);
+            --muted2: rgba(255, 255, 255, .52);
+            --shadow: 0 30px 80px rgba(0, 0, 0, .55);
+            --shadow2: 0 16px 40px rgba(0, 0, 0, .45);
+
+            --a: #7C3AED;
+            /* morado */
+            --b: #06B6D4;
+            /* cian */
+            --c: #22C55E;
+            /* verde */
+            --d: #F59E0B;
+            /* amber */
+            --danger: #EF4444;
+            /* rojo */
+            --ok: #10B981;
+
+            --r: 20px;
+            --r2: 14px;
+            --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font);
+            color: var(--text);
+            background:
+                radial-gradient(1100px 800px at 15% 10%, rgba(124, 58, 237, .30), transparent 55%),
+                radial-gradient(1000px 700px at 90% 25%, rgba(6, 182, 212, .22), transparent 55%),
+                radial-gradient(900px 700px at 50% 95%, rgba(34, 197, 94, .14), transparent 60%),
+                linear-gradient(180deg, var(--bg), var(--bg2));
+            overflow-x: hidden;
+        }
+
+        /* subtle animated grain */
+        body:before {
+            content: "";
+            position: fixed;
+            inset: -30%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+            opacity: .35;
+            pointer-events: none;
+            transform: translateZ(0);
+            animation: drift 16s linear infinite;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translate(-2%, -2%)
+            }
+
+            50% {
+                transform: translate(2%, 2%)
+            }
+
+            100% {
+                transform: translate(-2%, -2%)
+            }
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 26px 18px 80px;
+        }
+
+        .topbar {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 240px;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background:
+                radial-gradient(18px 18px at 25% 30%, rgba(255, 255, 255, .60), transparent 55%),
+                linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(6, 182, 212, 1));
+            box-shadow: 0 18px 40px rgba(124, 58, 237, .25), 0 18px 40px rgba(6, 182, 212, .18);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo:after {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background: conic-gradient(from 0deg, rgba(255, 255, 255, .0), rgba(255, 255, 255, .22), rgba(255, 255, 255, .0));
+            animation: spin 6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .brand h1 {
+            font-size: 16px;
+            margin: 0;
+            letter-spacing: .2px;
+            line-height: 1.1;
+        }
+
+        .brand small {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid var(--stroke);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .04);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
+        }
+
+        .pill input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 13px;
+            width: min(44vw, 460px);
+        }
+
+        .pill input::placeholder {
+            color: rgba(255, 255, 255, .40)
+        }
+
+        .kbd {
+            font-size: 11px;
+            color: rgba(255, 255, 255, .55);
+            border: 1px solid rgba(255, 255, 255, .16);
+            padding: 4px 8px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, .25);
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .3px;
+            text-transform: uppercase;
+        }
+
+        .row-duplicate {
+            outline: 2px solid #ef4444;
+            outline-offset: -2px;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            letter-spacing: .2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid var(--stroke);
+            transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, .09);
+            border-color: var(--stroke2);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .30);
+        }
+
+        .btn:active {
+            transform: translateY(0px) scale(.99)
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, rgba(124, 58, 237, .95), rgba(6, 182, 212, .75));
+            border-color: rgba(255, 255, 255, .12);
+            box-shadow: 0 20px 50px rgba(124, 58, 237, .18), 0 20px 50px rgba(6, 182, 212, .12);
+        }
+
+        .btn.primary:hover {
+            filter: brightness(1.05)
+        }
+
+        .btn.danger {
+            background: rgba(239, 68, 68, .12);
+            border-color: rgba(239, 68, 68, .35);
+        }
+
+        .btn.ghost {
+            background: rgba(255, 255, 255, .02);
+            border-color: transparent;
+        }
+
+        .btn.ghost:hover {
+            background: rgba(255, 255, 255, .06);
+        }
+
+        /* Form elements */
+        select {
+            appearance: none;
+            background: rgba(255, 255, 255, .05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E") no-repeat calc(100% - 12px) center;
+            color: var(--text);
+            border: 1px solid var(--stroke);
+            padding: 10px 32px 10px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            outline: none;
+            transition: background .12s ease, border-color .12s ease;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        select:hover {
+            background-color: rgba(255, 255, 255, .08);
+            border-color: var(--stroke2);
+        }
+
+        select option {
+            background: #0A1022;
+            /* Matches var(--bg2) */
+            color: white;
+        }
+
+        .btn small {
+            opacity: .7;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        @media (min-width: 980px) {
+            .grid {
+                grid-template-columns: 400px 1fr;
+                align-items: start;
+            }
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
+            border: 1px solid var(--stroke);
+            border-radius: var(--r);
+            box-shadow: var(--shadow2);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .2px;
+        }
+
+        .card-header p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .card-body {
+            padding: 14px 16px 16px
+        }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .course {
+            padding: 12px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(0, 0, 0, .16);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
+        }
+
+        .course:hover {
+            transform: translateY(-1px);
+            background: rgba(0, 0, 0, .22);
+            border-color: rgba(255, 255, 255, .18);
+        }
+
+        .course.active {
+            border-color: rgba(6, 182, 212, .55);
+            box-shadow: 0 16px 40px rgba(6, 182, 212, .10);
+            background:
+                radial-gradient(240px 120px at 20% 20%, rgba(6, 182, 212, .18), transparent 55%),
+                rgba(0, 0, 0, .18);
+        }
+
+        .course .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .course .title {
+            font-weight: 700;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 250px;
+        }
+
+        .course .sub {
+            color: var(--muted);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: rgba(255, 255, 255, .75);
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .mini-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .iconbtn {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(255, 255, 255, .05);
+            cursor: pointer;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
+        }
+
+        .iconbtn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, .08);
+            border-color: rgba(255, 255, 255, .18);
+        }
+
+        .iconbtn.danger {
+            background: rgba(239, 68, 68, .10);
+            border-color: rgba(239, 68, 68, .28);
+        }
+
+        /* table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(0, 0, 0, .16);
+        }
+
+        .table th,
+        .table td {
+            padding: 12px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            text-align: left;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .table th {
+            color: rgba(255, 255, 255, .72);
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .table tr:hover td {
+            background: rgba(255, 255, 255, .03);
+        }
+
+        .table td.muted {
+            color: var(--muted)
+        }
+
+        .table .row-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .empty {
+            padding: 14px;
+            border: 1px dashed rgba(255, 255, 255, .18);
+            border-radius: 16px;
+            background: rgba(0, 0, 0, .10);
+            color: rgba(255, 255, 255, .72);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        /* detail layout */
+        .detail {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 980px) {
+            .detail {
+                grid-template-columns: 1fr 1.2fr;
+            }
+        }
+
+        .panel {
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(0, 0, 0, .16);
+        }
+
+        .panel h3 {
+            margin: 0 0 10px;
+            font-size: 13px;
+            letter-spacing: .2px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        label {
+            color: rgba(255, 255, 255, .70);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .05);
+            color: var(--text);
+            outline: none;
+            font-size: 13px;
+            transition: border-color .12s ease, background .12s ease;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: rgba(6, 182, 212, .55);
+            background: rgba(255, 255, 255, .06);
+        }
+
+        .hint {
+            color: var(--muted2);
+            font-size: 12px;
+            line-height: 1.35;
+            margin-top: 6px;
+        }
+
+        /* notes */
+        .notes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note {
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background:
+                radial-gradient(300px 120px at 10% 20%, rgba(124, 58, 237, .14), transparent 60%),
+                rgba(0, 0, 0, .18);
+            padding: 12px 12px;
+        }
+
+        .note .when {
+            color: rgba(255, 255, 255, .68);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .note .txt {
+            color: rgba(255, 255, 255, .90);
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        /* modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 999;
+        }
+
+        .modal-backdrop.show {
+            display: flex
+        }
+
+        .modal {
+            width: min(620px, 100%);
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background:
+                radial-gradient(500px 240px at 15% 10%, rgba(6, 182, 212, .18), transparent 60%),
+                radial-gradient(500px 240px at 85% 15%, rgba(124, 58, 237, .18), transparent 60%),
+                rgba(10, 16, 34, .92);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transform: translateY(8px) scale(.985);
+            opacity: 0;
+            transition: transform .14s ease, opacity .14s ease;
+            backdrop-filter: blur(14px);
+        }
+
+        .modal-backdrop.show .modal {
+            transform: translateY(0px) scale(1);
+            opacity: 1;
+        }
+
+        .modal header {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .modal header h3 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .2px;
+        }
+
+        .modal .content {
+            padding: 14px 16px 16px;
+        }
+
+        /* toast */
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast .t {
+            pointer-events: none;
+            padding: 12px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(0, 0, 0, .35);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .45);
+            width: min(360px, calc(100vw - 32px));
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            animation: pop .22s ease both;
+        }
+
+        @keyframes pop {
+            from {
+                transform: translateY(8px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            margin-top: 4px;
+            background: var(--ok);
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, .12);
+            flex-shrink: 0;
+        }
+
+        .t.err .dot {
+            background: var(--danger);
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, .12);
+        }
+
+        .t .msg {
+            font-size: 13px;
+            color: rgba(255, 255, 255, .9);
+            line-height: 1.35;
+        }
+
+        /* tiny helper */
+        .split {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .split .left,
+        .split .right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .sep {
+            height: 1px;
+            background: rgba(255, 255, 255, .08);
+            margin: 12px 0;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .04);
+            color: rgba(255, 255, 255, .74);
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <div class="brand">
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <h1>ONDASFORMACIÓN · Gestor de Leads</h1>
+                    <small>Curso → Leads → Notas · Conectado a base de datos externa</small>
+                </div>
+            </div>
+
+            <div class="pill" title="Busca cursos, leads o emails">
+                <span class="tag mono">🔎</span>
+                <input id="search" placeholder="Buscar (curso, nombre, teléfono, email…)" />
+                <span class="kbd">Ctrl / ⌘ + K</span>
+            </div>
+
+            <div class="actions">
+                <button class="btn" id="btnGeneralLeads">🌍 Leads Generales</button>
+                <button class="btn" id="btnConfig">⚙️ Configuración</button>
+                <button class="btn primary" id="btnNewCourse">➕ Nuevo curso</button>
+                <button class="btn ghost" id="btnSeed" style="display:none;">✨ Demo</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Left: Courses -->
+            <section class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Cursos activos</h2>
+                        <p>Gestiona cursos (crear/quitar) y entra en cada uno para ver sus leads.</p>
+                    </div>
+                    <span class="badge" id="courseCount">0 cursos</span>
+                </div>
+                <div class="card-body">
+                    <div class="list" id="courseList"></div>
+                    <div id="courseEmpty" class="empty" style="display:none;margin-top:10px;">
+                        No hay cursos aún. Pulsa <b>Nuevo curso</b> para crear el primero.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Main content -->
+            <section class="card" id="mainCard">
+                <div class="card-header" id="mainHeader">
+                    <div>
+                        <h2 id="mainTitle">Selecciona un curso</h2>
+                        <p id="mainSubtitle">A la derecha aparecerán los leads y podrás gestionarlos.</p>
+                    </div>
+                    <div class="split right">
+                        <span class="badge" id="leadCount">0 leads</span>
+                    </div>
+                </div>
+                <div class="card-body" id="mainBody">
+                    <div class="empty">
+                        👈 Elige un curso a la izquierda. <br />
+                        Luego podrás <b>añadir leads</b>, abrir la <b>ficha</b> y crear <b>notas con fecha/hora</b>.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal" role="document">
+            <header>
+                <h3 id="modalTitle">Modal</h3>
+                <button class="btn ghost" id="modalClose">✕ Cerrar</button>
+            </header>
+            <div class="content" id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        /**************
+         * Data model *
+         **************/
+        const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+            ? "http://localhost:5000/api"
+            : "/api";
+        function uid(prefix = "id") {
+            return prefix + "_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+        }
+        function nowISO() { return new Date().toISOString(); }
+        function formatDateTime(iso) {
+            if (!iso) return "—";
+            const d = new Date(iso);
+            const pad = (n) => String(n).padStart(2, "0");
+            return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+        const state = {
+            data: { courses: [], statuses: baseData().statuses },
+            selectedCourseId: null,
+            selectedLeadId: null,
+            view: "leads",
+            search: "",
+            statusFilter: ""
+        };
+
+        async function apiFetch(endpoint, options = {}) {
+            try {
+                const res = await fetch(`${API_BASE}${endpoint}`, {
+                    ...options,
+                    headers: { 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (!res.ok) throw new Error("API Error");
+                return res.status === 204 ? null : await res.json();
+            } catch (e) {
+                toast("Error de conexión con el servidor", "err");
+                console.error(e);
+                return null;
+            }
+        }
+
+        async function load() {
+            const courses = await apiFetch('/cursos');
+            if (courses) {
+                state.data.courses = courses;
+                // For each course, fetch leads if we want full sync on load
+                for (let c of state.data.courses) {
+                    const relations = await apiFetch(`/cursos/${c.id_curso}/leads`);
+                    c.leads = [];
+                    if (relations) {
+                        for (let rel of relations) {
+                            const lead = await apiFetch(`/leads/${rel.id_lead}`);
+                            if (lead) {
+                                // Add notes for each lead
+                                const notes = await apiFetch(`/leads/${rel.id_lead}/notas`);
+                                lead.notes = notes || [];
+                                lead.statusId = rel.estado; // Using estado as statusId for parity
+                                c.leads.push(lead);
+                            }
+                        }
+                    }
+                }
+            }
+            renderAll();
+        }
+
+        // Map backend IDs to frontend logic
+        function getCourse(id) { return state.data.courses.find(c => c.id_curso == id) || null; }
+        function getLead(courseId, leadId) {
+            const c = getCourse(courseId);
+            return c ? (c.leads || []).find(l => l.id_lead == leadId) : null;
+        }
+
+        function save() { /* No longer needed for persistence, individual actions call API */ }
+        function baseData() {
+            return {
+                courses: [],
+                statuses: [
+                    { id: "Nuevo", name: "Nuevo", color: "#3b82f6" },
+                    { id: "En contacto", name: "En contacto", color: "#f59e0b" },
+                    { id: "Interesado", name: "Interesado", color: "#8b5cf6" },
+                    { id: "Inscrito", name: "Inscrito", color: "#10b981" },
+                    { id: "No responde", name: "No responde", color: "#ef4444" }
+                ]
+            };
+        }
+
+        function getStatus(id) { return state.data.statuses.find(s => s.id === id) || { name: "?", color: "#999" }; }
+
+        /*************
+         * UI Helpers *
+         *************/
+        function toast(msg, type = "ok") {
+            const wrap = document.getElementById("toast");
+            const t = document.createElement("div");
+            t.className = "t" + (type === "err" ? " err" : "");
+            t.innerHTML = `<div class="dot"></div><div class="msg">${msg}</div>`;
+            wrap.appendChild(t);
+            setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(6px)"; }, 2600);
+            setTimeout(() => { t.remove(); }, 3200);
+        }
+
+        function openModal(title, contentNode) {
+            const backdrop = document.getElementById("modalBackdrop");
+            document.getElementById("modalTitle").textContent = title;
+            const c = document.getElementById("modalContent");
+            c.innerHTML = "";
+            c.appendChild(contentNode);
+            backdrop.classList.add("show");
+            backdrop.setAttribute("aria-hidden", "false");
+        }
+        function closeModal() {
+            const backdrop = document.getElementById("modalBackdrop");
+            backdrop.classList.remove("show");
+            backdrop.setAttribute("aria-hidden", "true");
+            document.getElementById("modalContent").innerHTML = "";
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#039;" }[m]));
+        }
+
+        function renderStatusBadge(statusId) {
+            const s = getStatus(statusId);
+            return `<div class="status-badge" style="background:${s.color}22; color:${s.color}; border:1px solid ${s.color}44;">${escapeHtml(s.name)}</div>`;
+        }
+
+        function ensureStructures() {
+            if (!state.data.statuses) state.data.statuses = baseData().statuses;
+            state.data.courses.forEach(c => {
+                if (!c.leads) c.leads = [];
+                c.leads.forEach(l => {
+                    if (!l.notes) l.notes = [];
+                    if (!l.estado) l.estado = state.data.statuses[0].id;
+                });
+            });
+        }
+
+        /*****************
+         * Core Rendering *
+         *****************/
+        function renderAll() {
+            ensureStructures();
+            renderCourses();
+            renderMain();
+        }
+
+        function filteredCourses() {
+            const q = state.search.trim().toLowerCase();
+            if (!q) return state.data.courses;
+            return state.data.courses.filter(c => {
+                if ((c.nombre || "").toLowerCase().includes(q)) return true;
+                return (c.leads || []).some(l => {
+                    return [l.nombre, l.telefono, l.mail].some(x => (x || "").toLowerCase().includes(q));
+                });
+            });
+        }
+
+        function renderCourses() {
+            const list = document.getElementById("courseList");
+            const empty = document.getElementById("courseEmpty");
+            list.innerHTML = "";
+            const courses = filteredCourses();
+            document.getElementById("courseCount").textContent = `${courses.length} curso${courses.length === 1 ? "" : "s"}`;
+
+            if (courses.length === 0) { empty.style.display = "block"; return; }
+            empty.style.display = "none";
+
+            courses
+                .forEach(course => {
+                    const leadTotal = (course.leads || []).length;
+                    const el = document.createElement("div");
+                    el.className = "course" + (state.selectedCourseId == course.id_curso ? " active" : "");
+                    el.innerHTML = `
+            <div class="meta">
+              <div class="title">${escapeHtml(course.nombre || "Curso")}</div>
+              <div class="sub">
+                <span class="badge">${leadTotal} lead${leadTotal === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+            <div class="mini-actions" onclick="event.stopPropagation()">
+              <button class="iconbtn" title="Editar curso" data-action="edit">✏️</button>
+              <button class="iconbtn danger" title="Eliminar curso" data-action="delete">🗑️</button>
+            </div>
+          `;
+                    el.addEventListener("click", () => {
+                        state.selectedCourseId = course.id_curso;
+                        state.selectedLeadId = null;
+                        state.view = "leads";
+                        renderAll();
+                    });
+                    el.querySelector('[data-action="edit"]').addEventListener("click", () => openEditCourse(course.id_curso));
+                    el.querySelector('[data-action="delete"]').addEventListener("click", () => deleteCourse(course.id_curso));
+                    list.appendChild(el);
+                });
+        }
+
+        function renderMain() {
+            const mainTitle = document.getElementById("mainTitle");
+            const mainSubtitle = document.getElementById("mainSubtitle");
+            const mainBody = document.getElementById("mainBody");
+            const leadCount = document.getElementById("leadCount");
+            mainBody.innerHTML = "";
+
+            if (state.view === "general") {
+                renderGeneralLeadsView(mainTitle, mainSubtitle, mainBody, leadCount);
+                return;
+            }
+
+            const course = state.selectedCourseId ? getCourse(state.selectedCourseId) : null;
+            if (!course) {
+                mainTitle.textContent = "Selecciona un curso";
+                mainSubtitle.textContent = "A la derecha aparecerán los leads y podrás gestionarlos.";
+                leadCount.textContent = "0 leads";
+                mainBody.innerHTML = `<div class="empty">👈 Elige un curso o pulsa Leads Generales.</div>`;
+                return;
+            }
+
+            if (state.view === "lead" && state.selectedLeadId) {
+                const lead = getLead(course.id_curso, state.selectedLeadId);
+                if (!lead) { state.view = "leads"; renderMain(); return; }
+                mainTitle.textContent = course.nombre;
+                mainSubtitle.textContent = "Ficha del lead y notas.";
+                mainBody.appendChild(renderLeadDetail(course, lead));
+                return;
+            }
+
+            // Course View
+            mainTitle.textContent = course.nombre;
+            mainSubtitle.textContent = "Leads del curso.";
+            const leads = filteredLeads(course.leads);
+            leadCount.textContent = `${leads.length} lead${leads.length === 1 ? "" : "s"}`;
+
+            const top = document.createElement("div");
+            top.className = "split";
+            top.innerHTML = `
+        <div class="left">
+          <span class="tag">📚 Curso</span>
+          <select id="statusFilter">
+            <option value="">Todos los estados</option>
+            ${state.data.statuses.map(s => `<option value="${s.id}" ${state.statusFilter === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="right">
+          <button class="btn primary" id="btnAddLead">➕ Añadir lead</button>
+        </div>
+      `;
+            mainBody.appendChild(top);
+            top.querySelector("#statusFilter").addEventListener("change", (e) => { state.statusFilter = e.target.value; renderAll(); });
+            top.querySelector("#btnAddLead").addEventListener("click", () => openNewLead(course.id_curso));
+
+            const sep = document.createElement("div"); sep.className = "sep"; mainBody.appendChild(sep);
+
+            if (leads.length === 0) {
+                const emptyMsg = document.createElement("div");
+                emptyMsg.className = "empty";
+                emptyMsg.textContent = "No hay leads que coincidan con la búsqueda/filtro.";
+                mainBody.appendChild(emptyMsg);
+                return;
+            }
+
+            mainBody.appendChild(renderLeadsTable(leads, (l) => {
+                state.view = "lead"; state.selectedLeadId = l.id; renderAll();
+            }, (l) => {
+                openAddNote(course.id, l.id);
+            }, (l) => {
+                deleteLead(course.id, l.id);
+            }));
+        }
+
+        function filteredLeads(leads) {
+            let lds = leads || [];
+            const q = state.search.trim().toLowerCase();
+            if (q) lds = lds.filter(l => [l.nombre, l.telefono, l.mail].some(x => (x || "").toLowerCase().includes(q)));
+            if (state.statusFilter) lds = lds.filter(l => l.estado === state.statusFilter);
+            return lds;
+        }
+
+        function renderGeneralLeadsView(title, subtitle, body, count) {
+            title.textContent = "LEADS GENERALES";
+            subtitle.textContent = "Vista global de todos los leads agrupados por teléfono.";
+
+            let allLeads = [];
+            state.data.courses.forEach(c => {
+                (c.leads || []).forEach(l => {
+                    allLeads.push({ ...l, courseName: c.nombre, courseId: c.id_curso });
+                });
+            });
+
+            // Filter (we filter before grouping to keep expected search behavior)
+            allLeads = filteredLeads(allLeads);
+
+            // Group by phone
+            const grouped = {};
+            allLeads.forEach(l => {
+                const p = (l.telefono || "").trim() || "—";
+                if (!grouped[p]) {
+                    grouped[p] = {
+                        ...l,
+                        courses: new Set([l.courseName]),
+                        count: 1
+                    };
+                } else {
+                    grouped[p].courses.add(l.courseName);
+                    grouped[p].count++;
+                }
+            });
+
+            const uniqueLeads = Object.values(grouped);
+            count.textContent = `${uniqueLeads.length} únicos`;
+
+            const top = document.createElement("div");
+            top.className = "split";
+            top.innerHTML = `
+        <div class="left">
+          <span class="tag">🌍 Todos los cursos</span>
+          <select id="statusFilter">
+            <option value="">Todos los estados</option>
+            ${state.data.statuses.map(s => `<option value="${s.id}" ${state.statusFilter === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+          </select>
+        </div>
+      `;
+            body.appendChild(top);
+            top.querySelector("#statusFilter").addEventListener("change", (e) => { state.statusFilter = e.target.value; renderAll(); });
+
+            const sep = document.createElement("div"); sep.className = "sep"; body.appendChild(sep);
+
+            if (uniqueLeads.length === 0) {
+                const emptyMsg = document.createElement("div");
+                emptyMsg.className = "empty";
+                emptyMsg.textContent = "No hay leads.";
+                body.appendChild(emptyMsg);
+                return;
+            }
+
+            const table = document.createElement("table");
+            table.className = "table";
+            table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Cursos</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+            const tbody = table.querySelector("tbody");
+
+            uniqueLeads.forEach(l => {
+                const tr = document.createElement("tr");
+                const courseList = Array.from(l.courses).join(", ");
+                const hasMultiple = l.courses.size > 1;
+
+                tr.innerHTML = `
+          <td><b>${escapeHtml(l.nombre || "—")}</b></td>
+          <td class="muted">${escapeHtml(l.telefono || "—")}</td>
+          <td>
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start;">
+                <span class="tag">${escapeHtml(courseList)}</span>
+                ${hasMultiple ? '<span class="status-badge" style="background:#ef444422; color:#ef4444; border:1px solid #ef444444; font-size:10px;">Más de 1 curso</span>' : ''}
+            </div>
+          </td>
+          <td>${renderStatusBadge(l.estado)}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn" data-a="view">👁️</button>
+              <button class="btn" data-a="note">📝</button>
+            </div>
+          </td>
+        `;
+
+                tr.querySelector('[data-a="view"]').addEventListener("click", () => {
+                    state.selectedCourseId = l.courseId;
+                    state.selectedLeadId = l.id_lead;
+                    state.view = "lead";
+                    renderAll();
+                });
+                tr.querySelector('[data-a="note"]').addEventListener("click", () => openAddNote(l.courseId, l.id_lead));
+
+                tbody.appendChild(tr);
+            });
+            body.appendChild(table);
+        }
+
+        function renderLeadsTable(leads, onView, onNote, onDelete) {
+            const phoneCounts = {};
+            state.data.courses.forEach(c => {
+                (c.leads || []).forEach(l => {
+                    const p = (l.telefono || "").trim();
+                    if (p && p !== "—") phoneCounts[p] = (phoneCounts[p] || 0) + 1;
+                });
+            });
+
+            const table = document.createElement("table");
+            table.className = "table";
+            table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+            const tbody = table.querySelector("tbody");
+            leads.forEach(l => {
+                const tr = document.createElement("tr");
+                const isDuplicate = phoneCounts[(l.telefono || "").trim()] > 1;
+                if (isDuplicate) tr.classList.add("row-duplicate");
+
+                tr.innerHTML = `
+          <td><b>${escapeHtml(l.nombre || "—")}</b></td>
+          <td class="muted">${escapeHtml(l.telefono || "—")}</td>
+          <td class="muted">${escapeHtml(l.mail || "—")}</td>
+          <td>${renderStatusBadge(l.estado)}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn" data-a="view">👁️ Ver</button>
+              <button class="btn" data-a="note">📝 Nota</button>
+              <button class="btn danger" data-a="del">🗑️</button>
+            </div>
+          </td>
+        `;
+                tr.querySelector('[data-a="view"]').addEventListener("click", () => onView(l));
+                tr.querySelector('[data-a="note"]').addEventListener("click", () => onNote(l));
+                tr.querySelector('[data-a="del"]').addEventListener("click", () => onDelete(l));
+                tbody.appendChild(tr);
+            });
+            return table;
+        }
+
+        function renderLeadDetail(course, lead) {
+            const wrap = document.createElement("div");
+            const s = getStatus(lead.statusId);
+            wrap.innerHTML = `
+        <div class="split">
+          <div class="left">
+            <button class="btn ghost" id="backToLeads">← Volver</button>
+            <span class="tag">👤 Lead</span>
+          </div>
+          <div class="right">
+            <button class="btn" id="btnEditLead">✏️ Editar</button>
+            <button class="btn primary" id="btnAddNote">➕ Añadir nota</button>
+            <button class="btn danger" id="btnDeleteLead">🗑️ Eliminar</button>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="detail">
+          <div class="panel">
+            <h3>Datos</h3>
+            <div class="field"><label>Nombre</label><div>${escapeHtml(lead.nombre || "—")}</div></div>
+            <div class="field"><label>Teléfono</label><div>${escapeHtml(lead.telefono || "—")}</div></div>
+            <div class="field"><label>Email</label><div>${escapeHtml(lead.mail || "—")}</div></div>
+            <div class="field"><label>Estado</label><div class="status-badge" style="background:${s.color}22; color:${s.color}; border:1px solid ${s.color}44;">${escapeHtml(s.name)}</div></div>
+          </div>
+          <div class="panel">
+            <h3>Notas</h3>
+            <div id="notesList" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
+        </div>
+      `;
+            const nList = wrap.querySelector("#notesList");
+            (lead.notes || []).slice().sort((a, b) => (b.fecha || "").localeCompare(a.fecha || "")).forEach(n => {
+                const nel = document.createElement("div");
+                nel.className = "note";
+                nel.innerHTML = `<div class="when">${formatDateTime(n.fecha)}</div><div>${escapeHtml(n.contenido)}</div>`;
+                nList.appendChild(nel);
+            });
+
+            wrap.querySelector("#backToLeads").addEventListener("click", () => { state.view = "leads"; renderAll(); });
+            wrap.querySelector("#btnAddNote").addEventListener("click", () => openAddNote(course.id_curso, lead.id_lead));
+            wrap.querySelector("#btnEditLead").addEventListener("click", () => openEditLead(course.id_curso, lead.id_lead));
+            wrap.querySelector("#btnDeleteLead").addEventListener("click", () => deleteLead(course.id_curso, lead.id_lead));
+            return wrap;
+        }
+
+        /**********************
+         * Actions: Courses   *
+         **********************/
+        function openNewCourse() {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field">
+          <label>Nombre del curso</label>
+          <input id="courseName" placeholder="Ej. Competencias Digitales (Nivel 2)" />
+          <div class="hint">Puedes crear tantos cursos como quieras. Luego los leads se guardan dentro.</div>
+        </div>
+        <div class="split">
+          <div class="left"><span class="tag">📚 Cursos</span></div>
+          <div class="right">
+            <button class="btn primary" id="saveCourse">Guardar</button>
+          </div>
+        </div>
+      `;
+            node.querySelector("#saveCourse").addEventListener("click", async () => {
+                const name = node.querySelector("#courseName").value.trim();
+                if (!name) {
+                    toast("Pon un nombre de curso para guardarlo.", "err");
+                    return;
+                }
+                const course = await apiFetch('/cursos', {
+                    method: 'POST',
+                    body: JSON.stringify({ nombre: name, max_alumnos: 0 })
+                });
+                if (course) {
+                    await load(); // Refresh and render
+                    state.selectedCourseId = course.id_curso;
+                    state.view = "leads";
+                    closeModal();
+                    toast("Curso creado ✅");
+                }
+            });
+            openModal("Nuevo curso", node);
+            setTimeout(() => node.querySelector("#courseName").focus(), 50);
+        }
+
+        function openEditCourse(courseId) {
+            const course = getCourse(courseId);
+            if (!course) return;
+
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field">
+          <label>Nombre del curso</label>
+          <input id="courseName" />
+        </div>
+        <div class="hint">Editar el nombre no afecta a los leads, solo al título del curso.</div>
+        <div class="split" style="margin-top:12px;">
+          <div class="left"><span class="tag">✏️ Editar</span></div>
+          <div class="right">
+            <button class="btn primary" id="saveCourse">Guardar cambios</button>
+          </div>
+        </div>
+      `;
+            const inp = node.querySelector("#courseName");
+            inp.value = course.name || "";
+
+            node.querySelector("#saveCourse").addEventListener("click", async () => {
+                const name = inp.value.trim();
+                if (!name) {
+                    toast("El nombre del curso no puede estar vacío.", "err");
+                    return;
+                }
+                const ok = await apiFetch(`/cursos/${courseId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ nombre: name })
+                });
+                if (ok) {
+                    await load();
+                    closeModal();
+                    toast("Curso actualizado ✅");
+                }
+            });
+
+            openModal("Editar curso", node);
+            setTimeout(() => inp.focus(), 50);
+        }
+
+        function deleteCourse(courseId) {
+            const course = getCourse(courseId);
+            if (!course) return;
+
+            const node = document.createElement("div");
+            const leadsCount = (course.leads || []).length;
+            node.innerHTML = `
+        <div class="empty" style="border-style:solid;border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08)">
+          Vas a eliminar el curso <b>${escapeHtml(course.name)}</b>.<br/>
+          Esto borrará <b>${leadsCount}</b> lead(s) y sus notas. Esta acción no se puede deshacer.
+        </div>
+        <div class="split" style="margin-top:12px;">
+          <div class="left"><span class="tag">⚠️ Confirmación</span></div>
+          <div class="right">
+            <button class="btn ghost" id="cancel">Cancelar</button>
+            <button class="btn danger" id="confirm">Eliminar</button>
+          </div>
+        </div>
+      `;
+            node.querySelector("#cancel").addEventListener("click", closeModal);
+            node.querySelector("#confirm").addEventListener("click", async () => {
+                await apiFetch(`/cursos/${courseId}`, { method: 'DELETE' });
+                if (state.selectedCourseId === courseId) {
+                    state.selectedCourseId = null;
+                    state.selectedLeadId = null;
+                    state.view = "leads";
+                }
+                await load();
+                closeModal();
+                toast("Curso eliminado 🗑️");
+            });
+
+            openModal("Eliminar curso", node);
+        }
+
+        /**********************
+         * Actions: Leads     *
+         **********************/
+        function openNewLead(courseId) {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field"><label>Nombre</label><input id="n" /></div>
+        <div class="field"><label>Teléfono</label><input id="p" /></div>
+        <div class="field"><label>Email</label><input id="e" /></div>
+        <div class="field"><label>Estado</label>
+          <select id="st" style="width:100%">${state.data.statuses.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Nota Inicial</label><textarea id="nt" placeholder="Añadir nota inicial..."></textarea></div>
+        <button class="btn primary" id="save" style="width:100%; margin-top:14px;">Guardar Lead</button>
+      `;
+            node.querySelector("#save").addEventListener("click", async () => {
+                const n = node.querySelector("#n").value.trim();
+                const p = node.querySelector("#p").value.trim();
+                const e = node.querySelector("#e").value.trim();
+                const sid = node.querySelector("#st").value;
+                const note = node.querySelector("#nt").value.trim();
+                if (!n && !p && !e) { toast("Rellena algo", "err"); return; }
+
+                // Create lead
+                const lead = await apiFetch('/leads', {
+                    method: 'POST',
+                    body: JSON.stringify({ nombre: n, telefono: p, mail: e })
+                });
+                if (lead) {
+                    // Link to course
+                    await apiFetch(`/cursos/${courseId}/leads`, {
+                        method: 'POST',
+                        body: JSON.stringify({ id_lead: lead.id_lead, estado: sid })
+                    });
+                    // Add note if any
+                    if (note) {
+                        await apiFetch(`/leads/${lead.id_lead}/notas`, {
+                            method: 'POST',
+                            body: JSON.stringify({ id_curso: courseId, contenido: note })
+                        });
+                    }
+                    await load();
+                    closeModal();
+                    toast("Lead creado ✅");
+                }
+            });
+            openModal("Añadir Lead", node);
+        }
+
+        function openEditLead(courseId, leadId) {
+            const l = getLead(courseId, leadId);
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field"><label>Nombre</label><input id="n" value="${escapeHtml(l.nombre)}" /></div>
+        <div class="field"><label>Teléfono</label><input id="p" value="${escapeHtml(l.telefono)}" /></div>
+        <div class="field"><label>Email</label><input id="e" value="${escapeHtml(l.mail)}" /></div>
+        <div class="field"><label>Estado</label>
+          <select id="st" style="width:100%">
+            ${state.data.statuses.map(s => `<option value="${s.id}" ${l.estado === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn primary" id="save" style="width:100%; margin-top:14px;">Guardar Cambios</button>
+      `;
+            node.querySelector("#save").addEventListener("click", async () => {
+                const payload = {
+                    nombre: node.querySelector("#n").value.trim(),
+                    telefono: node.querySelector("#p").value.trim(),
+                    mail: node.querySelector("#e").value.trim()
+                };
+                const okLead = await apiFetch(`/leads/${leadId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                // Update status in the relationship
+                const sid = node.querySelector("#st").value;
+                const okStatus = await apiFetch(`/cursos/${courseId}/leads/${leadId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ estado: sid })
+                });
+
+                if (okLead && okStatus) {
+                    await load();
+                    closeModal();
+                    toast("Lead actualizado ✅");
+                }
+            });
+            openModal("Editar Lead", node);
+        }
+
+        function openAddNote(cid, lid) {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field"><label>Nota</label><textarea id="nt" style="height:100px;"></textarea></div>
+        <button class="btn primary" id="save" style="width:100%;">Guardar Nota</button>
+      `;
+            node.querySelector("#save").addEventListener("click", async () => {
+                const t = node.querySelector("#nt").value.trim();
+                if (!t) return;
+                const ok = await apiFetch(`/leads/${lid}/notas`, {
+                    method: 'POST',
+                    body: JSON.stringify({ id_curso: cid, contenido: t })
+                });
+                if (ok) {
+                    await load();
+                    closeModal();
+                    toast("Nota guardada ✅");
+                }
+            });
+            openModal("Añadir Nota", node);
+        }
+
+        function openConfig() {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="panel">
+          <h3>Etiquetas de Estado</h3>
+          <div id="stList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+          <button class="btn primary" id="addSt" style="width:100%;">➕ Nuevo Estado</button>
+        </div>
+      `;
+            const renderSt = () => {
+                const list = node.querySelector("#stList"); list.innerHTML = "";
+                state.data.statuses.forEach(s => {
+                    const r = document.createElement("div");
+                    r.className = "split"; r.style.background = "rgba(255,255,255,.05)"; r.style.padding = "8px"; r.style.borderRadius = "8px";
+                    r.innerHTML = `
+            <div class="left"><input type="color" value="${s.color}" class="st-c" /><input type="text" value="${escapeHtml(s.name)}" class="st-n" style="background:none; border:none; color:white; margin-left:8px;" /></div>
+            <button class="iconbtn danger">🗑️</button>
+          `;
+                    r.querySelector(".st-c").onchange = (e) => { s.color = e.target.value; save(); };
+                    r.querySelector(".st-n").onchange = (e) => { s.name = e.target.value; save(); };
+                    r.querySelector(".danger").onclick = () => { state.data.statuses = state.data.statuses.filter(x => x.id !== s.id); save(); renderSt(); };
+                    list.appendChild(r);
+                });
+            };
+            node.querySelector("#addSt").onclick = () => {
+                const name = "Nuevo " + (state.data.statuses.length + 1);
+                state.data.statuses.push({ id: name, name: name, color: "#666" });
+                save();
+                renderSt();
+            };
+            renderSt();
+            openModal("Configuración", node);
+        }
+
+        function getStatus(id) { return state.data.statuses.find(s => s.id === id) || { name: "?", color: "#999" }; }
+
+
+
+        async function deleteLead(courseId, leadId) {
+            if (!confirm("¿Eliminar lead?")) return;
+            await apiFetch(`/leads/${leadId}`, { method: 'DELETE' });
+            await load();
+        }
+
+        async function init() {
+            await load();
+            if (state.data.courses.length > 0 && !state.selectedCourseId)
+                state.selectedCourseId = state.data.courses[0].id_curso;
+
+            document.getElementById("btnNewCourse").onclick = openNewCourse;
+            const btnSeed = document.getElementById("btnSeed");
+            if (btnSeed) btnSeed.style.display = "none";
+            document.getElementById("btnConfig").onclick = openConfig;
+
+            const btnGeneral = document.getElementById("btnGeneralLeads");
+            if (btnGeneral) btnGeneral.onclick = () => { state.view = "general"; renderAll(); };
+
+            document.getElementById("search").addEventListener("input", (e) => {
+                state.search = e.target.value;
+                renderAll();
+            });
+
+            document.getElementById("modalClose").onclick = closeModal;
+            window.onclick = (e) => { if (e.target === document.getElementById("modalBackdrop")) closeModal(); };
+
+            renderAll();
+        }
+        window.onload = init;
+    </script>
+</body>
+
+</html>
