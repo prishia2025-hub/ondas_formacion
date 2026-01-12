@@ -767,7 +767,6 @@
 
             <div class="actions">
                 <button class="btn" id="btnGeneralLeads">🌍 Leads Generales</button>
-                <button class="btn" id="btnConfig">⚙️ Configuración</button>
                 <button class="btn primary" id="btnNewCourse">➕ Nuevo curso</button>
                 <button class="btn ghost" id="btnSeed" style="display:none;">✨ Demo</button>
             </div>
@@ -849,7 +848,9 @@
             selectedLeadId: null,
             view: "leads",
             search: "",
-            statusFilter: ""
+            statusFilter: "",
+            currentPage: 1,
+            leadsPerPage: 10
         };
 
         async function apiFetch(endpoint, options = {}) {
@@ -858,36 +859,23 @@
                     ...options,
                     headers: { 'Content-Type': 'application/json', ...options.headers }
                 });
-                if (!res.ok) throw new Error("API Error");
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error(`API Error [${res.status}]:`, text);
+                    throw new Error(`API Error ${res.status}`);
+                }
                 return res.status === 204 ? null : await res.json();
             } catch (e) {
                 toast("Error de conexión con el servidor", "err");
-                console.error(e);
+                console.error("Fetch Exception:", e);
                 return null;
             }
         }
 
         async function load() {
-            const courses = await apiFetch('/cursos');
+            const courses = await apiFetch('/dashboard');
             if (courses) {
                 state.data.courses = courses;
-                // For each course, fetch leads if we want full sync on load
-                for (let c of state.data.courses) {
-                    const relations = await apiFetch(`/cursos/${c.id_curso}/leads`);
-                    c.leads = [];
-                    if (relations) {
-                        for (let rel of relations) {
-                            const lead = await apiFetch(`/leads/${rel.id_lead}`);
-                            if (lead) {
-                                // Add notes for each lead
-                                const notes = await apiFetch(`/leads/${rel.id_lead}/notas`);
-                                lead.notes = notes || [];
-                                lead.statusId = rel.estado; // Using estado as statusId for parity
-                                c.leads.push(lead);
-                            }
-                        }
-                    }
-                }
             }
             renderAll();
         }
@@ -905,12 +893,16 @@
                 courses: [],
                 statuses: [
                     { id: "Nuevo", name: "Nuevo", color: "#3b82f6" },
-                    { id: "En contacto", name: "En contacto", color: "#f59e0b" },
-                    { id: "Interesado", name: "Interesado", color: "#8b5cf6" },
+                    { id: "Pendiente de documentación", name: "Pte. Documentación", color: "#f59e0b" },
                     { id: "Inscrito", name: "Inscrito", color: "#10b981" },
-                    { id: "No responde", name: "No responde", color: "#ef4444" }
+                    { id: "Reserva", name: "Reserva", color: "#8b5cf6" },
+                    { id: "No interesado", name: "No interesado", color: "#666" }
                 ]
             };
+        }
+
+        function resetPagination() {
+            state.currentPage = 1;
         }
 
         function getStatus(id) { return state.data.statuses.find(s => s.id === id) || { name: "?", color: "#999" }; }
@@ -1016,6 +1008,7 @@
                         state.selectedCourseId = course.id_curso;
                         state.selectedLeadId = null;
                         state.view = "leads";
+                        resetPagination();
                         renderAll();
                     });
                     el.querySelector('[data-action="edit"]').addEventListener("click", () => openEditCourse(course.id_curso));
@@ -1075,7 +1068,11 @@
         </div>
       `;
             mainBody.appendChild(top);
-            top.querySelector("#statusFilter").addEventListener("change", (e) => { state.statusFilter = e.target.value; renderAll(); });
+            top.querySelector("#statusFilter").addEventListener("change", (e) => {
+                state.statusFilter = e.target.value;
+                resetPagination();
+                renderAll();
+            });
             top.querySelector("#btnAddLead").addEventListener("click", () => openNewLead(course.id_curso));
 
             const sep = document.createElement("div"); sep.className = "sep"; mainBody.appendChild(sep);
@@ -1089,12 +1086,14 @@
             }
 
             mainBody.appendChild(renderLeadsTable(leads, (l) => {
-                state.view = "lead"; state.selectedLeadId = l.id; renderAll();
+                state.view = "lead"; state.selectedLeadId = l.id_lead; renderAll();
             }, (l) => {
-                openAddNote(course.id, l.id);
+                openAddNote(course.id_curso, l.id_lead);
             }, (l) => {
-                deleteLead(course.id, l.id);
+                deleteLead(course.id_curso, l.id_lead);
             }));
+
+            renderPagination(mainBody, leads.length);
         }
 
         function filteredLeads(leads) {
@@ -1150,7 +1149,11 @@
         </div>
       `;
             body.appendChild(top);
-            top.querySelector("#statusFilter").addEventListener("change", (e) => { state.statusFilter = e.target.value; renderAll(); });
+            top.querySelector("#statusFilter").addEventListener("change", (e) => {
+                state.statusFilter = e.target.value;
+                resetPagination();
+                renderAll();
+            });
 
             const sep = document.createElement("div"); sep.className = "sep"; body.appendChild(sep);
 
@@ -1238,7 +1241,11 @@
         <tbody></tbody>
       `;
             const tbody = table.querySelector("tbody");
-            leads.forEach(l => {
+
+            const start = (state.currentPage - 1) * state.leadsPerPage;
+            const paginatedLeads = leads.slice(start, start + state.leadsPerPage);
+
+            paginatedLeads.forEach(l => {
                 const tr = document.createElement("tr");
                 const isDuplicate = phoneCounts[(l.telefono || "").trim()] > 1;
                 if (isDuplicate) tr.classList.add("row-duplicate");
@@ -1266,7 +1273,7 @@
 
         function renderLeadDetail(course, lead) {
             const wrap = document.createElement("div");
-            const s = getStatus(lead.statusId);
+            const s = getStatus(lead.estado);
             wrap.innerHTML = `
         <div class="split">
           <div class="left">
@@ -1368,7 +1375,7 @@
         </div>
       `;
             const inp = node.querySelector("#courseName");
-            inp.value = course.name || "";
+            inp.value = course.nombre || "";
 
             node.querySelector("#saveCourse").addEventListener("click", async () => {
                 const name = inp.value.trim();
@@ -1399,7 +1406,7 @@
             const leadsCount = (course.leads || []).length;
             node.innerHTML = `
         <div class="empty" style="border-style:solid;border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08)">
-          Vas a eliminar el curso <b>${escapeHtml(course.name)}</b>.<br/>
+          Vas a eliminar el curso <b>${escapeHtml(course.nombre)}</b>.<br/>
           Esto borrará <b>${leadsCount}</b> lead(s) y sus notas. Esta acción no se puede deshacer.
         </div>
         <div class="split" style="margin-top:12px;">
@@ -1590,13 +1597,13 @@
             document.getElementById("btnNewCourse").onclick = openNewCourse;
             const btnSeed = document.getElementById("btnSeed");
             if (btnSeed) btnSeed.style.display = "none";
-            document.getElementById("btnConfig").onclick = openConfig;
 
             const btnGeneral = document.getElementById("btnGeneralLeads");
-            if (btnGeneral) btnGeneral.onclick = () => { state.view = "general"; renderAll(); };
+            if (btnGeneral) btnGeneral.onclick = () => { state.view = "general"; resetPagination(); renderAll(); };
 
             document.getElementById("search").addEventListener("input", (e) => {
                 state.search = e.target.value;
+                resetPagination();
                 renderAll();
             });
 
@@ -1605,6 +1612,39 @@
 
             renderAll();
         }
+
+        function renderPagination(container, totalItems) {
+            const totalPages = Math.ceil(totalItems / state.leadsPerPage);
+            if (totalPages <= 1) return;
+
+            const wrap = document.createElement("div");
+            wrap.className = "split";
+            wrap.style.marginTop = "20px";
+            wrap.style.justifyContent = "center";
+            wrap.innerHTML = `
+        <div class="actions">
+          <button class="btn" id="prevPage" ${state.currentPage === 1 ? 'disabled style="opacity:0.5; pointer-events:none;"' : ''}>← Anterior</button>
+          <span style="font-size:13px; color:var(--muted); margin:0 15px;">Página ${state.currentPage} de ${totalPages}</span>
+          <button class="btn" id="nextPage" ${state.currentPage === totalPages ? 'disabled style="opacity:0.5; pointer-events:none;"' : ''}>Siguiente →</button>
+        </div>
+      `;
+            wrap.querySelector("#prevPage") && wrap.querySelector("#prevPage").addEventListener("click", () => {
+                if (state.currentPage > 1) {
+                    state.currentPage--;
+                    renderAll();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+            wrap.querySelector("#nextPage") && wrap.querySelector("#nextPage").addEventListener("click", () => {
+                if (state.currentPage < totalPages) {
+                    state.currentPage++;
+                    renderAll();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+            container.appendChild(wrap);
+        }
+
         window.onload = init;
     </script>
 </body>

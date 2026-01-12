@@ -166,5 +166,34 @@ def curso_lead_detail(id_curso, id_lead):
         db.session.commit()
         return '', 204
 
+@app.route('/api/dashboard', methods=['GET'])
+def get_dashboard():
+    try:
+        cursos = Curso.query.all()
+        result = []
+        
+        for curso in cursos:
+            curso_data = curso.to_dict()
+            # Fetch relationships for this course with lead data joined
+            leads_with_status = db.session.query(Lead, CursoLead.estado)\
+                .join(CursoLead, Lead.id_lead == CursoLead.id_lead)\
+                .filter(CursoLead.id_curso == curso.id_curso).all()
+            
+            curso_data['leads'] = []
+            for lead, estado in leads_with_status:
+                lead_data = lead.to_dict()
+                lead_data['estado'] = estado
+                # Fetch notes for this lead
+                notas = Nota.query.filter_by(id_lead=lead.id_lead, id_curso=curso.id_curso).all()
+                lead_data['notes'] = [nota.to_dict() for nota in notas]
+                curso_data['leads'].append(lead_data)
+            
+            result.append(curso_data)
+        
+        return jsonify(result)
+    except Exception as e:
+        # Return error as JSON so frontend can potentially show it
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
