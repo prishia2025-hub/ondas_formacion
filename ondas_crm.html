@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ONDASFORMACIÓN · Gestor de Leads</title>
+    <title>ONDAS FORMACIÓN</title>
     <style>
         :root {
             --bg: #070A13;
@@ -132,17 +132,10 @@
         }
 
         .brand h1 {
-            font-size: 16px;
+            font-size: 20px;
             margin: 0;
-            letter-spacing: .2px;
-            line-height: 1.1;
-        }
-
-        .brand small {
-            display: block;
-            color: var(--muted);
-            font-size: 12px;
-            margin-top: 2px;
+            letter-spacing: .5px;
+            font-weight: 800;
         }
 
         .pill {
@@ -297,7 +290,7 @@
 
         @media (min-width: 980px) {
             .grid {
-                grid-template-columns: 400px 1fr;
+                grid-template-columns: 240px 1fr;
                 align-items: start;
             }
         }
@@ -312,7 +305,7 @@
         }
 
         .card-header {
-            padding: 16px 16px 12px;
+            padding: 14px 16px 10px;
             border-bottom: 1px solid rgba(255, 255, 255, .07);
             display: flex;
             align-items: flex-start;
@@ -322,19 +315,19 @@
 
         .card-header h2 {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: .2px;
         }
 
         .card-header p {
             margin: 6px 0 0;
             color: var(--muted);
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1.35;
         }
 
         .card-body {
-            padding: 14px 16px 16px
+            padding: 12px 16px 16px
         }
 
         .list {
@@ -344,7 +337,7 @@
         }
 
         .course {
-            padding: 12px 12px;
+            padding: 10px 12px;
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, .10);
             background: rgba(0, 0, 0, .16);
@@ -379,7 +372,7 @@
 
         .course .title {
             font-weight: 700;
-            font-size: 13px;
+            font-size: 12px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -388,7 +381,7 @@
 
         .course .sub {
             color: var(--muted);
-            font-size: 12px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -405,27 +398,27 @@
 
         .mini-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
             flex-shrink: 0;
         }
 
         .iconbtn {
-            width: 34px;
-            height: 34px;
+            width: 30px;
+            height: 30px;
             display: grid;
             place-items: center;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: rgba(255, 255, 255, .05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .03);
             cursor: pointer;
             transition: transform .12s ease, background .12s ease, border-color .12s ease;
         }
 
         .iconbtn:hover {
             transform: translateY(-1px);
-            background: rgba(255, 255, 255, .08);
-            border-color: rgba(255, 255, 255, .18);
+            background: rgba(255, 255, 255, .06);
+            border-color: rgba(255, 255, 255, .14);
         }
 
         .iconbtn.danger {
@@ -445,7 +438,7 @@
 
         .table th,
         .table td {
-            padding: 12px 12px;
+            padding: 10px 12px;
             border-bottom: 1px solid rgba(255, 255, 255, .08);
             text-align: left;
             font-size: 13px;
@@ -455,7 +448,7 @@
         .table th {
             color: rgba(255, 255, 255, .72);
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: .08em;
             background: rgba(255, 255, 255, .04);
@@ -476,7 +469,7 @@
         }
 
         .empty {
-            padding: 14px;
+            padding: 12px;
             border: 1px dashed rgba(255, 255, 255, .18);
             border-radius: 16px;
             background: rgba(0, 0, 0, .10);
@@ -499,7 +492,7 @@
         }
 
         .panel {
-            padding: 14px;
+            padding: 12px;
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, .10);
             background: rgba(0, 0, 0, .16);
@@ -507,7 +500,7 @@
 
         .panel h3 {
             margin: 0 0 10px;
-            font-size: 13px;
+            font-size: 12px;
             letter-spacing: .2px;
         }
 
@@ -520,7 +513,7 @@
 
         label {
             color: rgba(255, 255, 255, .70);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: .02em;
         }
@@ -529,13 +522,13 @@
         textarea,
         select {
             width: 100%;
-            padding: 11px 12px;
-            border-radius: 14px;
+            padding: 10px 12px;
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, .12);
             background: rgba(255, 255, 255, .05);
             color: var(--text);
             outline: none;
-            font-size: 13px;
+            font-size: 12px;
             transition: border-color .12s ease, background .12s ease;
         }
 
@@ -571,12 +564,12 @@
             background:
                 radial-gradient(300px 120px at 10% 20%, rgba(124, 58, 237, .14), transparent 60%),
                 rgba(0, 0, 0, .18);
-            padding: 12px 12px;
+            padding: 10px 12px;
         }
 
         .note .when {
             color: rgba(255, 255, 255, .68);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             letter-spacing: .04em;
             text-transform: uppercase;
@@ -588,7 +581,7 @@
 
         .note .txt {
             color: rgba(255, 255, 255, .90);
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.4;
             white-space: pre-wrap;
         }
@@ -631,7 +624,7 @@
         }
 
         .modal header {
-            padding: 14px 16px;
+            padding: 12px 16px;
             border-bottom: 1px solid rgba(255, 255, 255, .08);
             display: flex;
             align-items: center;
@@ -641,12 +634,12 @@
 
         .modal header h3 {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: .2px;
         }
 
         .modal .content {
-            padding: 14px 16px 16px;
+            padding: 12px 16px 16px;
         }
 
         /* toast */
@@ -663,13 +656,13 @@
 
         .toast .t {
             pointer-events: none;
-            padding: 12px 12px;
-            border-radius: 16px;
+            padding: 10px 12px;
+            border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, .14);
             background: rgba(0, 0, 0, .35);
             backdrop-filter: blur(10px);
             box-shadow: 0 18px 45px rgba(0, 0, 0, .45);
-            width: min(360px, calc(100vw - 32px));
+            width: min(320px, calc(100vw - 32px));
             display: flex;
             gap: 10px;
             align-items: flex-start;
@@ -704,7 +697,7 @@
         }
 
         .t .msg {
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(255, 255, 255, .9);
             line-height: 1.35;
         }
@@ -734,8 +727,8 @@
         }
 
         .tag {
-            font-size: 11px;
-            padding: 4px 9px;
+            font-size: 10px;
+            padding: 3px 8px;
             border-radius: 999px;
             border: 1px solid rgba(255, 255, 255, .12);
             background: rgba(255, 255, 255, .04);
@@ -753,34 +746,22 @@
         <div class="topbar">
             <div class="brand">
                 <div class="logo" aria-hidden="true"></div>
-                <div>
-                    <h1>ONDASFORMACIÓN · Gestor de Leads</h1>
-                    <small>Curso → Leads → Notas · Conectado a base de datos externa</small>
-                </div>
-            </div>
-
-            <div class="pill" title="Busca cursos, leads o emails">
-                <span class="tag mono">🔎</span>
-                <input id="search" placeholder="Buscar (curso, nombre, teléfono, email…)" />
-                <span class="kbd">Ctrl / ⌘ + K</span>
-            </div>
-
-            <div class="actions">
-                <button class="btn" id="btnGeneralLeads">🌍 Leads Generales</button>
-                <button class="btn primary" id="btnNewCourse">➕ Nuevo curso</button>
-                <button class="btn ghost" id="btnSeed" style="display:none;">✨ Demo</button>
+                <h1>ONDAS FORMACIÓN</h1>
             </div>
         </div>
 
         <div class="grid">
             <!-- Left: Courses -->
-            <section class="card">
+            <section class="card" id="courseCard">
                 <div class="card-header">
                     <div>
                         <h2>Cursos activos</h2>
-                        <p>Gestiona cursos (crear/quitar) y entra en cada uno para ver sus leads.</p>
+                        <p id="courseCount">0 cursos</p>
                     </div>
-                    <span class="badge" id="courseCount">0 cursos</span>
+                    <div class="actions">
+                        <button class="iconbtn" id="btnGeneralLeads" title="Leads Generales">🌍</button>
+                        <button class="iconbtn primary" id="btnNewCourse" title="Nuevo Curso">➕</button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="list" id="courseList"></div>
@@ -1001,7 +982,6 @@
             </div>
             <div class="mini-actions" onclick="event.stopPropagation()">
               <button class="iconbtn" title="Editar curso" data-action="edit">✏️</button>
-              <button class="iconbtn danger" title="Eliminar curso" data-action="delete">🗑️</button>
             </div>
           `;
                     el.addEventListener("click", () => {
@@ -1012,7 +992,6 @@
                         renderAll();
                     });
                     el.querySelector('[data-action="edit"]').addEventListener("click", () => openEditCourse(course.id_curso));
-                    el.querySelector('[data-action="delete"]').addEventListener("click", () => deleteCourse(course.id_curso));
                     list.appendChild(el);
                 });
         }
@@ -1064,6 +1043,7 @@
           </select>
         </div>
         <div class="right">
+          <button class="btn" id="btnExportCSV">📥 Exportar Emails (CSV)</button>
           <button class="btn primary" id="btnAddLead">➕ Añadir lead</button>
         </div>
       `;
@@ -1074,6 +1054,7 @@
                 renderAll();
             });
             top.querySelector("#btnAddLead").addEventListener("click", () => openNewLead(course.id_curso));
+            top.querySelector("#btnExportCSV").addEventListener("click", () => exportEmailsToCSV(course));
 
             const sep = document.createElement("div"); sep.className = "sep"; mainBody.appendChild(sep);
 
@@ -1199,7 +1180,6 @@
           <td>
             <div class="row-actions">
               <button class="btn" data-a="view">👁️</button>
-              <button class="btn" data-a="note">📝</button>
             </div>
           </td>
         `;
@@ -1259,13 +1239,11 @@
             <div class="row-actions">
               <button class="btn" data-a="view">👁️ Ver</button>
               <button class="btn" data-a="note">📝 Nota</button>
-              <button class="btn danger" data-a="del">🗑️</button>
             </div>
           </td>
         `;
                 tr.querySelector('[data-a="view"]').addEventListener("click", () => onView(l));
                 tr.querySelector('[data-a="note"]').addEventListener("click", () => onNote(l));
-                tr.querySelector('[data-a="del"]').addEventListener("click", () => onDelete(l));
                 tbody.appendChild(tr);
             });
             return table;
@@ -1283,7 +1261,6 @@
           <div class="right">
             <button class="btn" id="btnEditLead">✏️ Editar</button>
             <button class="btn primary" id="btnAddNote">➕ Añadir nota</button>
-            <button class="btn danger" id="btnDeleteLead">🗑️ Eliminar</button>
           </div>
         </div>
         <div class="sep"></div>
@@ -1324,10 +1301,33 @@
             node.innerHTML = `
         <div class="field">
           <label>Nombre del curso</label>
-          <input id="courseName" placeholder="Ej. Competencias Digitales (Nivel 2)" />
-          <div class="hint">Puedes crear tantos cursos como quieras. Luego los leads se guardan dentro.</div>
+          <input id="courseName" placeholder="Ej. Competencias Digitales" />
         </div>
-        <div class="split">
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0;">
+          <div class="field">
+            <label>Código</label>
+            <input id="courseCode" placeholder="C001" />
+          </div>
+          <div class="field">
+            <label>Max. Alumnos</label>
+            <input type="number" id="courseMax" value="0" />
+          </div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field">
+            <label>Fecha Inicio</label>
+            <input type="date" id="courseStart" />
+          </div>
+          <div class="field">
+            <label>Fecha Fin</label>
+            <input type="date" id="courseEnd" />
+          </div>
+        </div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" id="courseFull" style="width: auto;" />
+          <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
+        </div>
+        <div class="split" style="margin-top:20px;">
           <div class="left"><span class="tag">📚 Cursos</span></div>
           <div class="right">
             <button class="btn primary" id="saveCourse">Guardar</button>
@@ -1336,16 +1336,27 @@
       `;
             node.querySelector("#saveCourse").addEventListener("click", async () => {
                 const name = node.querySelector("#courseName").value.trim();
-                if (!name) {
-                    toast("Pon un nombre de curso para guardarlo.", "err");
-                    return;
-                }
+                const code = node.querySelector("#courseCode").value.trim();
+                const max = parseInt(node.querySelector("#courseMax").value) || 0;
+                const start = node.querySelector("#courseStart").value;
+                const end = node.querySelector("#courseEnd").value;
+                const full = node.querySelector("#courseFull").checked;
+
+                if (!name) { toast("Pon un nombre de curso", "err"); return; }
+
                 const course = await apiFetch('/cursos', {
                     method: 'POST',
-                    body: JSON.stringify({ nombre: name, max_alumnos: 0 })
+                    body: JSON.stringify({
+                        nombre: name,
+                        codigo: code,
+                        max_alumnos: max,
+                        fecha_inicio: start || null,
+                        fecha_fin: end || null,
+                        lleno: full
+                    })
                 });
                 if (course) {
-                    await load(); // Refresh and render
+                    await load();
                     state.selectedCourseId = course.id_curso;
                     state.view = "leads";
                     closeModal();
@@ -1353,7 +1364,6 @@
                 }
             });
             openModal("Nuevo curso", node);
-            setTimeout(() => node.querySelector("#courseName").focus(), 50);
         }
 
         function openEditCourse(courseId) {
@@ -1364,28 +1374,59 @@
             node.innerHTML = `
         <div class="field">
           <label>Nombre del curso</label>
-          <input id="courseName" />
+          <input id="courseName" value="${escapeHtml(course.nombre)}" />
         </div>
-        <div class="hint">Editar el nombre no afecta a los leads, solo al título del curso.</div>
-        <div class="split" style="margin-top:12px;">
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0;">
+          <div class="field">
+            <label>Código</label>
+            <input id="courseCode" value="${escapeHtml(course.codigo || '')}" />
+          </div>
+          <div class="field">
+            <label>Max. Alumnos</label>
+            <input type="number" id="courseMax" value="${course.max_alumnos || 0}" />
+          </div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field">
+            <label>Fecha Inicio</label>
+            <input type="date" id="courseStart" value="${course.fecha_inicio || ''}" />
+          </div>
+          <div class="field">
+            <label>Fecha Fin</label>
+            <input type="date" id="courseEnd" value="${course.fecha_fin || ''}" />
+          </div>
+        </div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" id="courseFull" ${course.lleno ? 'checked' : ''} style="width: auto;" />
+          <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
+        </div>
+        <div class="split" style="margin-top:20px;">
           <div class="left"><span class="tag">✏️ Editar</span></div>
           <div class="right">
             <button class="btn primary" id="saveCourse">Guardar cambios</button>
           </div>
         </div>
       `;
-            const inp = node.querySelector("#courseName");
-            inp.value = course.nombre || "";
-
             node.querySelector("#saveCourse").addEventListener("click", async () => {
-                const name = inp.value.trim();
-                if (!name) {
-                    toast("El nombre del curso no puede estar vacío.", "err");
-                    return;
-                }
+                const name = node.querySelector("#courseName").value.trim();
+                const code = node.querySelector("#courseCode").value.trim();
+                const max = parseInt(node.querySelector("#courseMax").value) || 0;
+                const start = node.querySelector("#courseStart").value;
+                const end = node.querySelector("#courseEnd").value;
+                const full = node.querySelector("#courseFull").checked;
+
+                if (!name) { toast("El nombre no puede estar vacío", "err"); return; }
+
                 const ok = await apiFetch(`/cursos/${courseId}`, {
                     method: 'PUT',
-                    body: JSON.stringify({ nombre: name })
+                    body: JSON.stringify({
+                        nombre: name,
+                        codigo: code,
+                        max_alumnos: max,
+                        fecha_inicio: start || null,
+                        fecha_fin: end || null,
+                        lleno: full
+                    })
                 });
                 if (ok) {
                     await load();
@@ -1393,44 +1434,11 @@
                     toast("Curso actualizado ✅");
                 }
             });
-
             openModal("Editar curso", node);
-            setTimeout(() => inp.focus(), 50);
         }
 
         function deleteCourse(courseId) {
-            const course = getCourse(courseId);
-            if (!course) return;
-
-            const node = document.createElement("div");
-            const leadsCount = (course.leads || []).length;
-            node.innerHTML = `
-        <div class="empty" style="border-style:solid;border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08)">
-          Vas a eliminar el curso <b>${escapeHtml(course.nombre)}</b>.<br/>
-          Esto borrará <b>${leadsCount}</b> lead(s) y sus notas. Esta acción no se puede deshacer.
-        </div>
-        <div class="split" style="margin-top:12px;">
-          <div class="left"><span class="tag">⚠️ Confirmación</span></div>
-          <div class="right">
-            <button class="btn ghost" id="cancel">Cancelar</button>
-            <button class="btn danger" id="confirm">Eliminar</button>
-          </div>
-        </div>
-      `;
-            node.querySelector("#cancel").addEventListener("click", closeModal);
-            node.querySelector("#confirm").addEventListener("click", async () => {
-                await apiFetch(`/cursos/${courseId}`, { method: 'DELETE' });
-                if (state.selectedCourseId === courseId) {
-                    state.selectedCourseId = null;
-                    state.selectedLeadId = null;
-                    state.view = "leads";
-                }
-                await load();
-                closeModal();
-                toast("Curso eliminado 🗑️");
-            });
-
-            openModal("Eliminar curso", node);
+            // Deleted as requested
         }
 
         /**********************
@@ -1526,15 +1534,17 @@
         function openAddNote(cid, lid) {
             const node = document.createElement("div");
             node.innerHTML = `
+        <div class="field"><label>Título (opcional)</label><input id="ti" placeholder="Ej. Llamada, Documentación..." /></div>
         <div class="field"><label>Nota</label><textarea id="nt" style="height:100px;"></textarea></div>
         <button class="btn primary" id="save" style="width:100%;">Guardar Nota</button>
       `;
             node.querySelector("#save").addEventListener("click", async () => {
                 const t = node.querySelector("#nt").value.trim();
+                const title = node.querySelector("#ti").value.trim();
                 if (!t) return;
                 const ok = await apiFetch(`/leads/${lid}/notas`, {
                     method: 'POST',
-                    body: JSON.stringify({ id_curso: cid, contenido: t })
+                    body: JSON.stringify({ id_curso: cid, contenido: t, titulo: title })
                 });
                 if (ok) {
                     await load();
@@ -1584,9 +1594,25 @@
 
 
         async function deleteLead(courseId, leadId) {
-            if (!confirm("¿Eliminar lead?")) return;
-            await apiFetch(`/leads/${leadId}`, { method: 'DELETE' });
-            await load();
+            // Deleted as requested
+        }
+
+        function exportEmailsToCSV(course) {
+            const leads = course.leads || [];
+            const emails = leads.map(l => l.mail).filter(e => e && e !== "—");
+            if (emails.length === 0) { toast("No hay emails para exportar", "err"); return; }
+
+            const csvContent = "Emails\n" + emails.join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `emails_${course.nombre.replace(/\s+/g, '_')}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast("CSV exportado 📁");
         }
 
         async function init() {
