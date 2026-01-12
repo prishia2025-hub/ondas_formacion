@@ -169,31 +169,74 @@ def curso_lead_detail(id_curso, id_lead):
 @app.route('/api/dashboard', methods=['GET'])
 def get_dashboard():
     try:
+        # 1. Fetch all data in 4 fast queries
         cursos = Curso.query.all()
-        result = []
+        leads = Lead.query.all()
+        rels = CursoLead.query.all()
+        notes = Nota.query.all()
         
-        for curso in cursos:
-            curso_data = curso.to_dict()
-            # Fetch relationships for this course with lead data joined
-            leads_with_status = db.session.query(Lead, CursoLead.estado)\
-                .join(CursoLead, Lead.id_lead == CursoLead.id_lead)\
-                .filter(CursoLead.id_curso == curso.id_curso).all()
-            
-            curso_data['leads'] = []
-            for lead, estado in leads_with_status:
-                lead_data = lead.to_dict()
-                lead_data['estado'] = estado
-                # Fetch notes for this lead
-                notas = Nota.query.filter_by(id_lead=lead.id_lead, id_curso=curso.id_curso).all()
-                lead_data['notes'] = [nota.to_dict() for nota in notas]
-                curso_data['leads'].append(lead_data)
-            
-            result.append(curso_data)
+        # 2. Build indexed maps for O(1) lookups
+        leads_map = {l.id_lead: l.to_dict() for l in leads}
         
-        return jsonify(result)
+        # Group notes by (lead, course)
+        notes_by_lead_course = {}
+        # Also group all notes by lead for general view
+        notes_by_lead = {}
+        
+        for n in notes:
+            n_dict = n.to_dict()
+            # Group by lead/course
+            key = (n.id_lead, n.id_curso)
+            if key not in notes_by_lead_course: notes_by_lead_course[key] = []
+            notes_by_lead_course[key].append(n_dict)
+            
+            # Group by lead
+            if n.id_lead not in notes_by_lead: notes_by_lead[n.id_lead] = []
+            notes_by_lead[n.id_lead].append(n_dict)
+            
+        # Group relationships by course
+        rels_by_course = {}
+        rels_by_lead = {}
+        for r in rels:
+            if r.id_curso not in rels_by_course: rels_by_course[r.id_curso] = []
+            rels_by_course[r.id_curso].append(r)
+            
+            if r.id_lead not in rels_by_lead: rels_by_lead[r.id_lead] = []
+            rels_by_lead[r.id_lead].append(r)
+
+        # 3. Build Courses Result
+        cursos_result = []
+        for c in cursos:
+            c_dict = c.to_dict()
+            c_dict['leads'] = []
+            
+            c_rels = rels_by_course.get(c.id_curso, [])
+            for r in c_rels:
+                if r.id_lead in leads_map:
+                    l_entry = leads_map[r.id_lead].copy()
+                    l_entry['estado'] = r.estado
+                    l_entry['notes'] = notes_by_lead_course.get((r.id_lead, c.id_curso), [])
+                    c_dict['leads'].append(l_entry)
+            cursos_result.append(c_dict)
+            
+        # 4. Build General Leads Result
+        all_leads_result = []
+        for lid, l_data in leads_map.items():
+            l_copy = l_data.copy()
+            l_copy['notes'] = notes_by_lead.get(lid, [])
+            l_rels = rels_by_lead.get(lid, [])
+            l_copy['estado'] = l_rels[0].estado if l_rels else "Nuevo"
+            all_leads_result.append(l_copy)
+            
+        return jsonify({
+            "courses": cursos_result,
+            "all_leads": all_leads_result
+        })
     except Exception as e:
-        # Return error as JSON so frontend can potentially show it
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        error_msg = traceback.format_exc()
+        print(f"ERROR in get_dashboard: {error_msg}")
+        return jsonify({"error": str(e), "trace": error_msg}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

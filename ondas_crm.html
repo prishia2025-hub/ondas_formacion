@@ -854,18 +854,27 @@
         }
 
         async function load() {
-            const courses = await apiFetch('/dashboard');
-            if (courses) {
-                state.data.courses = courses;
+            const res = await apiFetch('/dashboard');
+            if (res && !res.error) {
+                state.data.courses = res.courses || [];
+                state.data.allLeads = res.all_leads || [];
+            } else if (res && res.error) {
+                toast("Error en el servidor: " + res.error, "err");
+                console.error("Server Error Detail:", res.trace);
+            } else {
+                // apiFetch returned null, already handled with connection toast
             }
             renderAll();
         }
 
         // Map backend IDs to frontend logic
         function getCourse(id) { return state.data.courses.find(c => c.id_curso == id) || null; }
-        function getLead(courseId, leadId) {
-            const c = getCourse(courseId);
-            return c ? (c.leads || []).find(l => l.id_lead == leadId) : null;
+        function getLead(cid, lid) {
+            if (cid) {
+                const c = getCourse(cid);
+                if (c && c.leads) return c.leads.find(l => l.id_lead === lid);
+            }
+            return (state.data.allLeads || []).find(l => l.id_lead === lid);
         }
 
         function save() { /* No longer needed for persistence, individual actions call API */ }
@@ -1070,8 +1079,6 @@
                 state.view = "lead"; state.selectedLeadId = l.id_lead; renderAll();
             }, (l) => {
                 openAddNote(course.id_curso, l.id_lead);
-            }, (l) => {
-                deleteLead(course.id_curso, l.id_lead);
             }));
 
             renderPagination(mainBody, leads.length);
@@ -1090,9 +1097,14 @@
             subtitle.textContent = "Vista global de todos los leads agrupados por teléfono.";
 
             let allLeads = [];
-            state.data.courses.forEach(c => {
-                (c.leads || []).forEach(l => {
-                    allLeads.push({ ...l, courseName: c.nombre, courseId: c.id_curso });
+            // Use the full list of leads from state.data.allLeads
+            (state.data.allLeads || []).forEach(l => {
+                // Find all courses this lead belongs to for the grouped view labels
+                const leadCourses = state.data.courses.filter(c => (c.leads || []).some(cl => cl.id_lead === l.id_lead));
+                allLeads.push({
+                    ...l,
+                    courseNames: leadCourses.map(c => c.nombre),
+                    courseIds: leadCourses.map(c => c.id_curso)
                 });
             });
 
@@ -1106,11 +1118,11 @@
                 if (!grouped[p]) {
                     grouped[p] = {
                         ...l,
-                        courses: new Set([l.courseName]),
+                        courses: new Set(l.courseNames || []),
                         count: 1
                     };
                 } else {
-                    grouped[p].courses.add(l.courseName);
+                    (l.courseNames || []).forEach(cn => grouped[p].courses.add(cn));
                     grouped[p].count++;
                 }
             });
@@ -1179,18 +1191,36 @@
           <td>${renderStatusBadge(l.estado)}</td>
           <td>
             <div class="row-actions">
-              <button class="btn" data-a="view">👁️</button>
+              <button class="btn" data-a="view">👁️ Ver</button>
             </div>
           </td>
         `;
 
                 tr.querySelector('[data-a="view"]').addEventListener("click", () => {
-                    state.selectedCourseId = l.courseId;
-                    state.selectedLeadId = l.id_lead;
-                    state.view = "lead";
-                    renderAll();
+                    // When viewing a lead from the general view, if it belongs to multiple courses,
+                    // we need to pick one course ID to display the lead detail.
+                    // For simplicity, we can pick the first one, or if there's a specific
+                    // course selected in the main view, try to use that.
+                    // Pick the first available course ID.
+                    const courseIdToView = (l.courseIds && l.courseIds.length > 0) ? l.courseIds[0] : null;
+                    if (courseIdToView) {
+                        state.selectedCourseId = courseIdToView;
+                        state.selectedLeadId = l.id_lead;
+                        state.view = "lead";
+                        renderAll();
+                    } else {
+                        // If no course relationship, we can still view it but might need a dummy course object
+                        state.selectedCourseId = null;
+                        state.selectedLeadId = l.id_lead;
+                        state.view = "lead";
+                        renderAll();
+                    }
                 });
-                tr.querySelector('[data-a="note"]').addEventListener("click", () => openAddNote(l.courseId, l.id_lead));
+                // Removed the broken event listener as per instruction.
+                // The new renderGeneralLeadsView implementation (if it were fully provided)
+                // would likely use a shared renderLeadsView function.
+                // For now, just ensuring the original broken line is not present.
+                // tr.querySelector('[data-a="note"]').addEventListener("click", () => openAddNote(l.courseId, l.id_lead));
 
                 tbody.appendChild(tr);
             });
@@ -1282,14 +1312,16 @@
             (lead.notes || []).slice().sort((a, b) => (b.fecha || "").localeCompare(a.fecha || "")).forEach(n => {
                 const nel = document.createElement("div");
                 nel.className = "note";
-                nel.innerHTML = `<div class="when">${formatDateTime(n.fecha)}</div><div>${escapeHtml(n.contenido)}</div>`;
+                let noteHtml = `<div class="when">${formatDateTime(n.fecha)}</div>`;
+                if (n.titulo) noteHtml += `<div style="font-weight:700; font-size:12px; margin-bottom:4px; color:var(--b);">${escapeHtml(n.titulo)}</div>`;
+                noteHtml += `<div class="txt">${escapeHtml(n.contenido)}</div>`;
+                nel.innerHTML = noteHtml;
                 nList.appendChild(nel);
             });
 
             wrap.querySelector("#backToLeads").addEventListener("click", () => { state.view = "leads"; renderAll(); });
-            wrap.querySelector("#btnAddNote").addEventListener("click", () => openAddNote(course.id_curso, lead.id_lead));
-            wrap.querySelector("#btnEditLead").addEventListener("click", () => openEditLead(course.id_curso, lead.id_lead));
-            wrap.querySelector("#btnDeleteLead").addEventListener("click", () => deleteLead(course.id_curso, lead.id_lead));
+            wrap.querySelector("#btnAddNote").addEventListener("click", () => openAddNote(course ? course.id_curso : null, lead.id_lead));
+            wrap.querySelector("#btnEditLead").addEventListener("click", () => openEditLead(course ? course.id_curso : null, lead.id_lead));
             return wrap;
         }
 
@@ -1536,8 +1568,12 @@
             node.innerHTML = `
         <div class="field"><label>Título (opcional)</label><input id="ti" placeholder="Ej. Llamada, Documentación..." /></div>
         <div class="field"><label>Nota</label><textarea id="nt" style="height:100px;"></textarea></div>
-        <button class="btn primary" id="save" style="width:100%;">Guardar Nota</button>
+        <div class="split" style="gap:10px;">
+           <button class="btn ghost" id="cancelNote" style="flex:1;">Cancelar</button>
+           <button class="btn primary" id="save" style="flex:2;">Guardar Nota</button>
+        </div>
       `;
+            node.querySelector("#cancelNote").addEventListener("click", closeModal);
             node.querySelector("#save").addEventListener("click", async () => {
                 const t = node.querySelector("#nt").value.trim();
                 const title = node.querySelector("#ti").value.trim();
