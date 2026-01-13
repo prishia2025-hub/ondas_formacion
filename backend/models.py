@@ -9,13 +9,19 @@ class Lead(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     telefono = db.Column(db.String(20), unique=True)
     mail = db.Column(db.String(150))
+    trabajador = db.Column(db.Boolean, default=False)
+    dni_anverso = db.Column(db.LargeBinary)
+    dni_reverso = db.Column(db.LargeBinary)
 
     def to_dict(self):
         return {
             "id_lead": self.id_lead,
             "nombre": self.nombre,
             "telefono": self.telefono,
-            "mail": self.mail
+            "mail": self.mail,
+            "trabajador": self.trabajador,
+            "has_dni_anverso": bool(self.dni_anverso),
+            "has_dni_reverso": bool(self.dni_reverso)
         }
 
 class Curso(db.Model):

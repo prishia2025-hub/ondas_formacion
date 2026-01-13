@@ -1,5 +1,6 @@
 import os
-from flask import Flask, request, jsonify
+import io
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from models import db, Lead, Curso, CursoLead, Nota
 from dotenv import load_dotenv
@@ -44,7 +45,8 @@ def manage_leads():
     new_lead = Lead(
         nombre=data['nombre'],
         telefono=data.get('telefono'),
-        mail=data.get('mail')
+        mail=data.get('mail'),
+        trabajador=data.get('trabajador', False)
     )
     db.session.add(new_lead)
     db.session.commit()
@@ -61,6 +63,7 @@ def lead_detail(id):
         lead.nombre = data.get('nombre', lead.nombre)
         lead.telefono = data.get('telefono', lead.telefono)
         lead.mail = data.get('mail', lead.mail)
+        lead.trabajador = data.get('trabajador', lead.trabajador)
         db.session.commit()
         return jsonify(lead.to_dict())
     
@@ -70,6 +73,46 @@ def lead_detail(id):
         db.session.delete(lead)
         db.session.commit()
         return '', 204
+
+@app.route('/api/leads/<int:id_lead>/dni/<side>', methods=['GET', 'POST'])
+def manage_lead_dni(id_lead, side):
+    lead = Lead.query.get_or_404(id_lead)
+    
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part"}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+            
+        file_data = file.read()
+        if side == 'anverso':
+            lead.dni_anverso = file_data
+        elif side == 'reverso':
+            lead.dni_reverso = file_data
+        else:
+            return jsonify({"error": "Invalid side"}), 400
+            
+        db.session.commit()
+        return jsonify({"message": f"DNI {side} uploaded"}), 200
+        
+    if request.method == 'GET':
+        if side == 'anverso':
+            data = lead.dni_anverso
+        elif side == 'reverso':
+            data = lead.dni_reverso
+        else:
+            return jsonify({"error": "Invalid side"}), 400
+            
+        if not data:
+            return jsonify({"error": "Image not found"}), 404
+            
+        return send_file(
+            io.BytesIO(data),
+            mimetype='image/jpeg',
+            as_attachment=False,
+            download_name=f'dni_{side}_{id_lead}.jpg'
+        )
 
 @app.route('/api/leads/<int:id_lead>/notas', methods=['GET', 'POST'])
 def manage_lead_notas(id_lead):
