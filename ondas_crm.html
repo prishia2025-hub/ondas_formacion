@@ -748,6 +748,15 @@
                 <div class="logo" aria-hidden="true"></div>
                 <h1>ONDAS FORMACIÓN</h1>
             </div>
+
+            <div class="pill">
+                <select id="searchMode">
+                    <option value="phone">📞 Teléfono</option>
+                    <option value="note">📝 Nota</option>
+                </select>
+                <input id="search" placeholder="Buscar..." />
+            </div>
+
         </div>
 
         <div class="grid">
@@ -829,6 +838,7 @@
             selectedLeadId: null,
             view: "leads",
             search: "",
+            searchMode: "phone",
             statusFilter: "",
             currentPage: 1,
             leadsPerPage: 10
@@ -1084,13 +1094,45 @@
             renderPagination(mainBody, leads.length);
         }
 
+
+
+
+
+
+
+
         function filteredLeads(leads) {
             let lds = leads || [];
             const q = state.search.trim().toLowerCase();
-            if (q) lds = lds.filter(l => [l.nombre, l.telefono, l.mail].some(x => (x || "").toLowerCase().includes(q)));
+
+            if (q) {
+                if (state.searchMode === "phone") {
+                    lds = lds.filter(l =>
+                        (l.telefono || "").toLowerCase().includes(q)
+                    );
+                }
+
+                if (state.searchMode === "note") {
+                    lds = lds.filter(l =>
+                        (l.notes || []).some(n =>
+                            (n.contenido || "").toLowerCase().includes(q) ||
+                            (n.titulo || "").toLowerCase().includes(q)
+                        )
+                    );
+                }
+            }
+
             if (state.statusFilter) lds = lds.filter(l => l.estado === state.statusFilter);
             return lds;
         }
+
+
+
+
+
+
+
+
 
         function renderGeneralLeadsView(title, subtitle, body, count) {
             title.textContent = "LEADS GENERALES";
@@ -1128,7 +1170,13 @@
             });
 
             const uniqueLeads = Object.values(grouped);
-            count.textContent = `${uniqueLeads.length} únicos`;
+            // Count total leads across all unique entries
+            const totalLeadsCount = uniqueLeads.reduce((acc, curr) => acc + curr.count, 0);
+
+            count.innerHTML = `
+                <span style="color:var(--text); font-weight:700;">TOTAL: ${totalLeadsCount}</span> 
+                <span style="color:var(--muted); font-size:12px; margin-left:6px;">(${uniqueLeads.length} únicos por teléfono)</span>
+            `;
 
             const top = document.createElement("div");
             top.className = "split";
@@ -1244,6 +1292,7 @@
             <th>Nombre</th>
             <th>Teléfono</th>
             <th>Email</th>
+            <th>Situación</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -1264,16 +1313,15 @@
           <td><b>${escapeHtml(l.nombre || "—")}</b></td>
           <td class="muted">${escapeHtml(l.telefono || "—")}</td>
           <td class="muted">${escapeHtml(l.mail || "—")}</td>
+          <td><span class="tag" style="background:${l.trabajador ? '#10b98122' : '#66622'}; color:${l.trabajador ? '#10b981' : '#ccc'}; border-color:${l.trabajador ? '#10b98144' : '#66644'};">${l.trabajador ? 'Trabajador' : 'Desempleado'}</span></td>
           <td>${renderStatusBadge(l.estado)}</td>
           <td>
             <div class="row-actions">
               <button class="btn" data-a="view">👁️ Ver</button>
-              <button class="btn" data-a="note">📝 Nota</button>
             </div>
           </td>
         `;
                 tr.querySelector('[data-a="view"]').addEventListener("click", () => onView(l));
-                tr.querySelector('[data-a="note"]').addEventListener("click", () => onNote(l));
                 tbody.appendChild(tr);
             });
             return table;
@@ -1300,7 +1348,32 @@
             <div class="field"><label>Nombre</label><div>${escapeHtml(lead.nombre || "—")}</div></div>
             <div class="field"><label>Teléfono</label><div>${escapeHtml(lead.telefono || "—")}</div></div>
             <div class="field"><label>Email</label><div>${escapeHtml(lead.mail || "—")}</div></div>
+            <div class="field"><label>Situación</label><div>${lead.trabajador ? 'Trabajador' : 'Desempleado'}</div></div>
             <div class="field"><label>Estado</label><div class="status-badge" style="background:${s.color}22; color:${s.color}; border:1px solid ${s.color}44;">${escapeHtml(s.name)}</div></div>
+            
+            <div class="sep"></div>
+            <h3>DNI</h3>
+            <div id="dniSection" style="display:flex; flex-direction:column; gap:10px;">
+                <div class="split">
+                    <label>Anverso</label>
+                    <div id="dniAnversoStatus">
+                        ${lead.has_dni_anverso
+                    ? `<button class="btn" onclick="window.open('/api/leads/${lead.id_lead}/dni/anverso', '_blank')">📥 Descargar</button>`
+                    : `<input type="file" id="fileAnverso" style="font-size:10px; width:150px;" />`
+                }
+                    </div>
+                </div>
+                <div class="split">
+                    <label>Reverso</label>
+                    <div id="dniReversoStatus">
+                        ${lead.has_dni_reverso
+                    ? `<button class="btn" onclick="window.open('/api/leads/${lead.id_lead}/dni/reverso', '_blank')">📥 Descargar</button>`
+                    : `<input type="file" id="fileReverso" style="font-size:10px; width:150px;" />`
+                }
+                    </div>
+                </div>
+                ${(!lead.has_dni_anverso || !lead.has_dni_reverso) ? `<button class="btn primary" id="btnUploadDNI" style="width:100%; margin-top:5px;">💾 Guardar DNI</button>` : ''}
+            </div>
           </div>
           <div class="panel">
             <h3>Notas</h3>
@@ -1322,6 +1395,36 @@
             wrap.querySelector("#backToLeads").addEventListener("click", () => { state.view = "leads"; renderAll(); });
             wrap.querySelector("#btnAddNote").addEventListener("click", () => openAddNote(course ? course.id_curso : null, lead.id_lead));
             wrap.querySelector("#btnEditLead").addEventListener("click", () => openEditLead(course ? course.id_curso : null, lead.id_lead));
+
+            const btnUpload = wrap.querySelector("#btnUploadDNI");
+            if (btnUpload) {
+                btnUpload.addEventListener("click", async () => {
+                    const fAnverso = wrap.querySelector("#fileAnverso")?.files[0];
+                    const fReverso = wrap.querySelector("#fileReverso")?.files[0];
+
+                    if (!fAnverso && !fReverso) { toast("Selecciona al menos un archivo", "err"); return; }
+
+                    const upload = async (file, side) => {
+                        if (!file) return true;
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        const res = await fetch(`/api/leads/${lead.id_lead}/dni/${side}`, { method: 'POST', body: fd });
+                        return res.ok;
+                    };
+
+                    const ok1 = await upload(fAnverso, 'anverso');
+                    const ok2 = await upload(fReverso, 'reverso');
+
+                    if (ok1 && ok2) {
+                        toast("DNI guardado ✅");
+                        await load();
+                        renderAll();
+                    } else {
+                        toast("Error al subir DNI", "err");
+                    }
+                });
+            }
+
             return wrap;
         }
 
@@ -1482,6 +1585,10 @@
         <div class="field"><label>Nombre</label><input id="n" /></div>
         <div class="field"><label>Teléfono</label><input id="p" /></div>
         <div class="field"><label>Email</label><input id="e" /></div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px;">
+          <input type="checkbox" id="tr" style="width: auto;" />
+          <label for="tr" style="margin: 0; cursor: pointer;">¿Está trabajando?</label>
+        </div>
         <div class="field"><label>Estado</label>
           <select id="st" style="width:100%">${state.data.statuses.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}</select>
         </div>
@@ -1499,7 +1606,7 @@
                 // Create lead
                 const lead = await apiFetch('/leads', {
                     method: 'POST',
-                    body: JSON.stringify({ nombre: n, telefono: p, mail: e })
+                    body: JSON.stringify({ nombre: n, telefono: p, mail: e, trabajador: node.querySelector("#tr").checked })
                 });
                 if (lead) {
                     // Link to course
@@ -1529,6 +1636,10 @@
         <div class="field"><label>Nombre</label><input id="n" value="${escapeHtml(l.nombre)}" /></div>
         <div class="field"><label>Teléfono</label><input id="p" value="${escapeHtml(l.telefono)}" /></div>
         <div class="field"><label>Email</label><input id="e" value="${escapeHtml(l.mail)}" /></div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px;">
+          <input type="checkbox" id="tr" ${l.trabajador ? 'checked' : ''} style="width: auto;" />
+          <label for="tr" style="margin: 0; cursor: pointer;">¿Está trabajando?</label>
+        </div>
         <div class="field"><label>Estado</label>
           <select id="st" style="width:100%">
             ${state.data.statuses.map(s => `<option value="${s.id}" ${l.estado === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
@@ -1540,7 +1651,8 @@
                 const payload = {
                     nombre: node.querySelector("#n").value.trim(),
                     telefono: node.querySelector("#p").value.trim(),
-                    mail: node.querySelector("#e").value.trim()
+                    mail: node.querySelector("#e").value.trim(),
+                    trabajador: node.querySelector("#tr").checked
                 };
                 const okLead = await apiFetch(`/leads/${leadId}`, {
                     method: 'PUT',
@@ -1669,6 +1781,15 @@
                 renderAll();
             });
 
+
+            document.getElementById("searchMode").addEventListener("change", (e) => {
+                state.searchMode = e.target.value;
+                resetPagination();
+                renderAll();
+            });
+
+
+
             document.getElementById("modalClose").onclick = closeModal;
             window.onclick = (e) => { if (e.target === document.getElementById("modalBackdrop")) closeModal(); };
 
@@ -1683,29 +1804,87 @@
             wrap.className = "split";
             wrap.style.marginTop = "20px";
             wrap.style.justifyContent = "center";
-            wrap.innerHTML = `
-        <div class="actions">
-          <button class="btn" id="prevPage" ${state.currentPage === 1 ? 'disabled style="opacity:0.5; pointer-events:none;"' : ''}>← Anterior</button>
-          <span style="font-size:13px; color:var(--muted); margin:0 15px;">Página ${state.currentPage} de ${totalPages}</span>
-          <button class="btn" id="nextPage" ${state.currentPage === totalPages ? 'disabled style="opacity:0.5; pointer-events:none;"' : ''}>Siguiente →</button>
-        </div>
-      `;
-            wrap.querySelector("#prevPage") && wrap.querySelector("#prevPage").addEventListener("click", () => {
-                if (state.currentPage > 1) {
-                    state.currentPage--;
-                    renderAll();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+            wrap.style.gap = "4px";
+
+            // Helper to create page button
+            const createBtn = (lbl, page, active = false, disabled = false) => {
+                const b = document.createElement("button");
+                b.className = "btn" + (active ? " primary" : "");
+                b.textContent = lbl;
+                b.style.minWidth = "32px";
+                b.style.padding = "0 8px";
+                if (disabled) {
+                    b.disabled = true;
+                    b.style.opacity = "0.5";
+                    b.style.pointerEvents = "none";
+                } else {
+                    b.onclick = () => {
+                        state.currentPage = page;
+                        renderAll();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
                 }
-            });
-            wrap.querySelector("#nextPage") && wrap.querySelector("#nextPage").addEventListener("click", () => {
-                if (state.currentPage < totalPages) {
-                    state.currentPage++;
-                    renderAll();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                return b;
+            };
+
+            // Previous
+            wrap.appendChild(createBtn("←", state.currentPage - 1, false, state.currentPage === 1));
+
+            // Logic to show a window of pages. e.g. 1 2 ... 5 [6] 7 ... 20
+            // For simplicity, let's just show up to 7 buttons logic or simpler: 
+            // Always show 1, Last, and surrounding of current.
+
+            const maxVisible = 5;
+            let startPage = Math.max(1, state.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            if (startPage > 1) {
+                wrap.appendChild(createBtn("1", 1));
+                if (startPage > 2) {
+                    const span = document.createElement("span");
+                    span.textContent = "...";
+                    span.style.color = "var(--muted)";
+                    span.style.alignSelf = "center";
+                    wrap.appendChild(span);
                 }
-            });
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                wrap.appendChild(createBtn(String(i), i, i === state.currentPage));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const span = document.createElement("span");
+                    span.textContent = "...";
+                    span.style.color = "var(--muted)";
+                    span.style.alignSelf = "center";
+                    wrap.appendChild(span);
+                }
+                wrap.appendChild(createBtn(String(totalPages), totalPages));
+            }
+
+            // Next
+            wrap.appendChild(createBtn("→", state.currentPage + 1, false, state.currentPage === totalPages));
+
             container.appendChild(wrap);
         }
+
+        function getFirstNote(lead) {
+            if (!lead.notes || lead.notes.length === 0) return "—";
+
+            // ordenar por fecha ascendente (la más antigua primero)
+            const sorted = [...lead.notes].sort((a, b) => {
+                return (a.fecha || "").localeCompare(b.fecha || "");
+            });
+
+            return sorted[0].contenido || "—";
+        }
+
 
         window.onload = init;
     </script>
