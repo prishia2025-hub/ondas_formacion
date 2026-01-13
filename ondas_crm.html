@@ -1374,6 +1374,32 @@
                 </div>
                 ${(!lead.has_dni_anverso || !lead.has_dni_reverso) ? `<button class="btn primary" id="btnUploadDNI" style="width:100%; margin-top:5px;">💾 Guardar DNI</button>` : ''}
             </div>
+
+            ${course ? `
+            <div class="sep"></div>
+            <h3>Documentación (Curso)</h3>
+            <div id="docSection" style="display:flex; flex-direction:column; gap:8px;">
+                <div id="docList" style="display:flex; flex-direction:column; gap:4px; margin-bottom:10px;">
+                    ${(lead.documents || []).length === 0 ? '<div class="hint">Sin documentos subidos.</div>' : ''}
+                    ${(lead.documents || []).map(d => `
+                        <div class="split" style="background:rgba(255,255,255,.03); padding:6px 10px; border-radius:8px; border:1px solid var(--stroke);">
+                            <span style="font-size:11px;">📄 Doc #${d.id_documento}</span>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn ghost" style="padding:4px 8px; font-size:10px;" onclick="window.open('/api/documentos/${d.id_documento}', '_blank')">📥 Ver</button>
+                                <button class="btn danger" style="padding:4px 8px; font-size:10px;" data-a="delDoc" data-id="${d.id_documento}">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="field" style="margin:0;">
+                    <label>Subir nuevo archivo</label>
+                    <div class="split" style="margin-top:4px;">
+                        <input type="file" id="newDocFile" style="font-size:10px; flex:1;" />
+                        <button class="btn primary" id="btnUploadDoc" style="font-size:11px;">🚀 Subir</button>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
           </div>
           <div class="panel">
             <h3>Notas</h3>
@@ -1422,6 +1448,47 @@
                     } else {
                         toast("Error al subir DNI", "err");
                     }
+                });
+            }
+
+            // Document actions
+            if (course) {
+                const btnUploadDoc = wrap.querySelector("#btnUploadDoc");
+                if (btnUploadDoc) {
+                    btnUploadDoc.addEventListener("click", async () => {
+                        const file = wrap.querySelector("#newDocFile").files[0];
+                        if (!file) { toast("Selecciona un archivo", "err"); return; }
+
+                        const fd = new FormData();
+                        fd.append('file', file);
+
+                        const res = await fetch(`/api/leads/${lead.id_lead}/cursos/${course.id_curso}/documentos`, {
+                            method: 'POST',
+                            body: fd
+                        });
+
+                        if (res.ok) {
+                            toast("Documento subido ✅");
+                            await load();
+                            renderAll();
+                        } else {
+                            toast("Error al subir documento", "err");
+                        }
+                    });
+                }
+
+                wrap.querySelectorAll('[data-a="delDoc"]').forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const idDoc = e.currentTarget.getAttribute("data-id");
+                        if (confirm("¿Seguro que quieres eliminar este documento?")) {
+                            const res = await fetch(`/api/documentos/${idDoc}`, { method: 'DELETE' });
+                            if (res.ok) {
+                                toast("Documento eliminado");
+                                await load();
+                                renderAll();
+                            }
+                        }
+                    });
                 });
             }
 

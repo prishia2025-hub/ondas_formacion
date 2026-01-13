@@ -78,3 +78,19 @@ class Nota(db.Model):
             "fecha": self.fecha.isoformat() if self.fecha else None,
             "titulo": self.titulo
         }
+
+class Documento(db.Model):
+    __tablename__ = 'documentos'
+    id_documento = db.Column(db.Integer, primary_key=True)
+    id_lead = db.Column(db.Integer, db.ForeignKey('leads.id_lead', ondelete='CASCADE'), nullable=False)
+    id_curso = db.Column(db.Integer, db.ForeignKey('cursos.id_curso', ondelete='CASCADE'), nullable=False)
+    documento = db.Column(db.LargeBinary)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id_documento": self.id_documento,
+            "id_lead": self.id_lead,
+            "id_curso": self.id_curso,
+            "fecha_creacion": self.fecha_creacion.isoformat() if self.fecha_creacion else None
+        }

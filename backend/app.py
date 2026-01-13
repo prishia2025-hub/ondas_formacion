@@ -2,7 +2,7 @@ import os
 import io
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from models import db, Lead, Curso, CursoLead, Nota
+from models import db, Lead, Curso, CursoLead, Nota, Documento
 from dotenv import load_dotenv
 from datetime import datetime
 from flasgger import Swagger
@@ -209,6 +209,43 @@ def curso_lead_detail(id_curso, id_lead):
         db.session.commit()
         return '', 204
 
+@app.route('/api/leads/<int:id_lead>/cursos/<int:id_curso>/documentos', methods=['GET', 'POST'])
+def manage_lead_documents(id_lead, id_curso):
+    if request.method == 'GET':
+        docs = Documento.query.filter_by(id_lead=id_lead, id_curso=id_curso).all()
+        return jsonify([doc.to_dict() for doc in docs])
+    
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    new_doc = Documento(
+        id_lead=id_lead,
+        id_curso=id_curso,
+        documento=file.read()
+    )
+    db.session.add(new_doc)
+    db.session.commit()
+    return jsonify(new_doc.to_dict()), 201
+
+@app.route('/api/documentos/<int:id_documento>', methods=['GET', 'DELETE'])
+def document_detail(id_documento):
+    doc = Documento.query.get_or_404(id_documento)
+    if request.method == 'GET':
+        return send_file(
+            io.BytesIO(doc.documento),
+            mimetype='application/pdf', # Defaulting to PDF, but BYTEA can be anything
+            as_attachment=True,
+            download_name=f'documento_{id_documento}.pdf'
+        )
+    
+    if request.method == 'DELETE':
+        db.session.delete(doc)
+        db.session.commit()
+        return '', 204
+
 @app.route('/api/dashboard', methods=['GET'])
 def get_dashboard():
     try:
@@ -217,6 +254,7 @@ def get_dashboard():
         leads = Lead.query.all()
         rels = CursoLead.query.all()
         notes = Nota.query.all()
+        docs = Documento.query.all()
         
         # 2. Build indexed maps for O(1) lookups
         leads_map = {l.id_lead: l.to_dict() for l in leads}
@@ -247,6 +285,18 @@ def get_dashboard():
             if r.id_lead not in rels_by_lead: rels_by_lead[r.id_lead] = []
             rels_by_lead[r.id_lead].append(r)
 
+        # Group documents by (lead, course) and just by lead
+        docs_by_lead_course = {}
+        docs_by_lead = {}
+        for d in docs:
+            d_dict = d.to_dict()
+            key = (d.id_lead, d.id_curso)
+            if key not in docs_by_lead_course: docs_by_lead_course[key] = []
+            docs_by_lead_course[key].append(d_dict)
+            
+            if d.id_lead not in docs_by_lead: docs_by_lead[d.id_lead] = []
+            docs_by_lead[d.id_lead].append(d_dict)
+
         # 3. Build Courses Result
         cursos_result = []
         for c in cursos:
@@ -259,6 +309,7 @@ def get_dashboard():
                     l_entry = leads_map[r.id_lead].copy()
                     l_entry['estado'] = r.estado
                     l_entry['notes'] = notes_by_lead_course.get((r.id_lead, c.id_curso), [])
+                    l_entry['documents'] = docs_by_lead_course.get((r.id_lead, c.id_curso), [])
                     c_dict['leads'].append(l_entry)
             cursos_result.append(c_dict)
             
@@ -267,6 +318,7 @@ def get_dashboard():
         for lid, l_data in leads_map.items():
             l_copy = l_data.copy()
             l_copy['notes'] = notes_by_lead.get(lid, [])
+            l_copy['documents'] = docs_by_lead.get(lid, [])
             l_rels = rels_by_lead.get(lid, [])
             l_copy['estado'] = l_rels[0].estado if l_rels else "Nuevo"
             all_leads_result.append(l_copy)
