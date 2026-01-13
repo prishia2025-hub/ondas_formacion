@@ -1,0 +1,1831 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ONDAS FORMACIÓN</title>
+    <style>
+        :root {
+            --bg: #070A13;
+            --bg2: #0A1022;
+            --card: rgba(255, 255, 255, .06);
+            --card2: rgba(255, 255, 255, .08);
+            --stroke: rgba(255, 255, 255, .10);
+            --stroke2: rgba(255, 255, 255, .14);
+            --text: rgba(255, 255, 255, .92);
+            --muted: rgba(255, 255, 255, .66);
+            --muted2: rgba(255, 255, 255, .52);
+            --shadow: 0 30px 80px rgba(0, 0, 0, .55);
+            --shadow2: 0 16px 40px rgba(0, 0, 0, .45);
+
+            --a: #7C3AED;
+            /* morado */
+            --b: #06B6D4;
+            /* cian */
+            --c: #22C55E;
+            /* verde */
+            --d: #F59E0B;
+            /* amber */
+            --danger: #EF4444;
+            /* rojo */
+            --ok: #10B981;
+
+            --r: 20px;
+            --r2: 14px;
+            --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font);
+            color: var(--text);
+            background:
+                radial-gradient(1100px 800px at 15% 10%, rgba(124, 58, 237, .30), transparent 55%),
+                radial-gradient(1000px 700px at 90% 25%, rgba(6, 182, 212, .22), transparent 55%),
+                radial-gradient(900px 700px at 50% 95%, rgba(34, 197, 94, .14), transparent 60%),
+                linear-gradient(180deg, var(--bg), var(--bg2));
+            overflow-x: hidden;
+        }
+
+        /* subtle animated grain */
+        body:before {
+            content: "";
+            position: fixed;
+            inset: -30%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+            opacity: .35;
+            pointer-events: none;
+            transform: translateZ(0);
+            animation: drift 16s linear infinite;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translate(-2%, -2%)
+            }
+
+            50% {
+                transform: translate(2%, 2%)
+            }
+
+            100% {
+                transform: translate(-2%, -2%)
+            }
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 26px 18px 80px;
+        }
+
+        .topbar {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 240px;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background:
+                radial-gradient(18px 18px at 25% 30%, rgba(255, 255, 255, .60), transparent 55%),
+                linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(6, 182, 212, 1));
+            box-shadow: 0 18px 40px rgba(124, 58, 237, .25), 0 18px 40px rgba(6, 182, 212, .18);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo:after {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background: conic-gradient(from 0deg, rgba(255, 255, 255, .0), rgba(255, 255, 255, .22), rgba(255, 255, 255, .0));
+            animation: spin 6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .brand h1 {
+            font-size: 20px;
+            margin: 0;
+            letter-spacing: .5px;
+            font-weight: 800;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid var(--stroke);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .04);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
+        }
+
+        .pill input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 13px;
+            width: min(44vw, 460px);
+        }
+
+        .pill input::placeholder {
+            color: rgba(255, 255, 255, .40)
+        }
+
+        .kbd {
+            font-size: 11px;
+            color: rgba(255, 255, 255, .55);
+            border: 1px solid rgba(255, 255, 255, .16);
+            padding: 4px 8px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, .25);
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .3px;
+            text-transform: uppercase;
+        }
+
+        .row-duplicate {
+            outline: 2px solid #ef4444;
+            outline-offset: -2px;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            letter-spacing: .2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid var(--stroke);
+            transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, .09);
+            border-color: var(--stroke2);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .30);
+        }
+
+        .btn:active {
+            transform: translateY(0px) scale(.99)
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, rgba(124, 58, 237, .95), rgba(6, 182, 212, .75));
+            border-color: rgba(255, 255, 255, .12);
+            box-shadow: 0 20px 50px rgba(124, 58, 237, .18), 0 20px 50px rgba(6, 182, 212, .12);
+        }
+
+        .btn.primary:hover {
+            filter: brightness(1.05)
+        }
+
+        .btn.danger {
+            background: rgba(239, 68, 68, .12);
+            border-color: rgba(239, 68, 68, .35);
+        }
+
+        .btn.ghost {
+            background: rgba(255, 255, 255, .02);
+            border-color: transparent;
+        }
+
+        .btn.ghost:hover {
+            background: rgba(255, 255, 255, .06);
+        }
+
+        /* Form elements */
+        select {
+            appearance: none;
+            background: rgba(255, 255, 255, .05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E") no-repeat calc(100% - 12px) center;
+            color: var(--text);
+            border: 1px solid var(--stroke);
+            padding: 10px 32px 10px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            outline: none;
+            transition: background .12s ease, border-color .12s ease;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        select:hover {
+            background-color: rgba(255, 255, 255, .08);
+            border-color: var(--stroke2);
+        }
+
+        select option {
+            background: #0A1022;
+            /* Matches var(--bg2) */
+            color: white;
+        }
+
+        .btn small {
+            opacity: .7;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        @media (min-width: 980px) {
+            .grid {
+                grid-template-columns: 240px 1fr;
+                align-items: start;
+            }
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
+            border: 1px solid var(--stroke);
+            border-radius: var(--r);
+            box-shadow: var(--shadow2);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 13px;
+            letter-spacing: .2px;
+        }
+
+        .card-header p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .card-body {
+            padding: 12px 16px 16px
+        }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .course {
+            padding: 10px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(0, 0, 0, .16);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
+        }
+
+        .course:hover {
+            transform: translateY(-1px);
+            background: rgba(0, 0, 0, .22);
+            border-color: rgba(255, 255, 255, .18);
+        }
+
+        .course.active {
+            border-color: rgba(6, 182, 212, .55);
+            box-shadow: 0 16px 40px rgba(6, 182, 212, .10);
+            background:
+                radial-gradient(240px 120px at 20% 20%, rgba(6, 182, 212, .18), transparent 55%),
+                rgba(0, 0, 0, .18);
+        }
+
+        .course .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .course .title {
+            font-weight: 700;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 250px;
+        }
+
+        .course .sub {
+            color: var(--muted);
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: rgba(255, 255, 255, .75);
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .mini-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .iconbtn {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .03);
+            cursor: pointer;
+            transition: transform .12s ease, background .12s ease, border-color .12s ease;
+        }
+
+        .iconbtn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, .06);
+            border-color: rgba(255, 255, 255, .14);
+        }
+
+        .iconbtn.danger {
+            background: rgba(239, 68, 68, .10);
+            border-color: rgba(239, 68, 68, .28);
+        }
+
+        /* table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(0, 0, 0, .16);
+        }
+
+        .table th,
+        .table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            text-align: left;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .table th {
+            color: rgba(255, 255, 255, .72);
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .table tr:hover td {
+            background: rgba(255, 255, 255, .03);
+        }
+
+        .table td.muted {
+            color: var(--muted)
+        }
+
+        .table .row-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .empty {
+            padding: 12px;
+            border: 1px dashed rgba(255, 255, 255, .18);
+            border-radius: 16px;
+            background: rgba(0, 0, 0, .10);
+            color: rgba(255, 255, 255, .72);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        /* detail layout */
+        .detail {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 980px) {
+            .detail {
+                grid-template-columns: 1fr 1.2fr;
+            }
+        }
+
+        .panel {
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background: rgba(0, 0, 0, .16);
+        }
+
+        .panel h3 {
+            margin: 0 0 10px;
+            font-size: 12px;
+            letter-spacing: .2px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        label {
+            color: rgba(255, 255, 255, .70);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .05);
+            color: var(--text);
+            outline: none;
+            font-size: 12px;
+            transition: border-color .12s ease, background .12s ease;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: rgba(6, 182, 212, .55);
+            background: rgba(255, 255, 255, .06);
+        }
+
+        .hint {
+            color: var(--muted2);
+            font-size: 12px;
+            line-height: 1.35;
+            margin-top: 6px;
+        }
+
+        /* notes */
+        .notes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note {
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            background:
+                radial-gradient(300px 120px at 10% 20%, rgba(124, 58, 237, .14), transparent 60%),
+                rgba(0, 0, 0, .18);
+            padding: 10px 12px;
+        }
+
+        .note .when {
+            color: rgba(255, 255, 255, .68);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .note .txt {
+            color: rgba(255, 255, 255, .90);
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        /* modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 999;
+        }
+
+        .modal-backdrop.show {
+            display: flex
+        }
+
+        .modal {
+            width: min(620px, 100%);
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background:
+                radial-gradient(500px 240px at 15% 10%, rgba(6, 182, 212, .18), transparent 60%),
+                radial-gradient(500px 240px at 85% 15%, rgba(124, 58, 237, .18), transparent 60%),
+                rgba(10, 16, 34, .92);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transform: translateY(8px) scale(.985);
+            opacity: 0;
+            transition: transform .14s ease, opacity .14s ease;
+            backdrop-filter: blur(14px);
+        }
+
+        .modal-backdrop.show .modal {
+            transform: translateY(0px) scale(1);
+            opacity: 1;
+        }
+
+        .modal header {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .modal header h3 {
+            margin: 0;
+            font-size: 13px;
+            letter-spacing: .2px;
+        }
+
+        .modal .content {
+            padding: 12px 16px 16px;
+        }
+
+        /* toast */
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast .t {
+            pointer-events: none;
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(0, 0, 0, .35);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .45);
+            width: min(320px, calc(100vw - 32px));
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            animation: pop .22s ease both;
+        }
+
+        @keyframes pop {
+            from {
+                transform: translateY(8px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            margin-top: 4px;
+            background: var(--ok);
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, .12);
+            flex-shrink: 0;
+        }
+
+        .t.err .dot {
+            background: var(--danger);
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, .12);
+        }
+
+        .t .msg {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .9);
+            line-height: 1.35;
+        }
+
+        /* tiny helper */
+        .split {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .split .left,
+        .split .right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .sep {
+            height: 1px;
+            background: rgba(255, 255, 255, .08);
+            margin: 12px 0;
+        }
+
+        .tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .04);
+            color: rgba(255, 255, 255, .74);
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <div class="brand">
+                <div class="logo" aria-hidden="true"></div>
+                <h1>ONDAS FORMACIÓN</h1>
+            </div>
+
+<div class="pill">
+        <select id="searchMode">
+            <option value="phone">📞 Teléfono</option>
+            <option value="note">📝 Nota</option>
+        </select>
+        <input id="search" placeholder="Buscar..." />
+    </div>
+        
+</div>
+
+        <div class="grid">
+            <!-- Left: Courses -->
+            <section class="card" id="courseCard">
+                <div class="card-header">
+                    <div>
+                        <h2>Cursos activos</h2>
+                        <p id="courseCount">0 cursos</p>
+                    </div>
+                    <div class="actions">
+                        <button class="iconbtn" id="btnGeneralLeads" title="Leads Generales">🌍</button>
+                        <button class="iconbtn primary" id="btnNewCourse" title="Nuevo Curso">➕</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="list" id="courseList"></div>
+                    <div id="courseEmpty" class="empty" style="display:none;margin-top:10px;">
+                        No hay cursos aún. Pulsa <b>Nuevo curso</b> para crear el primero.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Main content -->
+            <section class="card" id="mainCard">
+                <div class="card-header" id="mainHeader">
+                    <div>
+                        <h2 id="mainTitle">Selecciona un curso</h2>
+                        <p id="mainSubtitle">A la derecha aparecerán los leads y podrás gestionarlos.</p>
+                    </div>
+                    <div class="split right">
+                        <span class="badge" id="leadCount">0 leads</span>
+                    </div>
+                </div>
+                <div class="card-body" id="mainBody">
+                    <div class="empty">
+                        👈 Elige un curso a la izquierda. <br />
+                        Luego podrás <b>añadir leads</b>, abrir la <b>ficha</b> y crear <b>notas con fecha/hora</b>.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal" role="document">
+            <header>
+                <h3 id="modalTitle">Modal</h3>
+                <button class="btn ghost" id="modalClose">✕ Cerrar</button>
+            </header>
+            <div class="content" id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        /**************
+         * Data model *
+         **************/
+        const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+            ? "http://localhost:5000/api"
+            : "/api";
+        function uid(prefix = "id") {
+            return prefix + "_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+        }
+        function nowISO() { return new Date().toISOString(); }
+        function formatDateTime(iso) {
+            if (!iso) return "—";
+            const d = new Date(iso);
+            const pad = (n) => String(n).padStart(2, "0");
+            return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+        const state = {
+            data: { courses: [], statuses: baseData().statuses },
+            selectedCourseId: null,
+            selectedLeadId: null,
+            view: "leads",
+            search: "",
+	searchMode: "phone",        
+    	statusFilter: "",
+            currentPage: 1,
+            leadsPerPage: 10
+        };
+
+        async function apiFetch(endpoint, options = {}) {
+            try {
+                const res = await fetch(`${API_BASE}${endpoint}`, {
+                    ...options,
+                    headers: { 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error(`API Error [${res.status}]:`, text);
+                    throw new Error(`API Error ${res.status}`);
+                }
+                return res.status === 204 ? null : await res.json();
+            } catch (e) {
+                toast("Error de conexión con el servidor", "err");
+                console.error("Fetch Exception:", e);
+                return null;
+            }
+        }
+
+        async function load() {
+            const res = await apiFetch('/dashboard');
+            if (res && !res.error) {
+                state.data.courses = res.courses || [];
+                state.data.allLeads = res.all_leads || [];
+            } else if (res && res.error) {
+                toast("Error en el servidor: " + res.error, "err");
+                console.error("Server Error Detail:", res.trace);
+            } else {
+                // apiFetch returned null, already handled with connection toast
+            }
+            renderAll();
+        }
+
+        // Map backend IDs to frontend logic
+        function getCourse(id) { return state.data.courses.find(c => c.id_curso == id) || null; }
+        function getLead(cid, lid) {
+            if (cid) {
+                const c = getCourse(cid);
+                if (c && c.leads) return c.leads.find(l => l.id_lead === lid);
+            }
+            return (state.data.allLeads || []).find(l => l.id_lead === lid);
+        }
+
+        function save() { /* No longer needed for persistence, individual actions call API */ }
+        function baseData() {
+            return {
+                courses: [],
+                statuses: [
+                    { id: "Nuevo", name: "Nuevo", color: "#3b82f6" },
+                    { id: "Pendiente de documentación", name: "Pte. Documentación", color: "#f59e0b" },
+                    { id: "Inscrito", name: "Inscrito", color: "#10b981" },
+                    { id: "Reserva", name: "Reserva", color: "#8b5cf6" },
+                    { id: "No interesado", name: "No interesado", color: "#666" }
+                ]
+            };
+        }
+
+        function resetPagination() {
+            state.currentPage = 1;
+        }
+
+        function getStatus(id) { return state.data.statuses.find(s => s.id === id) || { name: "?", color: "#999" }; }
+
+        /*************
+         * UI Helpers *
+         *************/
+        function toast(msg, type = "ok") {
+            const wrap = document.getElementById("toast");
+            const t = document.createElement("div");
+            t.className = "t" + (type === "err" ? " err" : "");
+            t.innerHTML = `<div class="dot"></div><div class="msg">${msg}</div>`;
+            wrap.appendChild(t);
+            setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(6px)"; }, 2600);
+            setTimeout(() => { t.remove(); }, 3200);
+        }
+
+        function openModal(title, contentNode) {
+            const backdrop = document.getElementById("modalBackdrop");
+            document.getElementById("modalTitle").textContent = title;
+            const c = document.getElementById("modalContent");
+            c.innerHTML = "";
+            c.appendChild(contentNode);
+            backdrop.classList.add("show");
+            backdrop.setAttribute("aria-hidden", "false");
+        }
+        function closeModal() {
+            const backdrop = document.getElementById("modalBackdrop");
+            backdrop.classList.remove("show");
+            backdrop.setAttribute("aria-hidden", "true");
+            document.getElementById("modalContent").innerHTML = "";
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#039;" }[m]));
+        }
+
+        function renderStatusBadge(statusId) {
+            const s = getStatus(statusId);
+            return `<div class="status-badge" style="background:${s.color}22; color:${s.color}; border:1px solid ${s.color}44;">${escapeHtml(s.name)}</div>`;
+        }
+
+        function ensureStructures() {
+            if (!state.data.statuses) state.data.statuses = baseData().statuses;
+            state.data.courses.forEach(c => {
+                if (!c.leads) c.leads = [];
+                c.leads.forEach(l => {
+                    if (!l.notes) l.notes = [];
+                    if (!l.estado) l.estado = state.data.statuses[0].id;
+                });
+            });
+        }
+
+        /*****************
+         * Core Rendering *
+         *****************/
+        function renderAll() {
+            ensureStructures();
+            renderCourses();
+            renderMain();
+        }
+
+        function filteredCourses() {
+            const q = state.search.trim().toLowerCase();
+            if (!q) return state.data.courses;
+            return state.data.courses.filter(c => {
+                if ((c.nombre || "").toLowerCase().includes(q)) return true;
+                return (c.leads || []).some(l => {
+                    return [l.nombre, l.telefono, l.mail].some(x => (x || "").toLowerCase().includes(q));
+                });
+            });
+        }
+
+        function renderCourses() {
+            const list = document.getElementById("courseList");
+            const empty = document.getElementById("courseEmpty");
+            list.innerHTML = "";
+            const courses = filteredCourses();
+            document.getElementById("courseCount").textContent = `${courses.length} curso${courses.length === 1 ? "" : "s"}`;
+
+            if (courses.length === 0) { empty.style.display = "block"; return; }
+            empty.style.display = "none";
+
+            courses
+                .forEach(course => {
+                    const leadTotal = (course.leads || []).length;
+                    const el = document.createElement("div");
+                    el.className = "course" + (state.selectedCourseId == course.id_curso ? " active" : "");
+                    el.innerHTML = `
+            <div class="meta">
+              <div class="title">${escapeHtml(course.nombre || "Curso")}</div>
+              <div class="sub">
+                <span class="badge">${leadTotal} lead${leadTotal === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+            <div class="mini-actions" onclick="event.stopPropagation()">
+              <button class="iconbtn" title="Editar curso" data-action="edit">✏️</button>
+            </div>
+          `;
+                    el.addEventListener("click", () => {
+                        state.selectedCourseId = course.id_curso;
+                        state.selectedLeadId = null;
+                        state.view = "leads";
+                        resetPagination();
+                        renderAll();
+                    });
+                    el.querySelector('[data-action="edit"]').addEventListener("click", () => openEditCourse(course.id_curso));
+                    list.appendChild(el);
+                });
+        }
+
+        function renderMain() {
+            const mainTitle = document.getElementById("mainTitle");
+            const mainSubtitle = document.getElementById("mainSubtitle");
+            const mainBody = document.getElementById("mainBody");
+            const leadCount = document.getElementById("leadCount");
+            mainBody.innerHTML = "";
+
+            if (state.view === "general") {
+                renderGeneralLeadsView(mainTitle, mainSubtitle, mainBody, leadCount);
+                return;
+            }
+
+            const course = state.selectedCourseId ? getCourse(state.selectedCourseId) : null;
+            if (!course) {
+                mainTitle.textContent = "Selecciona un curso";
+                mainSubtitle.textContent = "A la derecha aparecerán los leads y podrás gestionarlos.";
+                leadCount.textContent = "0 leads";
+                mainBody.innerHTML = `<div class="empty">👈 Elige un curso o pulsa Leads Generales.</div>`;
+                return;
+            }
+
+            if (state.view === "lead" && state.selectedLeadId) {
+                const lead = getLead(course.id_curso, state.selectedLeadId);
+                if (!lead) { state.view = "leads"; renderMain(); return; }
+                mainTitle.textContent = course.nombre;
+                mainSubtitle.textContent = "Ficha del lead y notas.";
+                mainBody.appendChild(renderLeadDetail(course, lead));
+                return;
+            }
+
+            // Course View
+            mainTitle.textContent = course.nombre;
+            mainSubtitle.textContent = "Leads del curso.";
+            const leads = filteredLeads(course.leads);
+            leadCount.textContent = `${leads.length} lead${leads.length === 1 ? "" : "s"}`;
+
+            const top = document.createElement("div");
+            top.className = "split";
+            top.innerHTML = `
+        <div class="left">
+          <span class="tag">📚 Curso</span>
+          <select id="statusFilter">
+            <option value="">Todos los estados</option>
+            ${state.data.statuses.map(s => `<option value="${s.id}" ${state.statusFilter === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="right">
+          <button class="btn" id="btnExportCSV">📥 Exportar Emails (CSV)</button>
+          <button class="btn primary" id="btnAddLead">➕ Añadir lead</button>
+        </div>
+      `;
+            mainBody.appendChild(top);
+            top.querySelector("#statusFilter").addEventListener("change", (e) => {
+                state.statusFilter = e.target.value;
+                resetPagination();
+                renderAll();
+            });
+            top.querySelector("#btnAddLead").addEventListener("click", () => openNewLead(course.id_curso));
+            top.querySelector("#btnExportCSV").addEventListener("click", () => exportEmailsToCSV(course));
+
+            const sep = document.createElement("div"); sep.className = "sep"; mainBody.appendChild(sep);
+
+            if (leads.length === 0) {
+                const emptyMsg = document.createElement("div");
+                emptyMsg.className = "empty";
+                emptyMsg.textContent = "No hay leads que coincidan con la búsqueda/filtro.";
+                mainBody.appendChild(emptyMsg);
+                return;
+            }
+
+            mainBody.appendChild(renderLeadsTable(leads, (l) => {
+                state.view = "lead"; state.selectedLeadId = l.id_lead; renderAll();
+            }, (l) => {
+                openAddNote(course.id_curso, l.id_lead);
+            }));
+
+            renderPagination(mainBody, leads.length);
+        }
+
+        
+
+
+
+
+
+
+function filteredLeads(leads) {
+    let lds = leads || [];
+    const q = state.search.trim().toLowerCase();
+
+    if (q) {
+        if (state.searchMode === "phone") {
+            lds = lds.filter(l =>
+                (l.telefono || "").toLowerCase().includes(q)
+            );
+        }
+
+        if (state.searchMode === "note") {
+            lds = lds.filter(l =>
+                (l.notes || []).some(n =>
+                    (n.contenido || "").toLowerCase().includes(q) ||
+                    (n.titulo || "").toLowerCase().includes(q)
+                )
+            );
+        }
+    }
+
+    if (state.statusFilter) lds = lds.filter(l => l.estado === state.statusFilter);
+    return lds;
+}
+
+
+
+
+
+
+
+
+
+        function renderGeneralLeadsView(title, subtitle, body, count) {
+            title.textContent = "LEADS GENERALES";
+            subtitle.textContent = "Vista global de todos los leads agrupados por teléfono.";
+
+            let allLeads = [];
+            // Use the full list of leads from state.data.allLeads
+            (state.data.allLeads || []).forEach(l => {
+                // Find all courses this lead belongs to for the grouped view labels
+                const leadCourses = state.data.courses.filter(c => (c.leads || []).some(cl => cl.id_lead === l.id_lead));
+                allLeads.push({
+                    ...l,
+                    courseNames: leadCourses.map(c => c.nombre),
+                    courseIds: leadCourses.map(c => c.id_curso)
+                });
+            });
+
+            // Filter (we filter before grouping to keep expected search behavior)
+            allLeads = filteredLeads(allLeads);
+
+            // Group by phone
+            const grouped = {};
+            allLeads.forEach(l => {
+                const p = (l.telefono || "").trim() || "—";
+                if (!grouped[p]) {
+                    grouped[p] = {
+                        ...l,
+                        courses: new Set(l.courseNames || []),
+                        count: 1
+                    };
+                } else {
+                    (l.courseNames || []).forEach(cn => grouped[p].courses.add(cn));
+                    grouped[p].count++;
+                }
+            });
+
+            const uniqueLeads = Object.values(grouped);
+            // Count total leads across all unique entries
+            const totalLeadsCount = uniqueLeads.reduce((acc, curr) => acc + curr.count, 0);
+
+            count.innerHTML = `
+                <span style="color:var(--text); font-weight:700;">TOTAL: ${totalLeadsCount}</span> 
+                <span style="color:var(--muted); font-size:12px; margin-left:6px;">(${uniqueLeads.length} únicos por teléfono)</span>
+            `;
+
+            const top = document.createElement("div");
+            top.className = "split";
+            top.innerHTML = `
+        <div class="left">
+          <span class="tag">🌍 Todos los cursos</span>
+          <select id="statusFilter">
+            <option value="">Todos los estados</option>
+            ${state.data.statuses.map(s => `<option value="${s.id}" ${state.statusFilter === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+          </select>
+        </div>
+      `;
+            body.appendChild(top);
+            top.querySelector("#statusFilter").addEventListener("change", (e) => {
+                state.statusFilter = e.target.value;
+                resetPagination();
+                renderAll();
+            });
+
+            const sep = document.createElement("div"); sep.className = "sep"; body.appendChild(sep);
+
+            if (uniqueLeads.length === 0) {
+                const emptyMsg = document.createElement("div");
+                emptyMsg.className = "empty";
+                emptyMsg.textContent = "No hay leads.";
+                body.appendChild(emptyMsg);
+                return;
+            }
+
+            const table = document.createElement("table");
+            table.className = "table";
+            table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Cursos</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+            const tbody = table.querySelector("tbody");
+
+            uniqueLeads.forEach(l => {
+                const tr = document.createElement("tr");
+                const courseList = Array.from(l.courses).join(", ");
+                const hasMultiple = l.courses.size > 1;
+
+                tr.innerHTML = `
+          <td><b>${escapeHtml(l.nombre || "—")}</b></td>
+          <td class="muted">${escapeHtml(l.telefono || "—")}</td>
+          <td>
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start;">
+                <span class="tag">${escapeHtml(courseList)}</span>
+                ${hasMultiple ? '<span class="status-badge" style="background:#ef444422; color:#ef4444; border:1px solid #ef444444; font-size:10px;">Más de 1 curso</span>' : ''}
+            </div>
+          </td>
+          <td>${renderStatusBadge(l.estado)}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn" data-a="view">👁️ Ver</button>
+            </div>
+          </td>
+        `;
+
+                tr.querySelector('[data-a="view"]').addEventListener("click", () => {
+                    // When viewing a lead from the general view, if it belongs to multiple courses,
+                    // we need to pick one course ID to display the lead detail.
+                    // For simplicity, we can pick the first one, or if there's a specific
+                    // course selected in the main view, try to use that.
+                    // Pick the first available course ID.
+                    const courseIdToView = (l.courseIds && l.courseIds.length > 0) ? l.courseIds[0] : null;
+                    if (courseIdToView) {
+                        state.selectedCourseId = courseIdToView;
+                        state.selectedLeadId = l.id_lead;
+                        state.view = "lead";
+                        renderAll();
+                    } else {
+                        // If no course relationship, we can still view it but might need a dummy course object
+                        state.selectedCourseId = null;
+                        state.selectedLeadId = l.id_lead;
+                        state.view = "lead";
+                        renderAll();
+                    }
+                });
+                // Removed the broken event listener as per instruction.
+                // The new renderGeneralLeadsView implementation (if it were fully provided)
+                // would likely use a shared renderLeadsView function.
+                // For now, just ensuring the original broken line is not present.
+                // tr.querySelector('[data-a="note"]').addEventListener("click", () => openAddNote(l.courseId, l.id_lead));
+
+                tbody.appendChild(tr);
+            });
+            body.appendChild(table);
+        }
+
+        function renderLeadsTable(leads, onView, onNote, onDelete) {
+            const phoneCounts = {};
+            state.data.courses.forEach(c => {
+                (c.leads || []).forEach(l => {
+                    const p = (l.telefono || "").trim();
+                    if (p && p !== "—") phoneCounts[p] = (phoneCounts[p] || 0) + 1;
+                });
+            });
+
+            const table = document.createElement("table");
+            table.className = "table";
+            table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+	<th>Nota</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+            const tbody = table.querySelector("tbody");
+
+            const start = (state.currentPage - 1) * state.leadsPerPage;
+            const paginatedLeads = leads.slice(start, start + state.leadsPerPage);
+
+            paginatedLeads.forEach(l => {
+                const tr = document.createElement("tr");
+                const isDuplicate = phoneCounts[(l.telefono || "").trim()] > 1;
+                if (isDuplicate) tr.classList.add("row-duplicate");
+
+                tr.innerHTML = `
+          <td><b>${escapeHtml(l.nombre || "—")}</b></td>
+          <td class="muted">${escapeHtml(l.telefono || "—")}</td>
+          <td class="muted">${escapeHtml(l.mail || "—")}</td>
+  <td class="muted">${escapeHtml(getFirstNote(l))}</td>          
+<td>${renderStatusBadge(l.estado)}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn" data-a="view">👁️ Ver</button>
+              <button class="btn" data-a="note">📝 Nota</button>
+            </div>
+          </td>
+        `;
+                tr.querySelector('[data-a="view"]').addEventListener("click", () => onView(l));
+                tr.querySelector('[data-a="note"]').addEventListener("click", () => onNote(l));
+                tbody.appendChild(tr);
+            });
+            return table;
+        }
+
+        function renderLeadDetail(course, lead) {
+            const wrap = document.createElement("div");
+            const s = getStatus(lead.estado);
+            wrap.innerHTML = `
+        <div class="split">
+          <div class="left">
+            <button class="btn ghost" id="backToLeads">← Volver</button>
+            <span class="tag">👤 Lead</span>
+          </div>
+          <div class="right">
+            <button class="btn" id="btnEditLead">✏️ Editar</button>
+            <button class="btn primary" id="btnAddNote">➕ Añadir nota</button>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="detail">
+          <div class="panel">
+            <h3>Datos</h3>
+            <div class="field"><label>Nombre</label><div>${escapeHtml(lead.nombre || "—")}</div></div>
+            <div class="field"><label>Teléfono</label><div>${escapeHtml(lead.telefono || "—")}</div></div>
+            <div class="field"><label>Email</label><div>${escapeHtml(lead.mail || "—")}</div></div>
+            <div class="field"><label>Estado</label><div class="status-badge" style="background:${s.color}22; color:${s.color}; border:1px solid ${s.color}44;">${escapeHtml(s.name)}</div></div>
+          </div>
+          <div class="panel">
+            <h3>Notas</h3>
+            <div id="notesList" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
+        </div>
+      `;
+            const nList = wrap.querySelector("#notesList");
+            (lead.notes || []).slice().sort((a, b) => (b.fecha || "").localeCompare(a.fecha || "")).forEach(n => {
+                const nel = document.createElement("div");
+                nel.className = "note";
+                let noteHtml = `<div class="when">${formatDateTime(n.fecha)}</div>`;
+                if (n.titulo) noteHtml += `<div style="font-weight:700; font-size:12px; margin-bottom:4px; color:var(--b);">${escapeHtml(n.titulo)}</div>`;
+                noteHtml += `<div class="txt">${escapeHtml(n.contenido)}</div>`;
+                nel.innerHTML = noteHtml;
+                nList.appendChild(nel);
+            });
+
+            wrap.querySelector("#backToLeads").addEventListener("click", () => { state.view = "leads"; renderAll(); });
+            wrap.querySelector("#btnAddNote").addEventListener("click", () => openAddNote(course ? course.id_curso : null, lead.id_lead));
+            wrap.querySelector("#btnEditLead").addEventListener("click", () => openEditLead(course ? course.id_curso : null, lead.id_lead));
+            return wrap;
+        }
+
+        /**********************
+         * Actions: Courses   *
+         **********************/
+        function openNewCourse() {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field">
+          <label>Nombre del curso</label>
+          <input id="courseName" placeholder="Ej. Competencias Digitales" />
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0;">
+          <div class="field">
+            <label>Código</label>
+            <input id="courseCode" placeholder="C001" />
+          </div>
+          <div class="field">
+            <label>Max. Alumnos</label>
+            <input type="number" id="courseMax" value="0" />
+          </div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field">
+            <label>Fecha Inicio</label>
+            <input type="date" id="courseStart" />
+          </div>
+          <div class="field">
+            <label>Fecha Fin</label>
+            <input type="date" id="courseEnd" />
+          </div>
+        </div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" id="courseFull" style="width: auto;" />
+          <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
+        </div>
+        <div class="split" style="margin-top:20px;">
+          <div class="left"><span class="tag">📚 Cursos</span></div>
+          <div class="right">
+            <button class="btn primary" id="saveCourse">Guardar</button>
+          </div>
+        </div>
+      `;
+            node.querySelector("#saveCourse").addEventListener("click", async () => {
+                const name = node.querySelector("#courseName").value.trim();
+                const code = node.querySelector("#courseCode").value.trim();
+                const max = parseInt(node.querySelector("#courseMax").value) || 0;
+                const start = node.querySelector("#courseStart").value;
+                const end = node.querySelector("#courseEnd").value;
+                const full = node.querySelector("#courseFull").checked;
+
+                if (!name) { toast("Pon un nombre de curso", "err"); return; }
+
+                const course = await apiFetch('/cursos', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nombre: name,
+                        codigo: code,
+                        max_alumnos: max,
+                        fecha_inicio: start || null,
+                        fecha_fin: end || null,
+                        lleno: full
+                    })
+                });
+                if (course) {
+                    await load();
+                    state.selectedCourseId = course.id_curso;
+                    state.view = "leads";
+                    closeModal();
+                    toast("Curso creado ✅");
+                }
+            });
+            openModal("Nuevo curso", node);
+        }
+
+        function openEditCourse(courseId) {
+            const course = getCourse(courseId);
+            if (!course) return;
+
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field">
+          <label>Nombre del curso</label>
+          <input id="courseName" value="${escapeHtml(course.nombre)}" />
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0;">
+          <div class="field">
+            <label>Código</label>
+            <input id="courseCode" value="${escapeHtml(course.codigo || '')}" />
+          </div>
+          <div class="field">
+            <label>Max. Alumnos</label>
+            <input type="number" id="courseMax" value="${course.max_alumnos || 0}" />
+          </div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field">
+            <label>Fecha Inicio</label>
+            <input type="date" id="courseStart" value="${course.fecha_inicio || ''}" />
+          </div>
+          <div class="field">
+            <label>Fecha Fin</label>
+            <input type="date" id="courseEnd" value="${course.fecha_fin || ''}" />
+          </div>
+        </div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" id="courseFull" ${course.lleno ? 'checked' : ''} style="width: auto;" />
+          <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
+        </div>
+        <div class="split" style="margin-top:20px;">
+          <div class="left"><span class="tag">✏️ Editar</span></div>
+          <div class="right">
+            <button class="btn primary" id="saveCourse">Guardar cambios</button>
+          </div>
+        </div>
+      `;
+            node.querySelector("#saveCourse").addEventListener("click", async () => {
+                const name = node.querySelector("#courseName").value.trim();
+                const code = node.querySelector("#courseCode").value.trim();
+                const max = parseInt(node.querySelector("#courseMax").value) || 0;
+                const start = node.querySelector("#courseStart").value;
+                const end = node.querySelector("#courseEnd").value;
+                const full = node.querySelector("#courseFull").checked;
+
+                if (!name) { toast("El nombre no puede estar vacío", "err"); return; }
+
+                const ok = await apiFetch(`/cursos/${courseId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        nombre: name,
+                        codigo: code,
+                        max_alumnos: max,
+                        fecha_inicio: start || null,
+                        fecha_fin: end || null,
+                        lleno: full
+                    })
+                });
+                if (ok) {
+                    await load();
+                    closeModal();
+                    toast("Curso actualizado ✅");
+                }
+            });
+            openModal("Editar curso", node);
+        }
+
+        function deleteCourse(courseId) {
+            // Deleted as requested
+        }
+
+        /**********************
+         * Actions: Leads     *
+         **********************/
+        function openNewLead(courseId) {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field"><label>Nombre</label><input id="n" /></div>
+        <div class="field"><label>Teléfono</label><input id="p" /></div>
+        <div class="field"><label>Email</label><input id="e" /></div>
+        <div class="field"><label>Estado</label>
+          <select id="st" style="width:100%">${state.data.statuses.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Nota Inicial</label><textarea id="nt" placeholder="Añadir nota inicial..."></textarea></div>
+        <button class="btn primary" id="save" style="width:100%; margin-top:14px;">Guardar Lead</button>
+      `;
+            node.querySelector("#save").addEventListener("click", async () => {
+                const n = node.querySelector("#n").value.trim();
+                const p = node.querySelector("#p").value.trim();
+                const e = node.querySelector("#e").value.trim();
+                const sid = node.querySelector("#st").value;
+                const note = node.querySelector("#nt").value.trim();
+                if (!n && !p && !e) { toast("Rellena algo", "err"); return; }
+
+                // Create lead
+                const lead = await apiFetch('/leads', {
+                    method: 'POST',
+                    body: JSON.stringify({ nombre: n, telefono: p, mail: e })
+                });
+                if (lead) {
+                    // Link to course
+                    await apiFetch(`/cursos/${courseId}/leads`, {
+                        method: 'POST',
+                        body: JSON.stringify({ id_lead: lead.id_lead, estado: sid })
+                    });
+                    // Add note if any
+                    if (note) {
+                        await apiFetch(`/leads/${lead.id_lead}/notas`, {
+                            method: 'POST',
+                            body: JSON.stringify({ id_curso: courseId, contenido: note })
+                        });
+                    }
+                    await load();
+                    closeModal();
+                    toast("Lead creado ✅");
+                }
+            });
+            openModal("Añadir Lead", node);
+        }
+
+        function openEditLead(courseId, leadId) {
+            const l = getLead(courseId, leadId);
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field"><label>Nombre</label><input id="n" value="${escapeHtml(l.nombre)}" /></div>
+        <div class="field"><label>Teléfono</label><input id="p" value="${escapeHtml(l.telefono)}" /></div>
+        <div class="field"><label>Email</label><input id="e" value="${escapeHtml(l.mail)}" /></div>
+        <div class="field"><label>Estado</label>
+          <select id="st" style="width:100%">
+            ${state.data.statuses.map(s => `<option value="${s.id}" ${l.estado === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn primary" id="save" style="width:100%; margin-top:14px;">Guardar Cambios</button>
+      `;
+            node.querySelector("#save").addEventListener("click", async () => {
+                const payload = {
+                    nombre: node.querySelector("#n").value.trim(),
+                    telefono: node.querySelector("#p").value.trim(),
+                    mail: node.querySelector("#e").value.trim()
+                };
+                const okLead = await apiFetch(`/leads/${leadId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                // Update status in the relationship
+                const sid = node.querySelector("#st").value;
+                const okStatus = await apiFetch(`/cursos/${courseId}/leads/${leadId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ estado: sid })
+                });
+
+                if (okLead && okStatus) {
+                    await load();
+                    closeModal();
+                    toast("Lead actualizado ✅");
+                }
+            });
+            openModal("Editar Lead", node);
+        }
+
+        function openAddNote(cid, lid) {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="field"><label>Título (opcional)</label><input id="ti" placeholder="Ej. Llamada, Documentación..." /></div>
+        <div class="field"><label>Nota</label><textarea id="nt" style="height:100px;"></textarea></div>
+        <div class="split" style="gap:10px;">
+           <button class="btn ghost" id="cancelNote" style="flex:1;">Cancelar</button>
+           <button class="btn primary" id="save" style="flex:2;">Guardar Nota</button>
+        </div>
+      `;
+            node.querySelector("#cancelNote").addEventListener("click", closeModal);
+            node.querySelector("#save").addEventListener("click", async () => {
+                const t = node.querySelector("#nt").value.trim();
+                const title = node.querySelector("#ti").value.trim();
+                if (!t) return;
+                const ok = await apiFetch(`/leads/${lid}/notas`, {
+                    method: 'POST',
+                    body: JSON.stringify({ id_curso: cid, contenido: t, titulo: title })
+                });
+                if (ok) {
+                    await load();
+                    closeModal();
+                    toast("Nota guardada ✅");
+                }
+            });
+            openModal("Añadir Nota", node);
+        }
+
+        function openConfig() {
+            const node = document.createElement("div");
+            node.innerHTML = `
+        <div class="panel">
+          <h3>Etiquetas de Estado</h3>
+          <div id="stList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+          <button class="btn primary" id="addSt" style="width:100%;">➕ Nuevo Estado</button>
+        </div>
+      `;
+            const renderSt = () => {
+                const list = node.querySelector("#stList"); list.innerHTML = "";
+                state.data.statuses.forEach(s => {
+                    const r = document.createElement("div");
+                    r.className = "split"; r.style.background = "rgba(255,255,255,.05)"; r.style.padding = "8px"; r.style.borderRadius = "8px";
+                    r.innerHTML = `
+            <div class="left"><input type="color" value="${s.color}" class="st-c" /><input type="text" value="${escapeHtml(s.name)}" class="st-n" style="background:none; border:none; color:white; margin-left:8px;" /></div>
+            <button class="iconbtn danger">🗑️</button>
+          `;
+                    r.querySelector(".st-c").onchange = (e) => { s.color = e.target.value; save(); };
+                    r.querySelector(".st-n").onchange = (e) => { s.name = e.target.value; save(); };
+                    r.querySelector(".danger").onclick = () => { state.data.statuses = state.data.statuses.filter(x => x.id !== s.id); save(); renderSt(); };
+                    list.appendChild(r);
+                });
+            };
+            node.querySelector("#addSt").onclick = () => {
+                const name = "Nuevo " + (state.data.statuses.length + 1);
+                state.data.statuses.push({ id: name, name: name, color: "#666" });
+                save();
+                renderSt();
+            };
+            renderSt();
+            openModal("Configuración", node);
+        }
+
+        function getStatus(id) { return state.data.statuses.find(s => s.id === id) || { name: "?", color: "#999" }; }
+
+
+
+        async function deleteLead(courseId, leadId) {
+            // Deleted as requested
+        }
+
+        function exportEmailsToCSV(course) {
+            const leads = course.leads || [];
+            const emails = leads.map(l => l.mail).filter(e => e && e !== "—");
+            if (emails.length === 0) { toast("No hay emails para exportar", "err"); return; }
+
+            const csvContent = "Emails\n" + emails.join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `emails_${course.nombre.replace(/\s+/g, '_')}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast("CSV exportado 📁");
+        }
+
+        async function init() {
+            await load();
+            if (state.data.courses.length > 0 && !state.selectedCourseId)
+                state.selectedCourseId = state.data.courses[0].id_curso;
+
+            document.getElementById("btnNewCourse").onclick = openNewCourse;
+            const btnSeed = document.getElementById("btnSeed");
+            if (btnSeed) btnSeed.style.display = "none";
+
+            const btnGeneral = document.getElementById("btnGeneralLeads");
+            if (btnGeneral) btnGeneral.onclick = () => { state.view = "general"; resetPagination(); renderAll(); };
+
+            document.getElementById("search").addEventListener("input", (e) => {
+                state.search = e.target.value;
+                resetPagination();
+                renderAll();
+            });
+
+
+document.getElementById("searchMode").addEventListener("change", (e) => {
+    state.searchMode = e.target.value;
+    resetPagination();
+    renderAll();
+});
+
+
+
+            document.getElementById("modalClose").onclick = closeModal;
+            window.onclick = (e) => { if (e.target === document.getElementById("modalBackdrop")) closeModal(); };
+
+            renderAll();
+        }
+
+        function renderPagination(container, totalItems) {
+            const totalPages = Math.ceil(totalItems / state.leadsPerPage);
+            if (totalPages <= 1) return;
+
+            const wrap = document.createElement("div");
+            wrap.className = "split";
+            wrap.style.marginTop = "20px";
+            wrap.style.justifyContent = "center";
+            wrap.style.gap = "4px";
+
+            // Helper to create page button
+            const createBtn = (lbl, page, active = false, disabled = false) => {
+                const b = document.createElement("button");
+                b.className = "btn" + (active ? " primary" : "");
+                b.textContent = lbl;
+                b.style.minWidth = "32px";
+                b.style.padding = "0 8px";
+                if (disabled) {
+                    b.disabled = true;
+                    b.style.opacity = "0.5";
+                    b.style.pointerEvents = "none";
+                } else {
+                    b.onclick = () => {
+                        state.currentPage = page;
+                        renderAll();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
+                }
+                return b;
+            };
+
+            // Previous
+            wrap.appendChild(createBtn("←", state.currentPage - 1, false, state.currentPage === 1));
+
+            // Logic to show a window of pages. e.g. 1 2 ... 5 [6] 7 ... 20
+            // For simplicity, let's just show up to 7 buttons logic or simpler: 
+            // Always show 1, Last, and surrounding of current.
+
+            const maxVisible = 5;
+            let startPage = Math.max(1, state.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            if (startPage > 1) {
+                wrap.appendChild(createBtn("1", 1));
+                if (startPage > 2) {
+                    const span = document.createElement("span");
+                    span.textContent = "...";
+                    span.style.color = "var(--muted)";
+                    span.style.alignSelf = "center";
+                    wrap.appendChild(span);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                wrap.appendChild(createBtn(String(i), i, i === state.currentPage));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const span = document.createElement("span");
+                    span.textContent = "...";
+                    span.style.color = "var(--muted)";
+                    span.style.alignSelf = "center";
+                    wrap.appendChild(span);
+                }
+                wrap.appendChild(createBtn(String(totalPages), totalPages));
+            }
+
+            // Next
+            wrap.appendChild(createBtn("→", state.currentPage + 1, false, state.currentPage === totalPages));
+
+            container.appendChild(wrap);
+        }
+
+function getFirstNote(lead) {
+    if (!lead.notes || lead.notes.length === 0) return "—";
+
+    // ordenar por fecha ascendente (la más antigua primero)
+    const sorted = [...lead.notes].sort((a, b) => {
+        return (a.fecha || "").localeCompare(b.fecha || "");
+    });
+
+    return sorted[0].contenido || "—";
+}
+
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>
