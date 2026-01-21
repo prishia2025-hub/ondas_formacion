@@ -209,6 +209,89 @@ def curso_lead_detail(id_curso, id_lead):
         db.session.commit()
         return '', 204
 
+@app.route('/api/cursos/<int:id_curso>/leads/batch-update', methods=['POST'])
+def batch_update_curso_leads(id_curso):
+    """
+    Update the status of all leads in a specific course based on Whatsapp/Mail selections.
+    """
+    data = request.json
+    whatsapp = data.get('whatsapp', False)
+    mail = data.get('mail', False)
+
+    if not whatsapp and not mail:
+        return jsonify({"message": "No action taken, both checkboxes are false"}), 200
+
+    new_status = ""
+    if whatsapp and mail:
+        new_status = "Mail + Whatsapp enviado"
+    elif whatsapp:
+        new_status = "WhatsApp enviado"
+    elif mail:
+        new_status = "Mail enviado"
+
+    try:
+        # Update all CursoLead entries for this course
+        CursoLead.query.filter_by(id_curso=id_curso).update({"estado": new_status})
+        db.session.commit()
+        return jsonify({"message": f"Updated all leads to: {new_status}"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/statuses', methods=['GET'])
+def get_statuses():
+    """
+    Fetch all possible values for the 'estado_lead' PostgreSQL enum.
+    """
+    try:
+        # Query PostgreSQL system tables for the enum values
+        result = db.session.execute(db.text("""
+            SELECT enumlabel 
+            FROM pg_enum 
+            JOIN pg_type ON pg_enum.enumtypid = pg_type.oid 
+            WHERE pg_type.typname = 'estado_lead' 
+            ORDER BY enumsortorder;
+        """))
+        
+        # Color mapping for known statuses
+        color_map = {
+            "Nuevo": "#3b82f6",
+            "Pendiente de documentación": "#f59e0b",
+            "Inscrito": "#10b981",
+            "Reserva": "#8b5cf6",
+            "No interesado": "#666",
+            "Contactado": "#06B6D4",
+            "WhatsApp enviado": "#25D366",
+            "Mail enviado": "#3b82f6",
+            "Mail + Whatsapp enviado": "#7C3AED"
+        }
+        
+        statuses = []
+        for row in result:
+            name = row[0]
+            statuses.append({
+                "id": name,
+                "name": name,
+                "color": color_map.get(name, "#999")
+            })
+            
+        return jsonify(statuses)
+    except Exception as e:
+        print(f"Error fetching statuses: {e}")
+        # Fallback if the query fails (e.g. if the type doesn't exist yet or DB issue)
+        fallback = [
+            {"id": "Nuevo", "name": "Nuevo", "color": "#3b82f6"},
+            {"id": "Pendiente de documentación", "name": "Pte. Documentación", "color": "#f59e0b"},
+            {"id": "Inscrito", "name": "Inscrito", "color": "#10b981"},
+            {"id": "Reserva", "name": "Reserva", "color": "#8b5cf6"},
+            {"id": "No interesado", "name": "No interesado", "color": "#666"},
+            {"id": "Contactado", "name": "Contactado", "color": "#06B6D4"},
+            {"id": "WhatsApp enviado", "name": "WhatsApp enviado", "color": "#25D366"},
+            {"id": "Mail enviado", "name": "Mail enviado", "color": "#3b82f6"},
+            {"id": "Mail + Whatsapp enviado", "name": "Mail + Whatsapp enviado", "color": "#7C3AED"}
+        ]
+        return jsonify(fallback)
+
 @app.route('/api/leads/<int:id_lead>/cursos/<int:id_curso>/documentos', methods=['GET', 'POST'])
 def manage_lead_documents(id_lead, id_curso):
     if request.method == 'GET':

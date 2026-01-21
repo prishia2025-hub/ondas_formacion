@@ -840,6 +840,7 @@
             search: "",
             searchMode: "phone",
             statusFilter: "",
+            trabajadorFilter: "all",
             currentPage: 1,
             leadsPerPage: 10
         };
@@ -864,15 +865,21 @@
         }
 
         async function load() {
-            const res = await apiFetch('/dashboard');
-            if (res && !res.error) {
-                state.data.courses = res.courses || [];
-                state.data.allLeads = res.all_leads || [];
-            } else if (res && res.error) {
-                toast("Error en el servidor: " + res.error, "err");
-                console.error("Server Error Detail:", res.trace);
-            } else {
-                // apiFetch returned null, already handled with connection toast
+            const [dashRes, statusRes] = await Promise.all([
+                apiFetch('/dashboard'),
+                apiFetch('/statuses')
+            ]);
+
+            if (statusRes) {
+                state.data.statuses = statusRes;
+            }
+
+            if (dashRes && !dashRes.error) {
+                state.data.courses = dashRes.courses || [];
+                state.data.allLeads = dashRes.all_leads || [];
+            } else if (dashRes && dashRes.error) {
+                toast("Error en el servidor: " + dashRes.error, "err");
+                console.error("Server Error Detail:", dashRes.trace);
             }
             renderAll();
         }
@@ -891,13 +898,8 @@
         function baseData() {
             return {
                 courses: [],
-                statuses: [
-                    { id: "Nuevo", name: "Nuevo", color: "#3b82f6" },
-                    { id: "Pendiente de documentación", name: "Pte. Documentación", color: "#f59e0b" },
-                    { id: "Inscrito", name: "Inscrito", color: "#10b981" },
-                    { id: "Reserva", name: "Reserva", color: "#8b5cf6" },
-                    { id: "No interesado", name: "No interesado", color: "#666" }
-                ]
+                allLeads: [],
+                statuses: []
             };
         }
 
@@ -1060,6 +1062,11 @@
             <option value="">Todos los estados</option>
             ${state.data.statuses.map(s => `<option value="${s.id}" ${state.statusFilter === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
           </select>
+          <select id="trabajadorFilter">
+            <option value="all" ${state.trabajadorFilter === 'all' ? 'selected' : ''}>Situación: Todas</option>
+            <option value="worker" ${state.trabajadorFilter === 'worker' ? 'selected' : ''}>Trabajador</option>
+            <option value="unemployed" ${state.trabajadorFilter === 'unemployed' ? 'selected' : ''}>Desempleado</option>
+          </select>
         </div>
         <div class="right">
           <button class="btn" id="btnExportCSV">📥 Exportar Emails (CSV)</button>
@@ -1072,8 +1079,51 @@
                 resetPagination();
                 renderAll();
             });
+            top.querySelector("#trabajadorFilter").addEventListener("change", (e) => {
+                state.trabajadorFilter = e.target.value;
+                resetPagination();
+                renderAll();
+            });
             top.querySelector("#btnAddLead").addEventListener("click", () => openNewLead(course.id_curso));
             top.querySelector("#btnExportCSV").addEventListener("click", () => exportEmailsToCSV(course));
+
+            const batch = document.createElement("div");
+            batch.className = "split";
+            batch.style.marginTop = "10px";
+            batch.style.padding = "10px";
+            batch.style.background = "rgba(255,255,255,0.03)";
+            batch.style.borderRadius = "12px";
+            batch.style.border = "1px solid var(--stroke)";
+            batch.innerHTML = `
+                <div class="left">
+                    <span class="tag">🚀 Envíos masivos</span>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px;">
+                        <input type="checkbox" id="batchWhatsapp" style="width:16px; height:16px;"> WhatsApp
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px;">
+                        <input type="checkbox" id="batchMail" style="width:16px; height:16px;"> Mail
+                    </label>
+                </div>
+                <div class="right">
+                    <button class="btn primary" id="btnApplyBatch">Aplicar</button>
+                </div>
+            `;
+            mainBody.appendChild(batch);
+            batch.querySelector("#btnApplyBatch").addEventListener("click", async () => {
+                const whatsapp = batch.querySelector("#batchWhatsapp").checked;
+                const mail = batch.querySelector("#batchMail").checked;
+                if (!whatsapp && !mail) { toast("Marca al menos una casilla", "err"); return; }
+                if (confirm(`¿Actualizar el estado de todos los leads del curso?`)) {
+                    const res = await apiFetch(`/cursos/${course.id_curso}/leads/batch-update`, {
+                        method: 'POST',
+                        body: JSON.stringify({ whatsapp, mail })
+                    });
+                    if (res) {
+                        toast("Leads actualizados ✅");
+                        await load();
+                    }
+                }
+            });
 
             const sep = document.createElement("div"); sep.className = "sep"; mainBody.appendChild(sep);
 
@@ -1123,6 +1173,8 @@
             }
 
             if (state.statusFilter) lds = lds.filter(l => l.estado === state.statusFilter);
+            if (state.trabajadorFilter === "worker") lds = lds.filter(l => l.trabajador === true);
+            if (state.trabajadorFilter === "unemployed") lds = lds.filter(l => l.trabajador === false);
             return lds;
         }
 
