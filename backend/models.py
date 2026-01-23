@@ -51,13 +51,17 @@ class CursoLead(db.Model):
     id_lead = db.Column(db.Integer, db.ForeignKey('leads.id_lead', ondelete='CASCADE'), primary_key=True)
     estado = db.Column(db.String(50), default='Nuevo')
     fecha_formulario = db.Column(db.DateTime, default=datetime.utcnow)
+    mail_enviado = db.Column(db.Boolean, default=False)
+    whatsapp_enviado = db.Column(db.Boolean, default=False)
 
     def to_dict(self):
         return {
             "id_curso": self.id_curso,
             "id_lead": self.id_lead,
             "estado": self.estado,
-            "fecha_formulario": self.fecha_formulario.isoformat() if self.fecha_formulario else None
+            "fecha_formulario": self.fecha_formulario.isoformat() if self.fecha_formulario else None,
+            "mail_enviado": self.mail_enviado,
+            "whatsapp_enviado": self.whatsapp_enviado
         }
 
 class Nota(db.Model):

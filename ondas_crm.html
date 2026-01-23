@@ -1280,7 +1280,15 @@
                 const hasMultiple = l.courses.size > 1;
 
                 tr.innerHTML = `
-          <td><b>${escapeHtml(l.nombre || "—")}</b></td>
+          <td>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+                <b>${escapeHtml(l.nombre || "—")}</b>
+                <div style="display:flex; gap:6px; opacity:0.8;">
+                    ${l.whatsapp_enviado ? '<span title="WhatsApp enviado" style="font-size:12px;">🟢 📱</span>' : ''}
+                    ${l.mail_enviado ? '<span title="Mail enviado" style="font-size:12px;">🔵 ✉️</span>' : ''}
+                </div>
+            </div>
+          </td>
           <td class="muted">${escapeHtml(l.telefono || "—")}</td>
           <td>
             <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start;">
@@ -1339,18 +1347,18 @@
             const table = document.createElement("table");
             table.className = "table";
             table.innerHTML = `
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Situación</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
+                    <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Situación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
         </thead>
-        <tbody></tbody>
-      `;
+                    <tbody></tbody>
+                `;
             const tbody = table.querySelector("tbody");
 
             const start = (state.currentPage - 1) * state.leadsPerPage;
@@ -1362,7 +1370,15 @@
                 if (isDuplicate) tr.classList.add("row-duplicate");
 
                 tr.innerHTML = `
-          <td><b>${escapeHtml(l.nombre || "—")}</b></td>
+                    <td>
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        <b>${escapeHtml(l.nombre || "—")}</b>
+                        <div style="display:flex; gap:6px; opacity:0.8;">
+                            ${l.whatsapp_enviado ? '<span title="WhatsApp enviado" style="font-size:12px;">🟢 📱</span>' : ''}
+                            ${l.mail_enviado ? '<span title="Mail enviado" style="font-size:12px;">🔵 ✉️</span>' : ''}
+                        </div>
+                    </div>
+          </td>
           <td class="muted">${escapeHtml(l.telefono || "—")}</td>
           <td class="muted">${escapeHtml(l.mail || "—")}</td>
           <td><span class="tag" style="background:${l.trabajador ? '#10b98122' : '#66622'}; color:${l.trabajador ? '#10b981' : '#ccc'}; border-color:${l.trabajador ? '#10b98144' : '#66644'};">${l.trabajador ? 'Trabajador' : 'Desempleado'}</span></td>
@@ -1372,7 +1388,7 @@
               <button class="btn" data-a="view">👁️ Ver</button>
             </div>
           </td>
-        `;
+                `;
                 tr.querySelector('[data-a="view"]').addEventListener("click", () => onView(l));
                 tbody.appendChild(tr);
             });
@@ -1383,7 +1399,7 @@
             const wrap = document.createElement("div");
             const s = getStatus(lead.estado);
             wrap.innerHTML = `
-        <div class="split">
+                    <div class="split">
           <div class="left">
             <button class="btn ghost" id="backToLeads">← Volver</button>
             <span class="tag">👤 Lead</span>
@@ -1401,6 +1417,17 @@
             <div class="field"><label>Teléfono</label><div>${escapeHtml(lead.telefono || "—")}</div></div>
             <div class="field"><label>Email</label><div>${escapeHtml(lead.mail || "—")}</div></div>
             <div class="field"><label>Situación</label><div>${lead.trabajador ? 'Trabajador' : 'Desempleado'}</div></div>
+            <div class="field">
+                <label>Comunicación</label>
+                <div style="display:flex; gap:10px; margin-top:4px;">
+                    <span class="tag" style="background:${lead.whatsapp_enviado ? '#25D36622' : 'transparent'}; color:${lead.whatsapp_enviado ? '#25D366' : '#666'}; border-color:${lead.whatsapp_enviado ? '#25D36644' : '#444'};">
+                        ${lead.whatsapp_enviado ? '✅ WhatsApp enviado' : '⏳ WhatsApp pendiente'}
+                    </span>
+                    <span class="tag" style="background:${lead.mail_enviado ? '#3b82f622' : 'transparent'}; color:${lead.mail_enviado ? '#3b82f6' : '#666'}; border-color:${lead.mail_enviado ? '#3b82f644' : '#444'};">
+                        ${lead.mail_enviado ? '✅ Mail enviado' : '⏳ Mail pendiente'}
+                    </span>
+                </div>
+            </div>
             <div class="field"><label>Estado</label><div class="status-badge" style="background:${s.color}22; color:${s.color}; border:1px solid ${s.color}44;">${escapeHtml(s.name)}</div></div>
             
             <div class="sep"></div>
@@ -1458,14 +1485,14 @@
             <div id="notesList" style="display:flex; flex-direction:column; gap:8px;"></div>
           </div>
         </div>
-      `;
+                `;
             const nList = wrap.querySelector("#notesList");
             (lead.notes || []).slice().sort((a, b) => (b.fecha || "").localeCompare(a.fecha || "")).forEach(n => {
                 const nel = document.createElement("div");
                 nel.className = "note";
-                let noteHtml = `<div class="when">${formatDateTime(n.fecha)}</div>`;
-                if (n.titulo) noteHtml += `<div style="font-weight:700; font-size:12px; margin-bottom:4px; color:var(--b);">${escapeHtml(n.titulo)}</div>`;
-                noteHtml += `<div class="txt">${escapeHtml(n.contenido)}</div>`;
+                let noteHtml = `< div class="when" > ${formatDateTime(n.fecha)}</div > `;
+                if (n.titulo) noteHtml += `< div style = "font-weight:700; font-size:12px; margin-bottom:4px; color:var(--b);" > ${escapeHtml(n.titulo)}</div > `;
+                noteHtml += `< div class="txt" > ${escapeHtml(n.contenido)}</div > `;
                 nel.innerHTML = noteHtml;
                 nList.appendChild(nel);
             });
@@ -1486,7 +1513,7 @@
                         if (!file) return true;
                         const fd = new FormData();
                         fd.append('file', file);
-                        const res = await fetch(`/api/leads/${lead.id_lead}/dni/${side}`, { method: 'POST', body: fd });
+                        const res = await fetch(`/ api / leads / ${lead.id_lead} /dni/${side} `, { method: 'POST', body: fd });
                         return res.ok;
                     };
 
@@ -1514,7 +1541,7 @@
                         const fd = new FormData();
                         fd.append('file', file);
 
-                        const res = await fetch(`/api/leads/${lead.id_lead}/cursos/${course.id_curso}/documentos`, {
+                        const res = await fetch(`/ api / leads / ${lead.id_lead} /cursos/${course.id_curso}/documentos`, {
                             method: 'POST',
                             body: fd
                         });
@@ -1759,10 +1786,19 @@
           <input type="checkbox" id="tr" ${l.trabajador ? 'checked' : ''} style="width: auto;" />
           <label for="tr" style="margin: 0; cursor: pointer;">¿Está trabajando?</label>
         </div>
-        <div class="field"><label>Estado</label>
           <select id="st" style="width:100%">
             ${state.data.statuses.map(s => `<option value="${s.id}" ${l.estado === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
           </select>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px;">
+            <input type="checkbox" id="wen" ${l.whatsapp_enviado ? 'checked' : ''} style="width: auto;" />
+            <label for="wen" style="margin: 0; cursor: pointer;">WhatsApp enviado</label>
+          </div>
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px;">
+            <input type="checkbox" id="men" ${l.mail_enviado ? 'checked' : ''} style="width: auto;" />
+            <label for="men" style="margin: 0; cursor: pointer;">Mail enviado</label>
+          </div>
         </div>
         <button class="btn primary" id="save" style="width:100%; margin-top:14px;">Guardar Cambios</button>
       `;
@@ -1780,9 +1816,15 @@
 
                 // Update status in the relationship
                 const sid = node.querySelector("#st").value;
+                const wen = node.querySelector("#wen").checked;
+                const men = node.querySelector("#men").checked;
                 const okStatus = await apiFetch(`/cursos/${courseId}/leads/${leadId}`, {
                     method: 'PUT',
-                    body: JSON.stringify({ estado: sid })
+                    body: JSON.stringify({
+                        estado: sid,
+                        whatsapp_enviado: wen,
+                        mail_enviado: men
+                    })
                 });
 
                 if (okLead && okStatus) {

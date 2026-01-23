@@ -201,6 +201,10 @@ def curso_lead_detail(id_curso, id_lead):
         data = request.json
         if 'estado' in data:
             rel.estado = data['estado']
+        if 'whatsapp_enviado' in data:
+            rel.whatsapp_enviado = data['whatsapp_enviado']
+        if 'mail_enviado' in data:
+            rel.mail_enviado = data['mail_enviado']
         db.session.commit()
         return jsonify(rel.to_dict())
     
@@ -212,7 +216,7 @@ def curso_lead_detail(id_curso, id_lead):
 @app.route('/api/cursos/<int:id_curso>/leads/batch-update', methods=['POST'])
 def batch_update_curso_leads(id_curso):
     """
-    Update the status of all leads in a specific course based on Whatsapp/Mail selections.
+    Update the communication flags of all leads in a specific course.
     """
     data = request.json
     whatsapp = data.get('whatsapp', False)
@@ -221,19 +225,19 @@ def batch_update_curso_leads(id_curso):
     if not whatsapp and not mail:
         return jsonify({"message": "No action taken, both checkboxes are false"}), 200
 
-    new_status = ""
-    if whatsapp and mail:
-        new_status = "Mail + Whatsapp enviado"
-    elif whatsapp:
-        new_status = "WhatsApp enviado"
-    elif mail:
-        new_status = "Mail enviado"
-
     try:
         # Update all CursoLead entries for this course
-        CursoLead.query.filter_by(id_curso=id_curso).update({"estado": new_status})
-        db.session.commit()
-        return jsonify({"message": f"Updated all leads to: {new_status}"}), 200
+        updates = {}
+        if whatsapp:
+            updates["whatsapp_enviado"] = True
+        if mail:
+            updates["mail_enviado"] = True
+            
+        if updates:
+            CursoLead.query.filter_by(id_curso=id_curso).update(updates)
+            db.session.commit()
+            
+        return jsonify({"message": f"Updated communication flags for all leads"}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -260,15 +264,16 @@ def get_statuses():
             "Inscrito": "#10b981",
             "Reserva": "#8b5cf6",
             "No interesado": "#666",
-            "Contactado": "#06B6D4",
-            "WhatsApp enviado": "#25D366",
-            "Mail enviado": "#3b82f6",
-            "Mail + Whatsapp enviado": "#7C3AED"
+            "Contactado": "#06B6D4"
         }
         
         statuses = []
         for row in result:
             name = row[0]
+            # Skip old statuses if they haven't been deleted from DB yet
+            if name in ["WhatsApp enviado", "Mail enviado", "Mail + Whatsapp enviado"]:
+                continue
+                
             statuses.append({
                 "id": name,
                 "name": name,
@@ -278,17 +283,14 @@ def get_statuses():
         return jsonify(statuses)
     except Exception as e:
         print(f"Error fetching statuses: {e}")
-        # Fallback if the query fails (e.g. if the type doesn't exist yet or DB issue)
+        # Fallback if the query fails
         fallback = [
             {"id": "Nuevo", "name": "Nuevo", "color": "#3b82f6"},
             {"id": "Pendiente de documentación", "name": "Pte. Documentación", "color": "#f59e0b"},
             {"id": "Inscrito", "name": "Inscrito", "color": "#10b981"},
             {"id": "Reserva", "name": "Reserva", "color": "#8b5cf6"},
             {"id": "No interesado", "name": "No interesado", "color": "#666"},
-            {"id": "Contactado", "name": "Contactado", "color": "#06B6D4"},
-            {"id": "WhatsApp enviado", "name": "WhatsApp enviado", "color": "#25D366"},
-            {"id": "Mail enviado", "name": "Mail enviado", "color": "#3b82f6"},
-            {"id": "Mail + Whatsapp enviado", "name": "Mail + Whatsapp enviado", "color": "#7C3AED"}
+            {"id": "Contactado", "name": "Contactado", "color": "#06B6D4"}
         ]
         return jsonify(fallback)
 
@@ -391,6 +393,8 @@ def get_dashboard():
                 if r.id_lead in leads_map:
                     l_entry = leads_map[r.id_lead].copy()
                     l_entry['estado'] = r.estado
+                    l_entry['mail_enviado'] = r.mail_enviado
+                    l_entry['whatsapp_enviado'] = r.whatsapp_enviado
                     l_entry['notes'] = notes_by_lead_course.get((r.id_lead, c.id_curso), [])
                     l_entry['documents'] = docs_by_lead_course.get((r.id_lead, c.id_curso), [])
                     c_dict['leads'].append(l_entry)
@@ -403,7 +407,15 @@ def get_dashboard():
             l_copy['notes'] = notes_by_lead.get(lid, [])
             l_copy['documents'] = docs_by_lead.get(lid, [])
             l_rels = rels_by_lead.get(lid, [])
-            l_copy['estado'] = l_rels[0].estado if l_rels else "Nuevo"
+            if l_rels:
+                l_copy['estado'] = l_rels[0].estado
+                l_copy['mail_enviado'] = l_rels[0].mail_enviado
+                l_copy['whatsapp_enviado'] = l_rels[0].whatsapp_enviado
+            else:
+                l_copy['estado'] = "Nuevo"
+                l_copy['mail_enviado'] = False
+                l_copy['whatsapp_enviado'] = False
+            
             all_leads_result.append(l_copy)
             
         return jsonify({
