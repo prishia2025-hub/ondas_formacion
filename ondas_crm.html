@@ -1399,7 +1399,7 @@
             const wrap = document.createElement("div");
             const s = getStatus(lead.estado);
             wrap.innerHTML = `
-                    <div class="split">
+        <div class="split">
           <div class="left">
             <button class="btn ghost" id="backToLeads">← Volver</button>
             <span class="tag">👤 Lead</span>
@@ -1485,7 +1485,7 @@
             <div id="notesList" style="display:flex; flex-direction:column; gap:8px;"></div>
           </div>
         </div>
-                `;
+            `;
             const nList = wrap.querySelector("#notesList");
             (lead.notes || []).slice().sort((a, b) => (b.fecha || "").localeCompare(a.fecha || "")).forEach(n => {
                 const nel = document.createElement("div");
