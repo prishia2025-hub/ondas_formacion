@@ -1490,9 +1490,9 @@
             (lead.notes || []).slice().sort((a, b) => (b.fecha || "").localeCompare(a.fecha || "")).forEach(n => {
                 const nel = document.createElement("div");
                 nel.className = "note";
-                let noteHtml = `< div class="when" > ${formatDateTime(n.fecha)}</div > `;
-                if (n.titulo) noteHtml += `< div style = "font-weight:700; font-size:12px; margin-bottom:4px; color:var(--b);" > ${escapeHtml(n.titulo)}</div > `;
-                noteHtml += `< div class="txt" > ${escapeHtml(n.contenido)}</div > `;
+                let noteHtml = `<div class="when"> ${formatDateTime(n.fecha)}</div>`;
+                if (n.titulo) noteHtml += `<div style="font-weight:700; font-size:12px; margin-bottom:4px; color:var(--b);"> ${escapeHtml(n.titulo)}</div>`;
+                noteHtml += `<div class="txt"> ${escapeHtml(n.contenido)}</div>`;
                 nel.innerHTML = noteHtml;
                 nList.appendChild(nel);
             });
