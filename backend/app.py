@@ -144,7 +144,11 @@ def manage_cursos():
         max_alumnos=data.get('max_alumnos'),
         codigo=data.get('codigo'),
         fecha_inicio=datetime.fromisoformat(data['fecha_inicio']).date() if data.get('fecha_inicio') else None,
-        fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None
+        fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None,
+        horario=data.get('horario'),
+        horas_totales=data.get('horas_totales'),
+        para_trabajadores=data.get('para_trabajadores', False),
+        activo=data.get('activo', False)
     )
     db.session.add(new_curso)
     db.session.commit()
@@ -162,6 +166,10 @@ def curso_detail(id):
         curso.max_alumnos = data.get('max_alumnos', curso.max_alumnos)
         curso.lleno = data.get('lleno', curso.lleno)
         curso.codigo = data.get('codigo', curso.codigo)
+        curso.horario = data.get('horario', curso.horario)
+        curso.horas_totales = data.get('horas_totales', curso.horas_totales)
+        curso.para_trabajadores = data.get('para_trabajadores', curso.para_trabajadores)
+        curso.activo = data.get('activo', curso.activo)
         if 'fecha_inicio' in data:
             curso.fecha_inicio = datetime.fromisoformat(data['fecha_inicio']).date() if data['fecha_inicio'] else None
         if 'fecha_fin' in data:
@@ -187,7 +195,8 @@ def manage_curso_leads(id_curso):
         id_curso=id_curso,
         id_lead=data['id_lead'],
         estado=data.get('estado', 'Nuevo'),
-        fecha_formulario=datetime.utcnow()
+        fecha_formulario=datetime.utcnow(),
+        ultimo_contacto=datetime.utcnow()
     )
     db.session.add(new_rel)
     db.session.commit()
@@ -205,6 +214,8 @@ def curso_lead_detail(id_curso, id_lead):
             rel.whatsapp_enviado = data['whatsapp_enviado']
         if 'mail_enviado' in data:
             rel.mail_enviado = data['mail_enviado']
+        
+        rel.ultimo_contacto = datetime.utcnow()
         db.session.commit()
         return jsonify(rel.to_dict())
     
@@ -395,6 +406,8 @@ def get_dashboard():
                     l_entry['estado'] = r.estado
                     l_entry['mail_enviado'] = r.mail_enviado
                     l_entry['whatsapp_enviado'] = r.whatsapp_enviado
+                    l_entry['fecha_formulario'] = r.fecha_formulario.isoformat() if r.fecha_formulario else None
+                    l_entry['ultimo_contacto'] = r.ultimo_contacto.isoformat() if r.ultimo_contacto else None
                     l_entry['notes'] = notes_by_lead_course.get((r.id_lead, c.id_curso), [])
                     l_entry['documents'] = docs_by_lead_course.get((r.id_lead, c.id_curso), [])
                     c_dict['leads'].append(l_entry)
@@ -411,10 +424,14 @@ def get_dashboard():
                 l_copy['estado'] = l_rels[0].estado
                 l_copy['mail_enviado'] = l_rels[0].mail_enviado
                 l_copy['whatsapp_enviado'] = l_rels[0].whatsapp_enviado
+                l_copy['fecha_formulario'] = l_rels[0].fecha_formulario.isoformat() if l_rels[0].fecha_formulario else None
+                l_copy['ultimo_contacto'] = l_rels[0].ultimo_contacto.isoformat() if l_rels[0].ultimo_contacto else None
             else:
                 l_copy['estado'] = "Nuevo"
                 l_copy['mail_enviado'] = False
                 l_copy['whatsapp_enviado'] = False
+                l_copy['fecha_formulario'] = None
+                l_copy['ultimo_contacto'] = None
             
             all_leads_result.append(l_copy)
             
