@@ -772,33 +772,38 @@
                         <button class="iconbtn primary" id="btnNewCourse" title="Nuevo Curso">➕</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="list" id="courseList"></div>
-                    <div id="courseEmpty" class="empty" style="display:none;margin-top:10px;">
-                        No hay cursos aún. Pulsa <b>Nuevo curso</b> para crear el primero.
-                    </div>
+                <div class="split" style="margin-bottom: 12px; gap: 4px;">
+                    <button class="btn" style="flex:1; font-size:11px; padding:6px;" id="tabActive"
+                        data-tab="active">Activos</button>
+                    <button class="btn ghost" style="flex:1; font-size:11px; padding:6px;" id="tabInactive"
+                        data-tab="inactive">Inactivos</button>
                 </div>
-            </section>
-
-            <!-- Right: Main content -->
-            <section class="card" id="mainCard">
-                <div class="card-header" id="mainHeader">
-                    <div>
-                        <h2 id="mainTitle">Selecciona un curso</h2>
-                        <p id="mainSubtitle">A la derecha aparecerán los leads y podrás gestionarlos.</p>
-                    </div>
-                    <div class="split right">
-                        <span class="badge" id="leadCount">0 leads</span>
-                    </div>
+                <div class="list" id="courseList"></div>
+                <div id="courseEmpty" class="empty" style="display:none;margin-top:10px;">
+                    No hay cursos en esta sección.
                 </div>
-                <div class="card-body" id="mainBody">
-                    <div class="empty">
-                        👈 Elige un curso a la izquierda. <br />
-                        Luego podrás <b>añadir leads</b>, abrir la <b>ficha</b> y crear <b>notas con fecha/hora</b>.
-                    </div>
-                </div>
-            </section>
         </div>
+        </section>
+
+        <!-- Right: Main content -->
+        <section class="card" id="mainCard">
+            <div class="card-header" id="mainHeader">
+                <div>
+                    <h2 id="mainTitle">Selecciona un curso</h2>
+                    <p id="mainSubtitle">A la derecha aparecerán los leads y podrás gestionarlos.</p>
+                </div>
+                <div class="split right">
+                    <span class="badge" id="leadCount">0 leads</span>
+                </div>
+            </div>
+            <div class="card-body" id="mainBody">
+                <div class="empty">
+                    👈 Elige un curso a la izquierda. <br />
+                    Luego podrás <b>añadir leads</b>, abrir la <b>ficha</b> y crear <b>notas con fecha/hora</b>.
+                </div>
+            </div>
+        </section>
+    </div>
     </div>
 
     <!-- Modal -->
@@ -840,6 +845,7 @@
             search: "",
             searchMode: "phone",
             statusFilter: "",
+            courseStatusFilter: "active",
             trabajadorFilter: "all",
             currentPage: 1,
             leadsPerPage: 10
@@ -970,8 +976,17 @@
 
         function filteredCourses() {
             const q = state.search.trim().toLowerCase();
-            if (!q) return state.data.courses;
-            return state.data.courses.filter(c => {
+            let base = state.data.courses;
+
+            // Filter by Active/Inactive tab
+            if (state.courseStatusFilter === "active") {
+                base = base.filter(c => c.activo === true);
+            } else {
+                base = base.filter(c => c.activo === false);
+            }
+
+            if (!q) return base;
+            return base.filter(c => {
                 if ((c.nombre || "").toLowerCase().includes(q)) return true;
                 return (c.leads || []).some(l => {
                     return [l.nombre, l.telefono, l.mail].some(x => (x || "").toLowerCase().includes(q));
@@ -999,6 +1014,7 @@
               <div class="title">${escapeHtml(course.nombre || "Curso")}</div>
               <div class="sub">
                 <span class="badge">${leadTotal} lead${leadTotal === 1 ? "" : "s"}</span>
+                <span class="tag" style="font-size:9px;">${escapeHtml(course.codigo || '—')}</span>
               </div>
             </div>
             <div class="mini-actions" onclick="event.stopPropagation()">
@@ -1417,6 +1433,16 @@
             <div class="field"><label>Teléfono</label><div>${escapeHtml(lead.telefono || "—")}</div></div>
             <div class="field"><label>Email</label><div>${escapeHtml(lead.mail || "—")}</div></div>
             <div class="field"><label>Situación</label><div>${lead.trabajador ? 'Trabajador' : 'Desempleado'}</div></div>
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+                <div class="field">
+                    <label>Fecha de Creación</label>
+                    <div style="font-size:11px; color:var(--muted);">${formatDateTime(lead.fecha_formulario)}</div>
+                </div>
+                <div class="field">
+                    <label>Último Contacto</label>
+                    <div style="font-size:11px; color:var(--b); font-weight:700;">${formatDateTime(lead.ultimo_contacto)}</div>
+                </div>
+            </div>
             <div class="field">
                 <label>Comunicación</label>
                 <div style="display:flex; gap:10px; margin-top:4px;">
@@ -1604,9 +1630,29 @@
             <input type="date" id="courseEnd" />
           </div>
         </div>
-        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
-          <input type="checkbox" id="courseFull" style="width: auto;" />
-          <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+            <input type="checkbox" id="courseFull" style="width: auto;" />
+            <label for="courseFull" style="margin: 0; cursor: pointer;">¿Lleno?</label>
+          </div>
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+            <input type="checkbox" id="courseActive" checked style="width: auto;" />
+            <label for="courseActive" style="margin: 0; cursor: pointer;">¿Activo?</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Horario</label>
+          <input id="courseSchedule" placeholder="Ej. Lunes a Viernes 09:00 - 14:00" />
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field">
+            <label>Horas Totales</label>
+            <input type="number" id="courseHours" value="0" />
+          </div>
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 25px;">
+            <input type="checkbox" id="courseForWorkers" style="width: auto;" />
+            <label for="courseForWorkers" style="margin: 0; cursor: pointer;">Para Trabajadores</label>
+          </div>
         </div>
         <div class="split" style="margin-top:20px;">
           <div class="left"><span class="tag">📚 Cursos</span></div>
@@ -1633,7 +1679,11 @@
                         max_alumnos: max,
                         fecha_inicio: start || null,
                         fecha_fin: end || null,
-                        lleno: full
+                        lleno: full,
+                        activo: node.querySelector("#courseActive").checked,
+                        horario: node.querySelector("#courseSchedule").value.trim() || null,
+                        horas_totales: parseInt(node.querySelector("#courseHours").value) || 0,
+                        para_trabajadores: node.querySelector("#courseForWorkers").checked
                     })
                 });
                 if (course) {
@@ -1677,9 +1727,29 @@
             <input type="date" id="courseEnd" value="${course.fecha_fin || ''}" />
           </div>
         </div>
-        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
-          <input type="checkbox" id="courseFull" ${course.lleno ? 'checked' : ''} style="width: auto;" />
-          <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+            <input type="checkbox" id="courseFull" ${course.lleno ? 'checked' : ''} style="width: auto;" />
+            <label for="courseFull" style="margin: 0; cursor: pointer;">¿Lleno?</label>
+          </div>
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+            <input type="checkbox" id="courseActive" ${course.activo ? 'checked' : ''} style="width: auto;" />
+            <label for="courseActive" style="margin: 0; cursor: pointer;">¿Activo?</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Horario</label>
+          <input id="courseSchedule" value="${escapeHtml(course.horario || '')}" placeholder="Ej. Lunes a Viernes 09:00 - 14:00" />
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;">
+          <div class="field">
+            <label>Horas Totales</label>
+            <input type="number" id="courseHours" value="${course.horas_totales || 0}" />
+          </div>
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 25px;">
+            <input type="checkbox" id="courseForWorkers" ${course.para_trabajadores ? 'checked' : ''} style="width: auto;" />
+            <label for="courseForWorkers" style="margin: 0; cursor: pointer;">Para Trabajadores</label>
+          </div>
         </div>
         <div class="split" style="margin-top:20px;">
           <div class="left"><span class="tag">✏️ Editar</span></div>
@@ -1706,7 +1776,11 @@
                         max_alumnos: max,
                         fecha_inicio: start || null,
                         fecha_fin: end || null,
-                        lleno: full
+                        lleno: full,
+                        activo: node.querySelector("#courseActive").checked,
+                        horario: node.querySelector("#courseSchedule").value.trim() || null,
+                        horas_totales: parseInt(node.querySelector("#courseHours").value) || 0,
+                        para_trabajadores: node.querySelector("#courseForWorkers").checked
                     })
                 });
                 if (ok) {
@@ -1930,6 +2004,28 @@
                 state.selectedCourseId = state.data.courses[0].id_curso;
 
             document.getElementById("btnNewCourse").onclick = openNewCourse;
+
+            const tabActive = document.getElementById("tabActive");
+            const tabInactive = document.getElementById("tabInactive");
+
+            const updateTabs = () => {
+                if (state.courseStatusFilter === "active") {
+                    tabActive.classList.replace("ghost", "primary");
+                    tabActive.classList.add("primary");
+                    tabInactive.classList.replace("primary", "ghost");
+                    tabInactive.classList.remove("primary");
+                } else {
+                    tabInactive.classList.replace("ghost", "primary");
+                    tabInactive.classList.add("primary");
+                    tabActive.classList.replace("primary", "ghost");
+                    tabActive.classList.remove("primary");
+                }
+            };
+
+            tabActive.onclick = () => { state.courseStatusFilter = "active"; updateTabs(); renderAll(); };
+            tabInactive.onclick = () => { state.courseStatusFilter = "inactive"; updateTabs(); renderAll(); };
+            updateTabs();
+
             const btnSeed = document.getElementById("btnSeed");
             if (btnSeed) btnSeed.style.display = "none";
 

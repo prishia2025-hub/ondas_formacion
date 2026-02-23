@@ -33,6 +33,10 @@ class Curso(db.Model):
     fecha_inicio = db.Column(db.Date)
     fecha_fin = db.Column(db.Date)
     codigo = db.Column(db.String(20), unique=True)
+    horario = db.Column(db.String(15), nullable=True)
+    horas_totales = db.Column(db.Integer, nullable=True)
+    para_trabajadores = db.Column(db.Boolean, default=False)
+    activo = db.Column(db.Boolean, default=False)
 
     def to_dict(self):
         return {
@@ -42,7 +46,11 @@ class Curso(db.Model):
             "lleno": self.lleno,
             "fecha_inicio": self.fecha_inicio.isoformat() if self.fecha_inicio else None,
             "fecha_fin": self.fecha_fin.isoformat() if self.fecha_fin else None,
-            "codigo": self.codigo
+            "codigo": self.codigo,
+            "horario": self.horario,
+            "horas_totales": self.horas_totales,
+            "para_trabajadores": self.para_trabajadores,
+            "activo": self.activo
         }
 
 class CursoLead(db.Model):
@@ -51,8 +59,10 @@ class CursoLead(db.Model):
     id_lead = db.Column(db.Integer, db.ForeignKey('leads.id_lead', ondelete='CASCADE'), primary_key=True)
     estado = db.Column(db.String(50), default='Nuevo')
     fecha_formulario = db.Column(db.DateTime, default=datetime.utcnow)
+    ultimo_contacto = db.Column(db.DateTime, default=datetime.utcnow)
     mail_enviado = db.Column(db.Boolean, default=False)
     whatsapp_enviado = db.Column(db.Boolean, default=False)
+    mail_ia = db.Column(db.Boolean, default=False)
 
     def to_dict(self):
         return {
@@ -60,8 +70,10 @@ class CursoLead(db.Model):
             "id_lead": self.id_lead,
             "estado": self.estado,
             "fecha_formulario": self.fecha_formulario.isoformat() if self.fecha_formulario else None,
+            "ultimo_contacto": self.ultimo_contacto.isoformat() if self.ultimo_contacto else None,
             "mail_enviado": self.mail_enviado,
-            "whatsapp_enviado": self.whatsapp_enviado
+            "whatsapp_enviado": self.whatsapp_enviado,
+            "mail_ia": self.mail_ia
         }
 
 class Nota(db.Model):
