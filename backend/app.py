@@ -31,9 +31,24 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-# Create tables (Optional: Only if they don't exist)
-# with app.app_context():
-#     db.create_all()
+# Sync all sequences on startup to prevent duplicate primary key errors
+# This handles cases where data was imported/restored with explicit IDs
+with app.app_context():
+    sequences = {
+        'leads': ('id_lead', 'leads_id_lead_seq'),
+        'cursos': ('id_curso', 'cursos_id_curso_seq'),
+        'notas': ('id_nota', 'notas_id_nota_seq'),
+        'documentos': ('id_documento', 'documentos_id_documento_seq'),
+    }
+    for table, (col, seq) in sequences.items():
+        try:
+            db.session.execute(db.text(
+                f"SELECT setval('{seq}', COALESCE((SELECT MAX({col}) FROM {table}), 1))"
+            ))
+        except Exception as e:
+            print(f"Warning: Could not sync sequence {seq}: {e}")
+    db.session.commit()
+    print("✅ All sequences synchronized")
 
 @app.route('/api/leads', methods=['GET', 'POST'])
 def manage_leads():
