@@ -1013,11 +1013,11 @@
             const q = state.search.trim().toLowerCase();
             let courses = state.data.courses || [];
 
-            // Filter by Active/Inactive (Active = not full, Inactive = full)
+            // Filter by Active/Inactive (Active = c.activo, Inactive = !c.activo)
             if (state.courseStatusFilter === 'active') {
-                courses = courses.filter(c => !c.lleno);
+                courses = courses.filter(c => c.activo);
             } else if (state.courseStatusFilter === 'inactive') {
-                courses = courses.filter(c => c.lleno);
+                courses = courses.filter(c => !c.activo);
             }
 
             if (!q) return courses;
@@ -1654,6 +1654,10 @@
           <input type="checkbox" id="courseFull" style="width: auto;" />
           <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
         </div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" id="courseActive" style="width: auto;" checked />
+          <label for="courseActive" style="margin: 0; cursor: pointer;">¿Curso ACTIVO?</label>
+        </div>
         <div class="split" style="margin-top:20px;">
           <div class="left"><span class="tag">📚 Cursos</span></div>
           <div class="right">
@@ -1679,7 +1683,8 @@
                         max_alumnos: max,
                         fecha_inicio: start || null,
                         fecha_fin: end || null,
-                        lleno: full
+                        lleno: full,
+                        activo: node.querySelector("#courseActive").checked
                     })
                 });
                 if (course) {
@@ -1727,6 +1732,10 @@
           <input type="checkbox" id="courseFull" ${course.lleno ? 'checked' : ''} style="width: auto;" />
           <label for="courseFull" style="margin: 0; cursor: pointer;">¿Curso LLENO?</label>
         </div>
+        <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+          <input type="checkbox" id="courseActive" ${course.activo !== false ? 'checked' : ''} style="width: auto;" />
+          <label for="courseActive" style="margin: 0; cursor: pointer;">¿Curso ACTIVO?</label>
+        </div>
         <div class="split" style="margin-top:20px;">
           <div class="left"><span class="tag">✏️ Editar</span></div>
           <div class="right">
@@ -1752,7 +1761,8 @@
                         max_alumnos: max,
                         fecha_inicio: start || null,
                         fecha_fin: end || null,
-                        lleno: full
+                        lleno: full,
+                        activo: node.querySelector("#courseActive").checked
                     })
                 });
                 if (ok) {

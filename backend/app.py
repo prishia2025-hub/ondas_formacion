@@ -149,6 +149,7 @@ def manage_cursos():
         nombre=data['nombre'],
         max_alumnos=data.get('max_alumnos'),
         codigo=data.get('codigo'),
+        activo=data.get('activo', True),
         fecha_inicio=datetime.fromisoformat(data['fecha_inicio']).date() if data.get('fecha_inicio') else None,
         fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None
     )
@@ -167,6 +168,7 @@ def curso_detail(id):
         curso.nombre = data.get('nombre', curso.nombre)
         curso.max_alumnos = data.get('max_alumnos', curso.max_alumnos)
         curso.lleno = data.get('lleno', curso.lleno)
+        curso.activo = data.get('activo', curso.activo)
         curso.codigo = data.get('codigo', curso.codigo)
         if 'fecha_inicio' in data:
             curso.fecha_inicio = datetime.fromisoformat(data['fecha_inicio']).date() if data['fecha_inicio'] else None
