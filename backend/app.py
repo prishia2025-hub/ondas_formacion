@@ -129,6 +129,12 @@ def manage_lead_notas(id_lead):
         fecha=datetime.utcnow()
     )
     db.session.add(new_nota)
+    
+    # Update ultimo_contacto in CursoLead
+    rel = CursoLead.query.filter_by(id_lead=id_lead, id_curso=data['id_curso']).first()
+    if rel:
+        rel.ultimo_contacto = datetime.utcnow()
+        
     db.session.commit()
     return jsonify(new_nota.to_dict()), 201
 
@@ -395,6 +401,8 @@ def get_dashboard():
                     l_entry['estado'] = r.estado
                     l_entry['mail_enviado'] = r.mail_enviado
                     l_entry['whatsapp_enviado'] = r.whatsapp_enviado
+                    l_entry['fecha_formulario'] = r.fecha_formulario.isoformat() if r.fecha_formulario else None
+                    l_entry['ultimo_contacto'] = r.ultimo_contacto.isoformat() if r.ultimo_contacto else None
                     l_entry['notes'] = notes_by_lead_course.get((r.id_lead, c.id_curso), [])
                     l_entry['documents'] = docs_by_lead_course.get((r.id_lead, c.id_curso), [])
                     c_dict['leads'].append(l_entry)
@@ -411,10 +419,14 @@ def get_dashboard():
                 l_copy['estado'] = l_rels[0].estado
                 l_copy['mail_enviado'] = l_rels[0].mail_enviado
                 l_copy['whatsapp_enviado'] = l_rels[0].whatsapp_enviado
+                l_copy['fecha_formulario'] = l_rels[0].fecha_formulario.isoformat() if l_rels[0].fecha_formulario else None
+                l_copy['ultimo_contacto'] = l_rels[0].ultimo_contacto.isoformat() if l_rels[0].ultimo_contacto else None
             else:
                 l_copy['estado'] = "Nuevo"
                 l_copy['mail_enviado'] = False
                 l_copy['whatsapp_enviado'] = False
+                l_copy['fecha_formulario'] = None
+                l_copy['ultimo_contacto'] = None
             
             all_leads_result.append(l_copy)
             

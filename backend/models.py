@@ -51,6 +51,7 @@ class CursoLead(db.Model):
     id_lead = db.Column(db.Integer, db.ForeignKey('leads.id_lead', ondelete='CASCADE'), primary_key=True)
     estado = db.Column(db.String(50), default='Nuevo')
     fecha_formulario = db.Column(db.DateTime, default=datetime.utcnow)
+    ultimo_contacto = db.Column(db.DateTime)
     mail_enviado = db.Column(db.Boolean, default=False)
     whatsapp_enviado = db.Column(db.Boolean, default=False)
 
@@ -60,6 +61,7 @@ class CursoLead(db.Model):
             "id_lead": self.id_lead,
             "estado": self.estado,
             "fecha_formulario": self.fecha_formulario.isoformat() if self.fecha_formulario else None,
+            "ultimo_contacto": self.ultimo_contacto.isoformat() if self.ultimo_contacto else None,
             "mail_enviado": self.mail_enviado,
             "whatsapp_enviado": self.whatsapp_enviado
         }

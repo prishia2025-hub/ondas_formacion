@@ -288,7 +288,7 @@
             margin-top: 14px;
         }
 
-        @media (min-width: 980px) {
+        @media (min-width: 768px) {
             .grid {
                 grid-template-columns: 240px 1fr;
                 align-items: start;
@@ -1266,6 +1266,7 @@
             <th>Nombre</th>
             <th>Teléfono</th>
             <th>Cursos</th>
+            <th>Creado</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -1296,6 +1297,7 @@
                 ${hasMultiple ? '<span class="status-badge" style="background:#ef444422; color:#ef4444; border:1px solid #ef444444; font-size:10px;">Más de 1 curso</span>' : ''}
             </div>
           </td>
+          <td class="muted" style="font-size:11px;">${formatDateTime(l.fecha_formulario)}</td>
           <td>${renderStatusBadge(l.estado)}</td>
           <td>
             <div class="row-actions">
@@ -1353,6 +1355,8 @@
                         <th>Teléfono</th>
                         <th>Email</th>
                         <th>Situación</th>
+                        <th>Creado</th>
+                        <th>Últ. Contacto</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -1382,6 +1386,8 @@
           <td class="muted">${escapeHtml(l.telefono || "—")}</td>
           <td class="muted">${escapeHtml(l.mail || "—")}</td>
           <td><span class="tag" style="background:${l.trabajador ? '#10b98122' : '#66622'}; color:${l.trabajador ? '#10b981' : '#ccc'}; border-color:${l.trabajador ? '#10b98144' : '#66644'};">${l.trabajador ? 'Trabajador' : 'Desempleado'}</span></td>
+          <td class="muted" style="font-size:11px;">${formatDateTime(l.fecha_formulario)}</td>
+          <td class="muted" style="font-size:11px;">${formatDateTime(l.ultimo_contacto)}</td>
           <td>${renderStatusBadge(l.estado)}</td>
           <td>
             <div class="row-actions">
@@ -1417,6 +1423,8 @@
             <div class="field"><label>Teléfono</label><div>${escapeHtml(lead.telefono || "—")}</div></div>
             <div class="field"><label>Email</label><div>${escapeHtml(lead.mail || "—")}</div></div>
             <div class="field"><label>Situación</label><div>${lead.trabajador ? 'Trabajador' : 'Desempleado'}</div></div>
+            <div class="field"><label>Fecha Creación</label><div class="muted" style="font-size:12px;">${formatDateTime(lead.fecha_formulario)}</div></div>
+            <div class="field"><label>Último Contacto</label><div class="muted" style="font-size:12px;">${formatDateTime(lead.ultimo_contacto)}</div></div>
             <div class="field">
                 <label>Comunicación</label>
                 <div style="display:flex; gap:10px; margin-top:4px;">
