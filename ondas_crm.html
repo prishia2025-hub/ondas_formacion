@@ -883,7 +883,9 @@
             trabajadorFilter: "all",
             courseStatusFilter: "active",
             currentPage: 1,
-            leadsPerPage: 10
+            leadsPerPage: 10,
+            sortField: 'fecha_formulario',
+            sortOrder: 'desc'
         };
 
         async function apiFetch(endpoint, options = {}) {
@@ -997,6 +999,30 @@
                     if (!l.notes) l.notes = [];
                     if (!l.estado) l.estado = state.data.statuses[0].id;
                 });
+            });
+        }
+
+        function sortLeads(leads) {
+            const field = state.sortField || 'fecha_formulario';
+            const order = state.sortOrder || 'desc';
+
+            return [...leads].sort((a, b) => {
+                let valA = a[field];
+                let valB = b[field];
+
+                // Handle nulls
+                if (valA === null || valA === undefined) valA = '';
+                if (valB === null || valB === undefined) valB = '';
+
+                // Case-insensitive strings
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+
+                let comparison = 0;
+                if (valA < valB) comparison = -1;
+                if (valA > valB) comparison = 1;
+
+                return order === 'desc' ? comparison * -1 : comparison;
             });
         }
 
@@ -1321,23 +1347,31 @@
                 return;
             }
 
+            const sortedLeads = sortLeads(uniqueLeads);
+
             const table = document.createElement("table");
             table.className = "table";
+
+            const getSortIcon = (field) => {
+                if (state.sortField !== field) return "↕️";
+                return state.sortOrder === 'asc' ? "🔼" : "🔽";
+            };
+
             table.innerHTML = `
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-                    <th>Cursos</th>
-                    <th>Creado</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              `;
+            <th style="cursor:pointer" onclick="toggleSort('nombre')">Nombre ${getSortIcon('nombre')}</th>
+            <th style="cursor:pointer" onclick="toggleSort('telefono')">Teléfono ${getSortIcon('telefono')}</th>
+            <th>Cursos</th>
+            <th style="cursor:pointer" onclick="toggleSort('fecha_formulario')">Creado ${getSortIcon('fecha_formulario')}</th>
+            <th style="cursor:pointer" onclick="toggleSort('estado')">Estado ${getSortIcon('estado')}</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
             const tbody = table.querySelector("tbody");
 
-            uniqueLeads.forEach(l => {
+            sortedLeads.forEach(l => {
                 const tr = document.createElement("tr");
                 tr.onclick = () => {
                     const courseIdToView = (l.courseIds && l.courseIds.length > 0) ? l.courseIds[0] : null;
@@ -1381,7 +1415,42 @@
             body.appendChild(table);
         }
 
+        function toggleSort(field) {
+            if (state.sortField === field) {
+                state.sortOrder = state.sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                state.sortField = field;
+                state.sortOrder = 'asc';
+            }
+            resetPagination(); // Reset pagination when sorting changes
+            renderAll();
+        }
+
+        function sortLeads(leads) {
+            if (!state.sortField) return leads;
+
+            const sorted = [...leads].sort((a, b) => {
+                let valA = a[state.sortField];
+                let valB = b[state.sortField];
+
+                // Handle specific field types for sorting
+                if (state.sortField === 'fecha_formulario' || state.sortField === 'ultimo_contacto') {
+                    valA = new Date(valA || 0);
+                    valB = new Date(valB || 0);
+                } else if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return state.sortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return state.sortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+            return sorted;
+        }
+
         function renderLeadsTable(leads, onView, onNote, onDelete) {
+            const sortedLeads = sortLeads(leads);
             const phoneCounts = {};
             state.data.courses.forEach(c => {
                 (c.leads || []).forEach(l => {
@@ -1392,16 +1461,22 @@
 
             const table = document.createElement("table");
             table.className = "table";
+
+            const getSortIcon = (field) => {
+                if (state.sortField !== field) return "↕️";
+                return state.sortOrder === 'asc' ? "🔼" : "🔽";
+            };
+
             table.innerHTML = `
                     <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Email</th>
-                        <th>Situación</th>
-                        <th>Creado</th>
-                        <th>Últ. Contacto</th>
-                        <th>Estado</th>
+                        <th style="cursor:pointer" onclick="toggleSort('nombre')">Nombre ${getSortIcon('nombre')}</th>
+                        <th style="cursor:pointer" onclick="toggleSort('telefono')">Teléfono ${getSortIcon('telefono')}</th>
+                        <th style="cursor:pointer" onclick="toggleSort('mail')">Email ${getSortIcon('mail')}</th>
+                        <th style="cursor:pointer" onclick="toggleSort('trabajador')">Situación ${getSortIcon('trabajador')}</th>
+                        <th style="cursor:pointer" onclick="toggleSort('fecha_formulario')">Creado ${getSortIcon('fecha_formulario')}</th>
+                        <th style="cursor:pointer" onclick="toggleSort('ultimo_contacto')">Últ. Contacto ${getSortIcon('ultimo_contacto')}</th>
+                        <th style="cursor:pointer" onclick="toggleSort('estado')">Estado ${getSortIcon('estado')}</th>
                     </tr>
                 </thead>
                     <tbody></tbody>
@@ -1409,7 +1484,7 @@
             const tbody = table.querySelector("tbody");
 
             const start = (state.currentPage - 1) * state.leadsPerPage;
-            const paginatedLeads = leads.slice(start, start + state.leadsPerPage);
+            const paginatedLeads = sortedLeads.slice(start, start + state.leadsPerPage);
 
             paginatedLeads.forEach(l => {
                 const tr = document.createElement("tr");
