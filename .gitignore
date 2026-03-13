@@ -1,0 +1,39 @@
+# Archivos de entorno y secretos
+.env
+
+# Node.js (Frontend)
+frontend/node_modules/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.npm
+
+# Python (Backend)
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+backend/env/
+backend/venv/
+backend/.venv/
+backend/pip-log.txt
+backend/.pytest_cache/
+backend/.coverage
+backend/.mypy_cache/
+
+# Docker
+.dockerignore
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
