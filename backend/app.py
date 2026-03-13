@@ -144,6 +144,12 @@ def manage_lead_notas(id_lead):
         fecha=datetime.utcnow()
     )
     db.session.add(new_nota)
+    
+    # Update ultimo_contacto in CursoLead
+    rel = CursoLead.query.filter_by(id_lead=id_lead, id_curso=data['id_curso']).first()
+    if rel:
+        rel.ultimo_contacto = datetime.utcnow()
+        
     db.session.commit()
     return jsonify(new_nota.to_dict()), 201
 
@@ -158,6 +164,7 @@ def manage_cursos():
         nombre=data['nombre'],
         max_alumnos=data.get('max_alumnos'),
         codigo=data.get('codigo'),
+        activo=data.get('activo', True),
         fecha_inicio=datetime.fromisoformat(data['fecha_inicio']).date() if data.get('fecha_inicio') else None,
         fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None,
         horario=data.get('horario'),
@@ -180,6 +187,7 @@ def curso_detail(id):
         curso.nombre = data.get('nombre', curso.nombre)
         curso.max_alumnos = data.get('max_alumnos', curso.max_alumnos)
         curso.lleno = data.get('lleno', curso.lleno)
+        curso.activo = data.get('activo', curso.activo)
         curso.codigo = data.get('codigo', curso.codigo)
         curso.horario = data.get('horario', curso.horario)
         curso.horas_totales = data.get('horas_totales', curso.horas_totales)

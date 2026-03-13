@@ -30,6 +30,7 @@ class Curso(db.Model):
     nombre = db.Column(db.String(200), nullable=False)
     max_alumnos = db.Column(db.Integer)
     lleno = db.Column(db.Boolean, default=False)
+    activo = db.Column(db.Boolean, default=True)
     fecha_inicio = db.Column(db.Date)
     fecha_fin = db.Column(db.Date)
     codigo = db.Column(db.String(20), unique=True)
@@ -44,6 +45,7 @@ class Curso(db.Model):
             "nombre": self.nombre,
             "max_alumnos": self.max_alumnos,
             "lleno": self.lleno,
+            "activo": self.activo,
             "fecha_inicio": self.fecha_inicio.isoformat() if self.fecha_inicio else None,
             "fecha_fin": self.fecha_fin.isoformat() if self.fecha_fin else None,
             "codigo": self.codigo,
