@@ -820,25 +820,25 @@
                 </div>
             </section>
 
-            <!-- Right: Main content -->
-            <section class="card" id="mainCard">
-                <div class="card-header" id="mainHeader">
-                    <div>
-                        <h2 id="mainTitle">Selecciona un curso</h2>
-                        <p id="mainSubtitle">A la derecha aparecerán los leads y podrás gestionarlos.</p>
-                    </div>
-                    <div class="split right">
-                        <span class="badge" id="leadCount">0 leads</span>
-                    </div>
+        <!-- Right: Main content -->
+        <section class="card" id="mainCard">
+            <div class="card-header" id="mainHeader">
+                <div>
+                    <h2 id="mainTitle">Selecciona un curso</h2>
+                    <p id="mainSubtitle">A la derecha aparecerán los leads y podrás gestionarlos.</p>
                 </div>
-                <div class="card-body" id="mainBody">
-                    <div class="empty">
-                        👈 Elige un curso a la izquierda. <br />
-                        Luego podrás <b>añadir leads</b>, abrir la <b>ficha</b> y crear <b>notas con fecha/hora</b>.
-                    </div>
+                <div class="split right">
+                    <span class="badge" id="leadCount">0 leads</span>
                 </div>
-            </section>
-        </div>
+            </div>
+            <div class="card-body" id="mainBody">
+                <div class="empty">
+                    👈 Elige un curso a la izquierda. <br />
+                    Luego podrás <b>añadir leads</b>, abrir la <b>ficha</b> y crear <b>notas con fecha/hora</b>.
+                </div>
+            </div>
+        </section>
+    </div>
     </div>
 
     <!-- Modal -->
@@ -880,6 +880,7 @@
             search: "",
             searchMode: "phone",
             statusFilter: "",
+            courseStatusFilter: "active",
             trabajadorFilter: "all",
             courseStatusFilter: "active",
             currentPage: 1,
@@ -1088,6 +1089,7 @@
               <div class="title">${escapeHtml(course.nombre || "Curso")}</div>
               <div class="sub">
                 <span class="badge">${leadTotal} lead${leadTotal === 1 ? "" : "s"}</span>
+                <span class="tag" style="font-size:9px;">${escapeHtml(course.codigo || '—')}</span>
               </div>
             </div>
             <div class="mini-actions" onclick="event.stopPropagation()">
@@ -2061,6 +2063,28 @@
                 state.selectedCourseId = state.data.courses[0].id_curso;
 
             document.getElementById("btnNewCourse").onclick = openNewCourse;
+
+            const tabActive = document.getElementById("tabActive");
+            const tabInactive = document.getElementById("tabInactive");
+
+            const updateTabs = () => {
+                if (state.courseStatusFilter === "active") {
+                    tabActive.classList.replace("ghost", "primary");
+                    tabActive.classList.add("primary");
+                    tabInactive.classList.replace("primary", "ghost");
+                    tabInactive.classList.remove("primary");
+                } else {
+                    tabInactive.classList.replace("ghost", "primary");
+                    tabInactive.classList.add("primary");
+                    tabActive.classList.replace("primary", "ghost");
+                    tabActive.classList.remove("primary");
+                }
+            };
+
+            tabActive.onclick = () => { state.courseStatusFilter = "active"; updateTabs(); renderAll(); };
+            tabInactive.onclick = () => { state.courseStatusFilter = "inactive"; updateTabs(); renderAll(); };
+            updateTabs();
+
             const btnSeed = document.getElementById("btnSeed");
             if (btnSeed) btnSeed.style.display = "none";
 

@@ -31,9 +31,24 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-# Create tables (Optional: Only if they don't exist)
-# with app.app_context():
-#     db.create_all()
+# Sync all sequences on startup to prevent duplicate primary key errors
+# This handles cases where data was imported/restored with explicit IDs
+with app.app_context():
+    sequences = {
+        'leads': ('id_lead', 'leads_id_lead_seq'),
+        'cursos': ('id_curso', 'cursos_id_curso_seq'),
+        'notas': ('id_nota', 'notas_id_nota_seq'),
+        'documentos': ('id_documento', 'documentos_id_documento_seq'),
+    }
+    for table, (col, seq) in sequences.items():
+        try:
+            db.session.execute(db.text(
+                f"SELECT setval('{seq}', COALESCE((SELECT MAX({col}) FROM {table}), 1))"
+            ))
+        except Exception as e:
+            print(f"Warning: Could not sync sequence {seq}: {e}")
+    db.session.commit()
+    print("✅ All sequences synchronized")
 
 @app.route('/api/leads', methods=['GET', 'POST'])
 def manage_leads():
@@ -151,7 +166,11 @@ def manage_cursos():
         codigo=data.get('codigo'),
         activo=data.get('activo', True),
         fecha_inicio=datetime.fromisoformat(data['fecha_inicio']).date() if data.get('fecha_inicio') else None,
-        fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None
+        fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None,
+        horario=data.get('horario'),
+        horas_totales=data.get('horas_totales'),
+        para_trabajadores=data.get('para_trabajadores', False),
+        activo=data.get('activo', False)
     )
     db.session.add(new_curso)
     db.session.commit()
@@ -170,6 +189,10 @@ def curso_detail(id):
         curso.lleno = data.get('lleno', curso.lleno)
         curso.activo = data.get('activo', curso.activo)
         curso.codigo = data.get('codigo', curso.codigo)
+        curso.horario = data.get('horario', curso.horario)
+        curso.horas_totales = data.get('horas_totales', curso.horas_totales)
+        curso.para_trabajadores = data.get('para_trabajadores', curso.para_trabajadores)
+        curso.activo = data.get('activo', curso.activo)
         if 'fecha_inicio' in data:
             curso.fecha_inicio = datetime.fromisoformat(data['fecha_inicio']).date() if data['fecha_inicio'] else None
         if 'fecha_fin' in data:
@@ -195,7 +218,8 @@ def manage_curso_leads(id_curso):
         id_curso=id_curso,
         id_lead=data['id_lead'],
         estado=data.get('estado', 'Nuevo'),
-        fecha_formulario=datetime.utcnow()
+        fecha_formulario=datetime.utcnow(),
+        ultimo_contacto=datetime.utcnow()
     )
     db.session.add(new_rel)
     db.session.commit()
@@ -213,6 +237,8 @@ def curso_lead_detail(id_curso, id_lead):
             rel.whatsapp_enviado = data['whatsapp_enviado']
         if 'mail_enviado' in data:
             rel.mail_enviado = data['mail_enviado']
+        
+        rel.ultimo_contacto = datetime.utcnow()
         db.session.commit()
         return jsonify(rel.to_dict())
     
