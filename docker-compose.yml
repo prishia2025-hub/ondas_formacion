@@ -1,7 +1,7 @@
 services:
   web:
     build: ./backend
-    container_name: ondas_backend
+    container_name: ${COMPOSE_PROJECT_NAME}_backend
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -9,16 +9,16 @@ services:
       DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME}
     ports:
-      - "5000:5000"
+      - "${HOST_PORT_BACKEND}:5000"
     restart: always
 
   frontend:
     build: ./frontend
-    container_name: ondas_crm_frontend
+    container_name: ${COMPOSE_PROJECT_NAME}_frontend
     volumes:
       - .:/app/public
     ports:
-      - "3000:3000"
+      - "${HOST_PORT_FRONTEND}:3000"
     depends_on:
       - web
     restart: always
