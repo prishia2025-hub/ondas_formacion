@@ -169,8 +169,7 @@ def manage_cursos():
         fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None,
         horario=data.get('horario'),
         horas_totales=data.get('horas_totales'),
-        para_trabajadores=data.get('para_trabajadores', False),
-        activo=data.get('activo', False)
+        para_trabajadores=data.get('para_trabajadores', False)
     )
     db.session.add(new_curso)
     db.session.commit()
@@ -192,7 +191,6 @@ def curso_detail(id):
         curso.horario = data.get('horario', curso.horario)
         curso.horas_totales = data.get('horas_totales', curso.horas_totales)
         curso.para_trabajadores = data.get('para_trabajadores', curso.para_trabajadores)
-        curso.activo = data.get('activo', curso.activo)
         if 'fecha_inicio' in data:
             curso.fecha_inicio = datetime.fromisoformat(data['fecha_inicio']).date() if data['fecha_inicio'] else None
         if 'fecha_fin' in data:
