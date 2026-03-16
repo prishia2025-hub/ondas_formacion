@@ -52,6 +52,7 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
               <th className="px-4 py-3">Nombre</th>
               <th className="px-4 py-3">Contacto</th>
               <th className="px-4 py-3">Estado</th>
+              <th className="px-4 py-3">Creado</th>
               <th className="px-4 py-3">Último Contacto</th>
               <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
@@ -63,7 +64,7 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
                   <div className="flex items-center gap-2">
                     {lead.nombre}
                     {lead.trabajador && (
-                      <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Trabajador</span>
+                      <span className="text-[10px] uppercase font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded">Trabajador</span>
                     )}
                   </div>
                 </td>
@@ -87,10 +88,13 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
                   <StatusBadge status={lead.estado as any} label={lead.estado} />
                 </td>
                 <td className="px-4 py-3 text-slate-500">
+                  {formatDate(lead.fecha_formulario)}
+                </td>
+                <td className="px-4 py-3 text-slate-500">
                   {formatDate(lead.ultimo_contacto)}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Link 
+                  <Link
                     to={`/cursos/${cursoId}/lead/${lead.id_lead}`}
                     className="inline-flex items-center gap-1.5 text-accent-from hover:text-accent-to font-medium transition-colors"
                   >

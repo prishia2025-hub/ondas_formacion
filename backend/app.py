@@ -284,7 +284,7 @@ def curso_detail(id):
 def manage_curso_leads(id_curso):
     if request.method == 'GET':
         page = request.args.get('page', 1, type=int)
-        limit = request.args.get('limit', 50, type=int)
+        limit = request.args.get('limit', 10, type=int)
         search = request.args.get('search', '', type=str)
 
         query = CursoLead.query.filter_by(id_curso=id_curso)
@@ -295,7 +295,7 @@ def manage_curso_leads(id_curso):
                 Lead.telefono.ilike(f'%{search}%')
             ))
 
-        query = query.order_by(CursoLead.ultimo_contacto.desc())
+        query = query.order_by(CursoLead.fecha_formulario.desc())
 
         if limit > 0:
             pagination = query.paginate(page=page, per_page=limit, error_out=False)

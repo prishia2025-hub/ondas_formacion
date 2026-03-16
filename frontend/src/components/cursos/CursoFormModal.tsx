@@ -65,7 +65,7 @@ export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPendi
     <Modal isOpen={isOpen} onClose={onClose} title={cursoToEdit ? "Editar Curso" : "Nuevo Curso"}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1">Nombre maduro *</label>
+          <label className="block text-sm font-medium text-text-primary mb-1">Nombre del curso *</label>
           <input
             type="text"
             name="nombre"

@@ -55,21 +55,21 @@ export default function CursoLeadsPage() {
             {isLeadsLoading && !leadsResponse ? (
               <Skeleton className="h-4 w-40 mt-2" />
             ) : (
-              `Gestionando ${totalLeads} leads matriculados (Página ${page} de ${totalPages})`
+              `${totalLeads} leads totales`
             )}
           </p>
         </div>
-        
+
         {/* Placeholder for add lead to course button if needed */}
         {/* <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
           Añadir Lead
         </button> */}
       </div>
 
-      <CursoLeadsTable 
-        cursoId={cursoId} 
-        leads={leads} 
-        isLoading={isLeadsLoading} 
+      <CursoLeadsTable
+        cursoId={cursoId}
+        leads={leads}
+        isLoading={isLeadsLoading}
       />
 
       {totalPages > 1 && (
