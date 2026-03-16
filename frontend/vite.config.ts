@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 3005,
+    allowedHosts: ["dev-ondas.prishia.es"],
   },
   plugins: [react()],
   resolve: {
