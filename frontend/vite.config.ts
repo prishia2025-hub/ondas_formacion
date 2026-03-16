@@ -7,6 +7,12 @@ export default defineConfig({
     host: true,
     port: 3005,
     allowedHosts: ["dev-ondas.prishia.es"],
+    proxy: {
+      "/api": {
+        target: "http://web:5005",
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [react()],
   resolve: {
