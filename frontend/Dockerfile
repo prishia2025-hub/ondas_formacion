@@ -11,6 +11,6 @@ COPY . .
 # Create public directory to hold HTML files
 RUN mkdir -p public
 
-EXPOSE 3000
+EXPOSE 3005
 
 CMD ["npm", "start"]

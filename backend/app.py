@@ -169,8 +169,7 @@ def manage_cursos():
         fecha_fin=datetime.fromisoformat(data['fecha_fin']).date() if data.get('fecha_fin') else None,
         horario=data.get('horario'),
         horas_totales=data.get('horas_totales'),
-        para_trabajadores=data.get('para_trabajadores', False),
-        activo=data.get('activo', False)
+        para_trabajadores=data.get('para_trabajadores', False)
     )
     db.session.add(new_curso)
     db.session.commit()
