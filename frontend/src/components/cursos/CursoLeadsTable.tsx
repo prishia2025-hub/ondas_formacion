@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { Mail, Phone, ExternalLink } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -12,24 +12,17 @@ interface CursoLeadsTableProps {
 }
 
 export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTableProps) {
+  const navigate = useNavigate();
+
   if (isLoading) {
-    return (
-      <div className="bg-white rounded-xl border border-border overflow-hidden">
-        <div className="p-4 border-b space-y-4">
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-        </div>
-      </div>
-    );
+    return <Skeleton />;
   }
 
   if (!leads || leads.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-xl border border-dashed border-slate-300">
-        <h3 className="text-lg font-medium text-text-primary mb-1">No hay leads en este curso</h3>
-        <p className="text-text-secondary">Añade leads desde el listado global o crea uno nuevo.</p>
+      <div className="text-center py-12">
+        <h3 className="text-lg font-semibold text-text-primary">No hay leads en este curso</h3>
+        <p className="text-text-secondary mt-1">Añade leads desde el listado global o crea uno nuevo.</p>
       </div>
     );
   }
@@ -44,69 +37,72 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
   };
 
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-slate-50 text-slate-600 font-medium border-b border-border">
-            <tr>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Contacto</th>
-              <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3">Creado</th>
-              <th className="px-4 py-3">Último Contacto</th>
-              <th className="px-4 py-3 text-right">Acciones</th>
+    <div className="overflow-x-auto rounded-xl border border-border">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-slate-50 text-left text-text-secondary">
+            <th className="px-4 py-3 font-medium">Nombre</th>
+            <th className="px-4 py-3 font-medium">Contacto</th>
+            <th className="px-4 py-3 font-medium">Estado</th>
+            <th className="px-4 py-3 font-medium">Creado</th>
+            <th className="px-4 py-3 font-medium">Último Contacto</th>
+            <th className="px-4 py-3 font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {leads.map((lead) => (
+            <tr
+              key={lead.id_lead}
+              onClick={() => navigate(`/leads/${lead.id_lead}`)}
+              className="hover:bg-slate-50 cursor-pointer transition-colors"
+            >
+              <td className="px-4 py-3 font-medium text-text-primary">
+                <span>{lead.nombre}</span>
+                {lead.trabajador && (
+                  <span className="ml-2 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                    Trabajador
+                  </span>
+                )}
+              </td>
+              <td className="px-4 py-3 text-text-secondary space-y-1">
+                {lead.telefono && (
+                  <div className="flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5" />
+                    {lead.telefono}
+                  </div>
+                )}
+                {lead.mail && (
+                  <div className="flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5" />
+                    {lead.mail}
+                  </div>
+                )}
+              </td>
+              <td className="px-4 py-3">
+                <StatusBadge status={lead.estado as any} label={lead.estado} />
+              </td>
+              <td className="px-4 py-3 text-text-secondary">
+                {formatDate(lead.fecha_formulario)}
+              </td>
+              <td className="px-4 py-3 text-text-secondary">
+                {formatDate(lead.ultimo_contacto)}
+              </td>
+              <td
+                className="px-4 py-3"
+                onClick={(e) => e.stopPropagation()} // evita doble navegación
+              >
+                <Link
+                  to={`/leads/${lead.id_lead}`}
+                  className="flex items-center gap-1 text-accent-from hover:underline font-medium"
+                >
+                  Ver detalle
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {leads.map((lead) => (
-              <tr key={lead.id_lead} className="hover:bg-slate-50 transition-colors group">
-                <td className="px-4 py-3 font-medium text-slate-900">
-                  <div className="flex items-center gap-2">
-                    {lead.nombre}
-                    {lead.trabajador && (
-                      <span className="text-[10px] uppercase font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded">Trabajador</span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-col gap-1">
-                    {lead.telefono && (
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <Phone className="w-3.5 h-3.5" />
-                        <span>{lead.telefono}</span>
-                      </div>
-                    )}
-                    {lead.mail && (
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <Mail className="w-3.5 h-3.5" />
-                        <span>{lead.mail}</span>
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <StatusBadge status={lead.estado as any} label={lead.estado} />
-                </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {formatDate(lead.fecha_formulario)}
-                </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {formatDate(lead.ultimo_contacto)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    to={`/cursos/${cursoId}/lead/${lead.id_lead}`}
-                    className="inline-flex items-center gap-1.5 text-accent-from hover:text-accent-to font-medium transition-colors"
-                  >
-                    Ver detalle
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

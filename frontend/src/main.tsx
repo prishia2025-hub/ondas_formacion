@@ -5,7 +5,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
 import CursosPage from './pages/CursosPage';
 import CursoLeadsPage from './pages/CursoLeadsPage';
-import LeadsPage from './pages/LeadsPage';
 import LeadDetailPage from './pages/LeadDetailPage';
 import './index.css';
 
@@ -13,7 +12,7 @@ import './index.css';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30 * 1000, 
+      staleTime: 30 * 1000,
       refetchOnWindowFocus: false,
     },
   },
@@ -29,7 +28,6 @@ createRoot(document.getElementById('root')!).render(
             <Route path="cursos" element={<CursosPage />} />
             <Route path="cursos/:id_curso" element={<CursoLeadsPage />} />
             <Route path="cursos/:id_curso/lead/:id_lead" element={<LeadDetailPage />} />
-            <Route path="leads" element={<LeadsPage />} />
             <Route path="leads/:id_lead" element={<LeadDetailPage />} />
           </Route>
         </Routes>

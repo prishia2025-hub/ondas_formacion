@@ -6,6 +6,8 @@ from models import db, Lead, Curso, CursoLead, Nota, Documento
 from dotenv import load_dotenv
 from datetime import datetime
 from flasgger import Swagger
+from sqlalchemy import func
+
 
 load_dotenv()
 
@@ -225,14 +227,24 @@ def manage_cursos():
             total = len(items)
             pages = 1
 
+        counts = dict(
+            db.session.query(CursoLead.id_curso, func.count(CursoLead.id_lead))
+            .group_by(CursoLead.id_curso).all()
+        )
+        items_result = []
+        for curso in items:
+            d = curso.to_dict()
+            d['leads_count'] = counts.get(curso.id_curso, 0)
+            items_result.append(d)
+
         return jsonify({
-            'items': [curso.to_dict() for curso in items],
+            'items': items_result,
             'total': total,
             'page': page,
             'pages': pages,
             'limit': limit
         })
-    
+
     data = request.json
     new_curso = Curso(
         nombre=data['nombre'],

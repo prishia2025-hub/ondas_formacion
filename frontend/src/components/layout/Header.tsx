@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { User, Settings, LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,16 +21,19 @@ export default function Header() {
     <header className="h-[64px] bg-white border-b relative flex items-center justify-between px-6 z-10 flex-shrink-0">
       {/* Bottom gradient line */}
       <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-from to-accent-to" />
-      
+
       <div className="flex items-center gap-3">
         {/* Logo text with gradient */}
-        <h1 className="text-xl font-semibold bg-gradient-to-r from-accent-from to-accent-to bg-clip-text text-transparent">
+        <Link
+          to="/cursos"
+          className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-sky-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+        >
           Ondas Formación
-        </h1>
+        </Link>
       </div>
 
       <div className="relative" ref={menuRef}>
-        <button 
+        <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors focus:outline-none"
         >
