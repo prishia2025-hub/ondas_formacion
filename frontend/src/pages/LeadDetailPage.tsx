@@ -155,14 +155,6 @@ export default function LeadDetailPage() {
                </div>
             </div>
           )}
-
-          <div className="bg-white rounded-xl border border-border p-5 shadow-sm flex-1">
-             <h3 className="font-semibold text-slate-800 mb-4">Documentación</h3>
-             <div className="border border-dashed border-slate-300 rounded-lg p-6 text-center bg-slate-50 text-slate-500">
-                <p className="text-sm mb-2">Módulo de documentos en construcción</p>
-                <div className="inline-flex px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium">Próximamente</div>
-             </div>
-          </div>
         </div>
       </div>
     </div>
