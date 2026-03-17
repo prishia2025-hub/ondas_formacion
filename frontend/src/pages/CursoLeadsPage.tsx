@@ -49,7 +49,7 @@ export default function CursoLeadsPage() {
         <p className="text-sm text-text-secondary mt-1">
           {isLeadsLoading && !leadsResponse
             ? <Skeleton className="h-4 w-48" />
-            : `Gestionando ${totalLeads} leads matriculados (Página ${page} de ${totalPages})`
+            : ` ${totalLeads} leads totales`
           }
         </p>
       </div>
