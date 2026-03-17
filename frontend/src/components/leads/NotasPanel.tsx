@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Send, Plus, X } from 'lucide-react';
-import { createNota, type Nota, type NotaFormData } from '@/api/notas';
+import { Send, Plus, X, Trash2 } from 'lucide-react';
+import { createNota, deleteNota, type Nota, type NotaFormData } from '@/api/notas';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from '../ui/SkeletonCard';
 
@@ -9,7 +9,7 @@ interface NotasPanelProps {
   leadId: number;
   notas?: Nota[];
   isLoading: boolean;
-  cursoId?: number; // Optional context if we're in a course
+  cursoId?: number;
 }
 
 export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProps) {
@@ -27,6 +27,13 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
       queryClient.invalidateQueries({ queryKey: ['notas', leadId] });
       setIsOpen(false);
       setFormData({ titulo: '', contenido: '', id_curso: cursoId });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id_nota: number) => deleteNota(leadId, id_nota),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notas', leadId] });
     },
   });
 
@@ -74,12 +81,24 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
                 <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-200 text-slate-500 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
                   <span className="w-2.5 h-2.5 bg-accent-from rounded-full" />
                 </div>
-                
+
                 {/* Content */}
                 <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-border bg-white shadow-sm">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-slate-800">{nota.titulo || 'Nota'}</span>
-                    <span className="text-xs text-slate-500 font-medium">{formatDate(nota.fecha)}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-slate-800">{nota.titulo || 'Nota'}</span>
+                      <span className="text-xs text-slate-500 font-medium">{formatDate(nota.fecha)}</span>
+                    </div>
+
+                    {/* ✅ Botón eliminar — aparece solo en hover */}
+                    <button
+                      onClick={() => deleteMutation.mutate(nota.id_nota)}
+                      disabled={deleteMutation.isPending}
+                      title="Eliminar nota"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                   <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{nota.contenido}</p>
                 </div>
@@ -93,7 +112,7 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
         )}
       </div>
 
-      {/* FIXED OVERLAY FOR NEW NOTA */}
+      {/* FORMULARIO NUEVA NOTA */}
       {isOpen && (
         <div className="fixed bottom-6 right-6 w-[360px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-[100] animate-in slide-in-from-bottom-10 fade-in duration-300 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between px-5 py-4 bg-slate-900 text-white">

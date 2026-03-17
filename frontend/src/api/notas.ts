@@ -21,3 +21,9 @@ export async function createNota(leadId: number, data: Omit<NotaFormData, 'id_le
     body: JSON.stringify({ ...data, id_lead: leadId }),
   });
 }
+export async function deleteNota(leadId: number, notaId: number): Promise<void> {
+  return fetchApi(`/api/leads/${leadId}/notas/${notaId}`, {
+    method: 'DELETE',
+  });
+}
+

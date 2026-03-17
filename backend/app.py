@@ -201,6 +201,25 @@ def manage_lead_notas(id_lead):
     db.session.commit()
     return jsonify(new_nota.to_dict()), 201
 
+
+@app.route('/api/leads/<int:id_lead>/notas/<int:id_nota>', methods=['DELETE'])
+@token_required
+def delete_lead_nota(current_user, id_lead, id_nota):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "DELETE FROM notas WHERE id_nota = %s AND id_lead = %s",
+            (id_nota, id_lead)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'message': 'Nota eliminada correctamente'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/cursos', methods=['GET', 'POST'])
 def manage_cursos():
     if request.method == 'GET':

@@ -11,7 +11,7 @@ export default function CursoLeadsPage() {
   const { id_curso } = useParams<{ id_curso: string }>();
   const cursoId = Number(id_curso);
   const [page, setPage] = useState(1);
-  const [limit] = useState(50);
+  const [limit] = useState(10);
   const [search, setSearch] = useState('');
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
@@ -69,12 +69,13 @@ export default function CursoLeadsPage() {
         />
       </div>
 
-      {/* Tabla */}
-      <CursoLeadsTable
-        cursoId={cursoId}
-        leads={leads}
-        isLoading={isLeadsLoading}
-      />
+<div className="w-full lg:w-[75%] xl:w-[65%] mx-auto">
+  <CursoLeadsTable
+    cursoId={cursoId}
+    leads={leads}
+    isLoading={isLeadsLoading}
+  />
+</div>
 
       {/* Paginación */}
       {totalPages > 1 && (
