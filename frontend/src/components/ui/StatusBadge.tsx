@@ -23,19 +23,25 @@ const statusVariants = cva(
 )
 
 interface StatusBadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof statusVariants> {
-  label: string;
+  label?: string;
+  estado?: string;
 }
 
-export function StatusBadge({ className, status, estadoCurso, label, ...props }: StatusBadgeProps) {
+export function StatusBadge({ className, status, estadoCurso, label, estado, ...props }: StatusBadgeProps) {
+  const finalStatus = (status || estado) as any;
+  const finalLabel = label || estado || status || '';
+
   // Try to match the status string if valid, else fallback to default style
-  let matchedStatus = status;
-  if (status && !['Nuevo', 'Contactado', 'Pendiente de documentación', 'Inscrito', 'Reserva', 'No interesado'].includes(status)) {
+  let matchedStatus = finalStatus;
+  const validStatuses = ['Nuevo', 'Contactado', 'Pendiente de documentación', 'Inscrito', 'Reserva', 'No interesado'];
+  
+  if (finalStatus && !validStatuses.includes(finalStatus)) {
     matchedStatus = null;
   }
 
   return (
     <div className={cn(statusVariants({ status: matchedStatus, estadoCurso }), className)} {...props}>
-      {label}
+      {finalLabel}
     </div>
   )
 }
