@@ -7,6 +7,7 @@ export interface CursoLead extends Lead {
   mail_enviado: boolean;
   fecha_formulario?: string;
   ultimo_contacto?: string;
+  courses_count?: number;
 }
 
 export async function fetchCursoLeads(cursoId: number, params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<CursoLead>> {

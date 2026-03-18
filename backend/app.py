@@ -340,11 +340,20 @@ def manage_curso_leads(id_curso):
             pages = 1
 
         results = []
+
+        lead_ids = [rel.id_lead for rel in items]
+        course_counts = dict(
+            db.session.query(CursoLead.id_lead, func.count(CursoLead.id_curso))
+            .filter(CursoLead.id_lead.in_(lead_ids))
+            .group_by(CursoLead.id_lead)
+            .all()
+        )
         for rel in items:
             rel_dict = rel.to_dict()
             lead = Lead.query.get(rel.id_lead)
             if lead:
                 rel_dict.update(lead.to_dict())
+                rel_dict['courses_count'] = course_counts.get(lead.id_lead, 0)
             results.append(rel_dict)
 
         return jsonify({

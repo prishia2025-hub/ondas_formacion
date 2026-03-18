@@ -61,6 +61,11 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
                     Trabajador
                   </span>
                 )}
+                {(lead.courses_count ?? 0) > 1 && (
+                  <span className="text-xs font-semibold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
+                    {lead.courses_count} cursos
+                  </span>
+                )}
               </td>
               <td className="px-4 py-3 text-text-secondary space-y-1">
                 {lead.telefono && (
