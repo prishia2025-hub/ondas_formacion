@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
 import CursosPage from './pages/CursosPage';
 import CursoLeadsPage from './pages/CursoLeadsPage';
@@ -21,7 +21,7 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <MemoryRouter>  {/* <--- AQUI */}
         <Routes>
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Navigate to="/cursos" replace />} />
@@ -31,7 +31,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="leads/:id_lead" element={<LeadDetailPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter> {/* <--- Y AQUI */}
     </QueryClientProvider>
   </StrictMode>
 );
+
