@@ -209,6 +209,23 @@ def manage_lead_notas(id_lead):
     db.session.commit()
     return jsonify(new_nota.to_dict()), 201
 
+    
+
+@app.route('/api/leads/<int:id_lead>/cursos', methods=['GET'])
+def get_lead_cursos(id_lead):
+    rels = CursoLead.query.filter_by(id_lead=id_lead).order_by(CursoLead.ultimo_contacto.desc()).all()
+    result = []
+    for rel in rels:
+        curso = Curso.query.get(rel.id_curso)
+        if curso:
+            entry = curso.to_dict()
+            entry['estado'] = rel.estado
+            entry['ultimo_contacto'] = rel.ultimo_contacto.isoformat() if rel.ultimo_contacto else None
+            entry['fecha_formulario'] = rel.fecha_formulario.isoformat() if rel.fecha_formulario else None
+            result.append(entry)
+    return jsonify(result)
+
+
 
 @app.route('/api/leads/<int:id_lead>/notas/<int:id_nota>', methods=['DELETE'])
 def delete_lead_nota(id_lead, id_nota):

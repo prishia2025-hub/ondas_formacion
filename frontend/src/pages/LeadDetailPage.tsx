@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, Mail, Phone, Calendar, Briefcase, Info } from 'lucide-react';
+import { ChevronLeft, Mail, Phone, Calendar, Briefcase, Info, BookOpen } from 'lucide-react';
 import { fetchLead } from '@/api/leads';
 import { fetchLeadNotas } from '@/api/notas';
 import { fetchCurso } from '@/api/cursos';
@@ -8,6 +8,8 @@ import { NotasPanel } from '@/components/leads/NotasPanel';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/ui/SkeletonCard';
 import { format, parseISO } from 'date-fns';
+import { fetchLeadCursos } from '@/api/cursoLeads';
+
 
 export default function LeadDetailPage() {
   const { id_lead, id_curso } = useParams<{ id_lead: string; id_curso?: string }>();
@@ -31,6 +33,12 @@ export default function LeadDetailPage() {
     queryKey: ['cursos', cursoId],
     queryFn: () => fetchCurso(cursoId!),
     enabled: !!cursoId,
+  });
+
+  const { data: leadCursos, isLoading: isCursosLoading } = useQuery({
+    queryKey: ['lead-cursos', leadId],
+    queryFn: () => fetchLeadCursos(leadId),
+    enabled: !!leadId,
   });
 
   if (isLeadLoading) {
@@ -156,6 +164,48 @@ export default function LeadDetailPage() {
             </div>
           )}
         </div>
+
+        {/* PANEL: Cursos del lead */}
+        <div className="bg-white rounded-xl border border-border p-5 shadow-sm">
+          <h3 className="font-semibold text-slate-800 flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-accent-from">
+              <BookOpen className="w-4 h-4" />
+            </span>
+            Cursos inscritos
+          </h3>
+
+          {isCursosLoading ? (
+            <Skeleton className="h-20 w-full" />
+          ) : !leadCursos || leadCursos.length === 0 ? (
+            <p className="text-sm text-slate-400">Sin cursos asignados.</p>
+          ) : (
+            <div className="space-y-3">
+              {leadCursos.map((curso) => (
+                <Link
+                  key={curso.id_curso}
+                  to={`/cursos/${curso.id_curso}/lead/${leadId}`}
+                  className="block p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition-colors group"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-sm font-medium text-slate-800 group-hover:text-accent-from leading-snug">
+                      {curso.nombre}
+                    </span>
+                    <StatusBadge status={curso.estado as any} label={curso.estado} />
+                  </div>
+                  {curso.codigo && (
+                    <span className="text-xs text-slate-400 font-mono mt-1 block">{curso.codigo}</span>
+                  )}
+                  {curso.ultimo_contacto && (
+                    <span className="text-xs text-slate-400 mt-1 block">
+                      Último contacto: {format(parseISO(curso.ultimo_contacto), 'dd/MM/yyyy')}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );

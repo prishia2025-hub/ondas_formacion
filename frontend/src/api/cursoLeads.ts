@@ -10,6 +10,18 @@ export interface CursoLead extends Lead {
   courses_count?: number;
 }
 
+export interface LeadCursoEntry {
+  id_curso: number;
+  nombre: string;
+  codigo?: string;
+  estado: string;
+  ultimo_contacto?: string;
+  fecha_formulario?: string;
+  activo?: boolean;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+}
+
 export async function fetchCursoLeads(cursoId: number, params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<CursoLead>> {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
@@ -40,4 +52,8 @@ export async function removeLeadFromCurso(cursoId: number, leadId: number): Prom
   return fetchApi<void>(`/api/cursos/${cursoId}/leads/${leadId}`, {
     method: 'DELETE',
   });
+}
+
+export async function fetchLeadCursos(leadId: number): Promise<LeadCursoEntry[]> {
+  return fetchApi<LeadCursoEntry[]>(`/api/leads/${leadId}/cursos`);
 }
