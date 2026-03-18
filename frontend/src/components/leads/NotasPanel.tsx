@@ -37,11 +37,11 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /*const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.contenido.trim()) return;
     createMutation.mutate(formData);
-  };
+  };*/
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
@@ -51,6 +51,17 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
       return dateString;
     }
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.contenido.trim()) return;
+    if (!formData.id_curso) {
+      alert('Debes seleccionar un curso antes de añadir una nota.');
+      return;
+    }
+    createMutation.mutate(formData);
+  };
+
 
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden h-full min-h-0 flex flex-col pt-2 shadow-sm">
