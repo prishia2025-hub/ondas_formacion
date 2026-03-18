@@ -9,6 +9,10 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/ui/SkeletonCard';
 import { format, parseISO } from 'date-fns';
 import { fetchLeadCursos } from '@/api/cursoLeads';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { updateLead, type LeadFormData } from '@/api/leads';
+import { LeadFormModal } from '@/components/leads/LeadFormModal';
 
 
 export default function LeadDetailPage() {
@@ -40,6 +44,24 @@ export default function LeadDetailPage() {
     queryFn: () => fetchLeadCursos(leadId),
     enabled: !!leadId,
   });
+
+  const queryClient = useQueryClient();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const updateMutation = useMutation({
+    mutationFn: (data: LeadFormData) => updateLead(leadId, {
+      nombre: data.nombre,
+      telefono: data.telefono,
+      mail: data.mail,
+      trabajador: data.trabajador,
+    }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
+      await queryClient.invalidateQueries({ queryKey: ['leads'] });
+      setIsEditOpen(false);
+    },
+  });
+
 
   if (isLeadLoading) {
     return (
@@ -92,9 +114,13 @@ export default function LeadDetailPage() {
                 </h1>
                 <StatusBadge status={lead.estado as any} label={lead.estado || 'Nuevo'} className="text-sm px-3 py-1" />
               </div>
-              <button className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+              <button
+                onClick={() => setIsEditOpen(true)}
+                className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+              >
                 ✏️ Editar Lead
               </button>
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,6 +231,13 @@ export default function LeadDetailPage() {
         </div>
 
       </div>
+      <LeadFormModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSubmit={(data) => updateMutation.mutate(data)}
+        leadToEdit={lead}
+        isPending={updateMutation.isPending}
+      />
     </div>
   );
 }
