@@ -15,6 +15,8 @@ interface NotasPanelProps {
 export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProps) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+
   const [formData, setFormData] = useState<Omit<NotaFormData, 'id_lead'>>({
     titulo: '',
     contenido: '',
@@ -36,12 +38,6 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
       queryClient.invalidateQueries({ queryKey: ['notas', leadId] });
     },
   });
-
-  /*const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.contenido.trim()) return;
-    createMutation.mutate(formData);
-  };*/
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
@@ -102,7 +98,7 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
                       <span className="text-xs text-slate-500 font-medium">{formatDate(nota.fecha)}</span>
                     </div>
                     <button
-                      onClick={() => deleteMutation.mutate(nota.id_nota)}
+                      onClick={() => setConfirmDeleteId(nota.id_nota)}
                       disabled={deleteMutation.isPending}
                       title="Eliminar nota"
                       className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50"
@@ -165,6 +161,37 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
           </form>
         </div>
       )}
+
+      {/* CONFIRMACIÓN ELIMINAR NOTA */}
+      {confirmDeleteId !== null && (
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[320px] animate-in fade-in zoom-in-95 duration-200">
+            <h4 className="font-semibold text-slate-800 mb-2">¿Eliminar nota?</h4>
+            <p className="text-sm text-slate-500 mb-6">
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  deleteMutation.mutate(confirmDeleteId);
+                  setConfirmDeleteId(null);
+                }}
+                disabled={deleteMutation.isPending}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
