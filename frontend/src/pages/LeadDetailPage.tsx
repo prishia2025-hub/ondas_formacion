@@ -58,7 +58,7 @@ export default function LeadDetailPage() {
   const backText = cursoId ? `Volver a ${curso?.nombre || 'Curso'}` : 'Volver a Leads';
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto h-[calc(100vh-64px)] overflow-hidden flex flex-col">
+    <div className="max-w-7xl mx-auto h-full min-h-0 flex flex-col">
       <div className="mb-6 flex items-center gap-2 text-sm shrink-0">
         <Link to={backLink} className="text-text-secondary hover:text-accent-from flex items-center gap-1 transition-colors">
           <ChevronLeft className="w-4 h-4" />
@@ -126,7 +126,7 @@ export default function LeadDetailPage() {
           </div>
 
           {/* NOTAS PANEL */}
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-hidden">
             <NotasPanel leadId={leadId} notas={notas} isLoading={isNotasLoading} cursoId={cursoId} />
           </div>
         </div>
