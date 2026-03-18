@@ -115,7 +115,7 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
             onChange={handleChange}
             className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50 bg-white"
           >
-            {statuses?.map(s => <option key={s} value={s}>{s}</option>)}
+            {statuses?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             {!statuses && <option value="Nuevo">Nuevo</option>}
           </select>
         </div>

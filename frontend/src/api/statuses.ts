@@ -1,6 +1,11 @@
 import { fetchApi } from './base';
 
-// "Nuevo", "Contactado", "Pendiente de documentación", "Inscrito", "Reserva", "No interesado"
-export async function fetchStatuses(): Promise<string[]> {
-  return fetchApi<string[]>('/api/statuses');
+export interface Status {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export async function fetchStatuses(): Promise<Status[]> {
+  return fetchApi<Status[]>('/api/statuses');
 }
