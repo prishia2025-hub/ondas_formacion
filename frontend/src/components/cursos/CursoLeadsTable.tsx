@@ -52,8 +52,7 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
           {leads.map((lead) => (
             <tr
               key={lead.id_lead}
-              onClick={() => navigate(`/leads/${lead.id_lead}`)}
-              className="cursor-pointer bg-white transition-colors hover:bg-slate-100"
+              onClick={() => navigate(`/cursos/${cursoId}/lead/${lead.id_lead}`)} className="cursor-pointer bg-white transition-colors hover:bg-slate-100"
             >
               <td className="px-4 py-3 font-medium text-text-primary">
                 <span>{lead.nombre}</span>
