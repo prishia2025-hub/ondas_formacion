@@ -53,7 +53,7 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
   };
 
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden h-full flex flex-col pt-2 shadow-sm">
+    <div className="bg-white rounded-xl border border-border overflow-hidden h-full min-h-0 flex flex-col pt-2 shadow-sm">
       <div className="px-5 pb-4 border-b flex items-center justify-between">
         <h3 className="font-semibold text-slate-800 flex items-center gap-2">
           <span className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">📝</span>
@@ -67,7 +67,7 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
         </button>
       </div>
 
-      <div className="p-5 flex-1 overflow-y-auto bg-slate-50/50">
+      <div className="p-5 pr-3 flex-1 min-h-0 overflow-y-auto bg-slate-50/50">
         {isLoading ? (
           <div className="space-y-6">
             <Skeleton className="h-24 w-full" />
