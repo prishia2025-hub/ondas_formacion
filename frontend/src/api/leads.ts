@@ -9,6 +9,7 @@ export interface Lead {
   // Relational data might be included depending on the endpoint
   estado?: string; 
   ultimo_contacto?: string;
+  courses_count?: number;
 }
 
 export type LeadFormData = Omit<Lead, 'id_lead' | 'estado' | 'ultimo_contacto'> & {

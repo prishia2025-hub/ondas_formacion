@@ -89,11 +89,19 @@ def manage_leads():
             total = len(items)
             pages = 1
 
+        lead_ids = [lead.id_lead for lead in items]
+        course_counts = dict(
+            db.session.query(CursoLead.id_lead, func.count(CursoLead.id_curso))
+            .filter(CursoLead.id_lead.in_(lead_ids))
+            .group_by(CursoLead.id_lead)
+            .all()
+        )
         leads_result = []
         for lead in items:
             l_dict = lead.to_dict()
             rel = CursoLead.query.filter_by(id_lead=lead.id_lead).order_by(CursoLead.ultimo_contacto.desc()).first()
             l_dict['estado'] = rel.estado if rel else 'Nuevo'
+            l_dict['courses_count'] = course_counts.get(lead.id_lead, 0)  
             leads_result.append(l_dict)
 
         return jsonify({

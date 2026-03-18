@@ -54,6 +54,11 @@ export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
                     {lead.trabajador && (
                       <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Trabajador</span>
                     )}
+                    {(lead.courses_count??0) > 1 && (
+                      <span className="text-xs font-semibold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
+                        {lead.courses_count} cursos
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3">
@@ -77,18 +82,18 @@ export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-3">
-                    <button 
+                    <button
                       onClick={() => onEdit(lead)}
                       className="p-1.5 text-slate-500 hover:text-accent-from hover:bg-indigo-50 rounded transition-colors"
                       title="Editar"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <Link 
+                    <Link
                       to={`/leads/${lead.id_lead}`}
                       className="inline-flex items-center gap-1.5 text-accent-from hover:text-accent-to font-medium transition-colors"
                     >
-                       Detalle <ExternalLink className="w-3.5 h-3.5" />
+                      Detalle <ExternalLink className="w-3.5 h-3.5" />
                     </Link>
                   </div>
                 </td>
