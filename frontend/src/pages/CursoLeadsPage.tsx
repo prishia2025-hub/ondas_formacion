@@ -87,7 +87,10 @@ export default function CursoLeadsPage() {
           placeholder="Buscar por nombre o teléfono..."
           className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all"
         />
-          <button
+
+      </div>
+      <div>
+        <button
           onClick={() => setIsAddOpen(true)}
           className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
         >
@@ -95,7 +98,6 @@ export default function CursoLeadsPage() {
           Añadir Lead
         </button>
       </div>
-
 
 
       <div className="w-full lg:w-[75%] xl:w-[65%] mx-auto">
