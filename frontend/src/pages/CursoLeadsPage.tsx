@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, Search } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ChevronLeft, Search, Plus } from 'lucide-react';
 import { fetchCurso } from '@/api/cursos';
-import { fetchCursoLeads } from '@/api/cursoLeads';
+import { fetchCursoLeads, addLeadToCurso } from '@/api/cursoLeads';
 import { CursoLeadsTable } from '@/components/cursos/CursoLeadsTable';
 import { Skeleton } from '@/components/ui/SkeletonCard';
+import { createLead, type LeadFormData } from '@/api/leads';
+import { LeadFormModal } from '@/components/leads/LeadFormModal';
 
 export default function CursoLeadsPage() {
   const { id_curso } = useParams<{ id_curso: string }>();
@@ -30,6 +32,24 @@ export default function CursoLeadsPage() {
   const leads = leadsResponse?.items || [];
   const totalPages = leadsResponse?.pages || 1;
   const totalLeads = leadsResponse?.total || 0;
+
+  const queryClient = useQueryClient();
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  const createMutation = useMutation({
+    mutationFn: async (data: LeadFormData) => {
+      // 1. Crea el lead
+      const newLead = await createLead(data);
+      // 2. Lo vincula automáticamente al curso actual
+      await addLeadToCurso(cursoId, newLead.id_lead);
+      return newLead;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['curso-leads', cursoId] });
+      setIsAddOpen(false);
+    },
+  });
+
 
   return (
     <div className="space-y-6">
@@ -67,15 +87,24 @@ export default function CursoLeadsPage() {
           placeholder="Buscar por nombre o teléfono..."
           className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all"
         />
+          <button
+          onClick={() => setIsAddOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
+        >
+          <Plus className="w-4 h-4" />
+          Añadir Lead
+        </button>
       </div>
 
-<div className="w-full lg:w-[75%] xl:w-[65%] mx-auto">
-  <CursoLeadsTable
-    cursoId={cursoId}
-    leads={leads}
-    isLoading={isLeadsLoading}
-  />
-</div>
+
+
+      <div className="w-full lg:w-[75%] xl:w-[65%] mx-auto">
+        <CursoLeadsTable
+          cursoId={cursoId}
+          leads={leads}
+          isLoading={isLeadsLoading}
+        />
+      </div>
 
       {/* Paginación */}
       {totalPages > 1 && (
@@ -97,6 +126,14 @@ export default function CursoLeadsPage() {
           </button>
         </div>
       )}
+
+      <LeadFormModal
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onSubmit={(data) => createMutation.mutate(data)}
+        isPending={createMutation.isPending}
+      />
+
     </div>
   );
 }
