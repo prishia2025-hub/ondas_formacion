@@ -6,6 +6,8 @@ from models import db, Lead, Curso, CursoLead, Nota, Documento
 from dotenv import load_dotenv
 from datetime import datetime
 from flasgger import Swagger
+from sqlalchemy import func
+
 
 load_dotenv()
 
@@ -53,8 +55,62 @@ with app.app_context():
 @app.route('/api/leads', methods=['GET', 'POST'])
 def manage_leads():
     if request.method == 'GET':
-        leads = Lead.query.all()
-        return jsonify([lead.to_dict() for lead in leads])
+        page = request.args.get('page', 1, type=int)
+        limit = request.args.get('limit', 50, type=int)
+        search = request.args.get('search', '', type=str)
+        estado = request.args.get('estado', 'Todos', type=str)
+        trabajador = request.args.get('trabajador', 'Todos', type=str)
+
+        query = Lead.query
+
+        if search:
+            query = query.filter(db.or_(
+                Lead.nombre.ilike(f'%{search}%'),
+                Lead.telefono.ilike(f'%{search}%')
+            ))
+
+        if trabajador == 'Trabajando':
+            query = query.filter(Lead.trabajador == True)
+        elif trabajador == 'No trabajando':
+            query = query.filter(Lead.trabajador == False)
+
+        if estado != 'Todos':
+            query = query.join(CursoLead).filter(CursoLead.estado == estado).distinct()
+
+        query = query.order_by(Lead.id_lead.desc())
+
+        if limit > 0:
+            pagination = query.paginate(page=page, per_page=limit, error_out=False)
+            items = pagination.items
+            total = pagination.total
+            pages = pagination.pages
+        else:
+            items = query.all()
+            total = len(items)
+            pages = 1
+
+        lead_ids = [lead.id_lead for lead in items]
+        course_counts = dict(
+            db.session.query(CursoLead.id_lead, func.count(CursoLead.id_curso))
+            .filter(CursoLead.id_lead.in_(lead_ids))
+            .group_by(CursoLead.id_lead)
+            .all()
+        )
+        leads_result = []
+        for lead in items:
+            l_dict = lead.to_dict()
+            rel = CursoLead.query.filter_by(id_lead=lead.id_lead).order_by(CursoLead.ultimo_contacto.desc()).first()
+            l_dict['estado'] = rel.estado if rel else 'Nuevo'
+            l_dict['courses_count'] = course_counts.get(lead.id_lead, 0)  
+            leads_result.append(l_dict)
+
+        return jsonify({
+            'items': leads_result,
+            'total': total,
+            'page': page,
+            'pages': pages,
+            'limit': limit
+        })
     
     data = request.json
     new_lead = Lead(
@@ -153,12 +209,79 @@ def manage_lead_notas(id_lead):
     db.session.commit()
     return jsonify(new_nota.to_dict()), 201
 
+    
+
+@app.route('/api/leads/<int:id_lead>/cursos', methods=['GET'])
+def get_lead_cursos(id_lead):
+    rels = CursoLead.query.filter_by(id_lead=id_lead).order_by(CursoLead.ultimo_contacto.desc()).all()
+    result = []
+    for rel in rels:
+        curso = Curso.query.get(rel.id_curso)
+        if curso:
+            entry = curso.to_dict()
+            entry['estado'] = rel.estado
+            entry['ultimo_contacto'] = rel.ultimo_contacto.isoformat() if rel.ultimo_contacto else None
+            entry['fecha_formulario'] = rel.fecha_formulario.isoformat() if rel.fecha_formulario else None
+            result.append(entry)
+    return jsonify(result)
+
+
+
+@app.route('/api/leads/<int:id_lead>/notas/<int:id_nota>', methods=['DELETE'])
+def delete_lead_nota(id_lead, id_nota):
+    nota = Nota.query.filter_by(id_nota=id_nota, id_lead=id_lead).first()
+    if not nota:
+        return jsonify({'error': 'Nota no encontrada'}), 404
+    db.session.delete(nota)
+    db.session.commit()
+    return jsonify({'message': 'Nota eliminada correctamente'}), 200
+
+
+
 @app.route('/api/cursos', methods=['GET', 'POST'])
 def manage_cursos():
     if request.method == 'GET':
-        cursos = Curso.query.all()
-        return jsonify([curso.to_dict() for curso in cursos])
-    
+        page = request.args.get('page', 1, type=int)
+        limit = request.args.get('limit', 50, type=int)
+        filtro_estado = request.args.get('estado', 'todos', type=str)
+
+        query = Curso.query
+
+        if filtro_estado == 'activos':
+            query = query.filter(Curso.activo == True)
+        elif filtro_estado == 'inactivos':
+            query = query.filter(Curso.activo == False)
+
+        query = query.order_by(Curso.id_curso.desc())
+
+        if limit > 0:
+            pagination = query.paginate(page=page, per_page=limit, error_out=False)
+            items = pagination.items
+            total = pagination.total
+            pages = pagination.pages
+        else:
+            items = query.all()
+            total = len(items)
+            pages = 1
+
+        counts = dict(
+            db.session.query(CursoLead.id_curso, func.count(CursoLead.id_lead))
+            .group_by(CursoLead.id_curso).all()
+        )
+        items_result = []
+        for curso in items:
+            d = curso.to_dict()
+            d['leads_count'] = counts.get(curso.id_curso, 0)
+            items_result.append(d)
+
+        return jsonify({
+            'items': items_result,
+            'total': total,
+            'page': page,
+            'pages': pages,
+            'limit': limit
+        })
+
     data = request.json
     new_curso = Curso(
         nombre=data['nombre'],
@@ -208,8 +331,54 @@ def curso_detail(id):
 @app.route('/api/cursos/<int:id_curso>/leads', methods=['GET', 'POST'])
 def manage_curso_leads(id_curso):
     if request.method == 'GET':
-        relations = CursoLead.query.filter_by(id_curso=id_curso).all()
-        return jsonify([rel.to_dict() for rel in relations])
+        page = request.args.get('page', 1, type=int)
+        limit = request.args.get('limit', 10, type=int)
+        search = request.args.get('search', '', type=str)
+
+        query = CursoLead.query.filter_by(id_curso=id_curso)
+
+        if search:
+            query = query.join(Lead).filter(db.or_(
+                Lead.nombre.ilike(f'%{search}%'),
+                Lead.telefono.ilike(f'%{search}%')
+            ))
+
+        query = query.order_by(CursoLead.fecha_formulario.desc())
+
+        if limit > 0:
+            pagination = query.paginate(page=page, per_page=limit, error_out=False)
+            items = pagination.items
+            total = pagination.total
+            pages = pagination.pages
+        else:
+            items = query.all()
+            total = len(items)
+            pages = 1
+
+        results = []
+
+        lead_ids = [rel.id_lead for rel in items]
+        course_counts = dict(
+            db.session.query(CursoLead.id_lead, func.count(CursoLead.id_curso))
+            .filter(CursoLead.id_lead.in_(lead_ids))
+            .group_by(CursoLead.id_lead)
+            .all()
+        )
+        for rel in items:
+            rel_dict = rel.to_dict()
+            lead = Lead.query.get(rel.id_lead)
+            if lead:
+                rel_dict.update(lead.to_dict())
+                rel_dict['courses_count'] = course_counts.get(lead.id_lead, 0)
+            results.append(rel_dict)
+
+        return jsonify({
+            'items': results,
+            'total': total,
+            'page': page,
+            'pages': pages,
+            'limit': limit
+        })
     
     data = request.json
     new_rel = CursoLead(
