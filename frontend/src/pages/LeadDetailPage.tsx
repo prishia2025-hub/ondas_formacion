@@ -54,10 +54,12 @@ export default function LeadDetailPage() {
       telefono: data.telefono,
       mail: data.mail,
       trabajador: data.trabajador,
+      estado: data.estado,
     }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['leads'] });
+      await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
       setIsEditOpen(false);
     },
   });

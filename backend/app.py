@@ -135,6 +135,11 @@ def lead_detail(id):
         lead.telefono = data.get('telefono', lead.telefono)
         lead.mail = data.get('mail', lead.mail)
         lead.trabajador = data.get('trabajador', lead.trabajador)
+        if 'estado' in data and data['estado']:
+            rel = CursoLead.query.filter_by(id_lead=id).order_by(CursoLead.ultimo_contacto.desc()).first()
+            if rel:
+                rel.estado = data['estado']
+
         db.session.commit()
         return jsonify(lead.to_dict())
     
