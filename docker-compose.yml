@@ -9,7 +9,7 @@ services:
       DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME}
     ports:
-      - "${HOST_PORT_BACKEND}:5005"
+      - "${HOST_PORT_BACKEND}:${CONTAINER_PORT_BACKEND:-5000}"
     restart: always
 
   frontend:
@@ -18,7 +18,7 @@ services:
     volumes:
       - .:/app/public
     ports:
-      - "${HOST_PORT_FRONTEND}:3005"
+      - "${HOST_PORT_FRONTEND}:${CONTAINER_PORT_FRONTEND:-3000}"
     depends_on:
       - web
     restart: always

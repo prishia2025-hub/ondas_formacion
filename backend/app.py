@@ -314,7 +314,6 @@ def curso_detail(id):
         curso.horario = data.get('horario', curso.horario)
         curso.horas_totales = data.get('horas_totales', curso.horas_totales)
         curso.para_trabajadores = data.get('para_trabajadores', curso.para_trabajadores)
-        curso.activo = data.get('activo', curso.activo)
         if 'fecha_inicio' in data:
             curso.fecha_inicio = datetime.fromisoformat(data['fecha_inicio']).date() if data['fecha_inicio'] else None
         if 'fecha_fin' in data:
