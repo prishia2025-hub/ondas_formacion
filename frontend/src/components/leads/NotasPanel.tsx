@@ -82,7 +82,7 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
           </div>
         ) : notas && notas.length > 0 ? (
           <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
-            {notas.map((nota) => (
+            {notas.slice().reverse().map((nota) => (
               <div key={nota.id_nota} className="relative flex items-start gap-4 group is-active">
 
                 {/* dot igual que antes */}
