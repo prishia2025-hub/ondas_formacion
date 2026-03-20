@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Mail, Phone, ExternalLink, Edit2 } from 'lucide-react';
+import { Mail, Phone, ExternalLink, Edit2, ChevronUp, ChevronDown } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Skeleton } from '../ui/SkeletonCard';
+import { useState } from 'react';
 import type { Lead } from '@/api/leads';
+
+type SortField = 'nombre' | 'estado';
+type SortDir = 'asc' | 'desc';
 
 interface LeadsTableProps {
   leads?: Lead[];
@@ -10,7 +14,25 @@ interface LeadsTableProps {
   onEdit: (lead: Lead) => void;
 }
 
+function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
+  if (field !== sortField) return <ChevronUp className="w-3 h-3 opacity-20" />;
+  return sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />;
+}
+
 export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
+
+  const [sortField, setSortField] = useState<SortField>('nombre');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl border border-border overflow-hidden">
@@ -33,6 +55,13 @@ export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
     );
   }
 
+  const sorted = [...leads].sort((a, b) => {
+    let valA = '', valB = '';
+    if (sortField === 'nombre') { valA = a.nombre; valB = b.nombre; }
+    if (sortField === 'estado') { valA = a.estado || ''; valB = b.estado || ''; }
+    return sortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+  });
+
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
@@ -46,7 +75,7 @@ export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {leads.map((lead) => (
+            {sorted.map((lead) => (
               <tr key={lead.id_lead} className="hover:bg-slate-50 transition-colors group">
                 <td className="px-4 py-3 font-medium text-slate-900">
                   <div className="flex items-center gap-2">

@@ -4,6 +4,16 @@ import { Mail, Phone, ExternalLink } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Skeleton } from '../ui/SkeletonCard';
 import type { CursoLead } from '@/api/cursoLeads';
+import { useState } from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
+
+type SortField = 'nombre' | 'fecha_formulario' | 'ultimo_contacto';
+type SortDir = 'asc' | 'desc';
+
+function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
+  if (field !== sortField) return <ChevronUp className="w-3 h-3 opacity-20" />;
+  return sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />;
+}
 
 interface CursoLeadsTableProps {
   cursoId: number;
@@ -13,6 +23,18 @@ interface CursoLeadsTableProps {
 
 export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTableProps) {
   const navigate = useNavigate();
+
+  const [sortField, setSortField] = useState<SortField>('ultimo_contacto');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
 
   if (isLoading) {
     return <Skeleton />;
@@ -34,22 +56,49 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
     } catch {
       return dateString;
     }
-  };
+  }
+  
+  
+    const sorted = [...leads].sort((a, b) => {
+    if (sortField === 'nombre') {
+      return sortDir === 'asc'
+        ? (a.nombre || '').localeCompare(b.nombre || '')
+        : (b.nombre || '').localeCompare(a.nombre || '');
+    }
+    const valA = a[sortField] ? new Date(a[sortField]!).getTime() : 0;
+    const valB = b[sortField] ? new Date(b[sortField]!).getTime() : 0;
+    return sortDir === 'asc' ? valA - valB : valB - valA;
+  });
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <table className="w-full text-sm">
         <thead className="bg-slate-100">
           <tr className="border-b border-slate-200">
-            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">Nombre</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 cursor-pointer hover:text-slate-900 select-none"
+                onClick={() => handleSort('nombre')}>
+              <div className="flex items-center gap-1">
+                Nombre <SortIcon field="nombre" sortField={sortField} sortDir={sortDir} />
+              </div>
+            </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">Contacto</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">Estado</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">Creado</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">Último Contacto</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 cursor-pointer hover:text-slate-900 select-none"
+                onClick={() => handleSort('fecha_formulario')}>
+              <div className="flex items-center gap-1">
+                Creado <SortIcon field="fecha_formulario" sortField={sortField} sortDir={sortDir} />
+              </div>
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 cursor-pointer hover:text-slate-900 select-none"
+                onClick={() => handleSort('ultimo_contacto')}>
+              <div className="flex items-center gap-1">
+                Último Contacto <SortIcon field="ultimo_contacto" sortField={sortField} sortDir={sortDir} />
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 bg-white">
-          {leads.map((lead) => (
+          {sorted.map((lead) => (
             <tr
               key={lead.id_lead}
               onClick={() => navigate(`/cursos/${cursoId}/lead/${lead.id_lead}`)} className="cursor-pointer bg-white transition-colors hover:bg-slate-100"
