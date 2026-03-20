@@ -13,7 +13,7 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
   // Determine badge state
   let estadoType: "activo" | "lleno" | "inactivo" = "activo";
   let estadoText = "ACTIVO";
-  
+
   if (!curso.activo) {
     estadoType = "inactivo";
     estadoText = "INACTIVO";
@@ -40,7 +40,7 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
           </Link>
           <StatusBadge estadoCurso={estadoType} label={estadoText} />
         </div>
-        
+
         {curso.codigo && (
           <p className="text-sm text-text-secondary mb-3 font-mono bg-slate-50 px-2 py-1 rounded inline-block">
             {curso.codigo}
@@ -51,7 +51,7 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
           {(curso.fecha_inicio || curso.fecha_fin) && (
             <p className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-              {formatNullableDate(curso.fecha_inicio)} 
+              {formatNullableDate(curso.fecha_inicio)}
               {curso.fecha_fin && ` → ${formatNullableDate(curso.fecha_fin)}`}
             </p>
           )}
@@ -63,16 +63,16 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
           <Users className="w-4 h-4 text-accent-from" />
           <span>{curso.leads_count ?? 0}</span>
         </div>
-        
-        <button 
+
+        <button
           onClick={(e) => { e.preventDefault(); onEdit(curso); }}
-          className="p-2 text-text-secondary hover:text-accent-from hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
+          className="relative z-10 p-2 text-text-secondary hover:text-accent-from hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
           title="Editar"
         >
           <Edit2 className="w-4 h-4" />
         </button>
       </div>
-      
+
       {/* Invisible link covering card except for the edit button */}
       <Link to={`/cursos/${curso.id_curso}`} className="absolute inset-0 z-0" aria-label={`Ver curso ${curso.nombre}`} />
     </div>

@@ -22,11 +22,22 @@ export interface LeadCursoEntry {
   fecha_fin?: string;
 }
 
-export async function fetchCursoLeads(cursoId: number, params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<CursoLead>> {
+export async function fetchCursoLeads(
+  cursoId: number, 
+  params?: { 
+    page?: number; 
+    limit?: number; 
+    search?: string 
+    estado?: string;
+    trabajador?: string;
+    }
+  ): Promise<PaginatedResponse<CursoLead>> {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.search) queryParams.append('search', params.search);
+  if (params?.estado) queryParams.append('estado', params.estado);
+  if (params?.trabajador) queryParams.append('trabajador', params.trabajador);
 
   const queryString = queryParams.toString();
   const endpoint = queryString ? `/api/cursos/${cursoId}/leads?${queryString}` : `/api/cursos/${cursoId}/leads`;

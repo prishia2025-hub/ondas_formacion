@@ -335,14 +335,26 @@ def manage_curso_leads(id_curso):
         page = request.args.get('page', 1, type=int)
         limit = request.args.get('limit', 10, type=int)
         search = request.args.get('search', '', type=str)
+        estado = request.args.get('estado', 'Todos', type=str)       
+        trabajador = request.args.get('trabajador', 'Todos', type=str)  
 
         query = CursoLead.query.filter_by(id_curso=id_curso)
 
-        if search:
-            query = query.join(Lead).filter(db.or_(
-                Lead.nombre.ilike(f'%{search}%'),
-                Lead.telefono.ilike(f'%{search}%')
-            ))
+        needs_join = search or trabajador != 'Todos'
+        if needs_join:
+            query = query.join(Lead)
+            if search:
+                query = query.filter(db.or_(
+                    Lead.nombre.ilike(f'%{search}%'),
+                    Lead.telefono.ilike(f'%{search}%')
+                ))
+            if trabajador == 'Trabajando':
+                query = query.filter(Lead.trabajador == True)
+            elif trabajador == 'No trabajando':
+                query = query.filter(Lead.trabajador == False)
+
+        if estado != 'Todos':                                        
+            query = query.filter(CursoLead.estado == estado)
 
         query = query.order_by(CursoLead.fecha_formulario.desc())
 
@@ -356,8 +368,6 @@ def manage_curso_leads(id_curso):
             total = len(items)
             pages = 1
 
-        results = []
-
         lead_ids = [rel.id_lead for rel in items]
         course_counts = dict(
             db.session.query(CursoLead.id_lead, func.count(CursoLead.id_curso))
@@ -365,12 +375,14 @@ def manage_curso_leads(id_curso):
             .group_by(CursoLead.id_lead)
             .all()
         )
+
+        results = []
         for rel in items:
             rel_dict = rel.to_dict()
             lead = Lead.query.get(rel.id_lead)
             if lead:
                 rel_dict.update(lead.to_dict())
-                rel_dict['courses_count'] = course_counts.get(lead.id_lead, 0)
+            rel_dict['courses_count'] = course_counts.get(rel.id_lead, 0)
             results.append(rel_dict)
 
         return jsonify({
@@ -380,7 +392,7 @@ def manage_curso_leads(id_curso):
             'pages': pages,
             'limit': limit
         })
-    
+
     data = request.json
     new_rel = CursoLead(
         id_curso=id_curso,

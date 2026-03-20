@@ -8,6 +8,7 @@ import { CursoLeadsTable } from '@/components/cursos/CursoLeadsTable';
 import { Skeleton } from '@/components/ui/SkeletonCard';
 import { createLead, type LeadFormData } from '@/api/leads';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
+import { fetchStatuses } from '@/api/statuses';
 
 export default function CursoLeadsPage() {
   const { id_curso } = useParams<{ id_curso: string }>();
@@ -15,6 +16,8 @@ export default function CursoLeadsPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState('');
+  const [estadoFilter, setEstadoFilter] = useState('Todos');
+  const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
     queryKey: ['cursos', cursoId],
@@ -22,9 +25,15 @@ export default function CursoLeadsPage() {
     enabled: !!cursoId,
   });
 
+  const { data: statuses } = useQuery({
+    queryKey: ['statuses'],
+    queryFn: fetchStatuses,
+    staleTime: Infinity,
+  });
+
   const { data: leadsResponse, isLoading: isLeadsLoading } = useQuery({
-    queryKey: ['curso-leads', cursoId, page, limit, search],
-    queryFn: () => fetchCursoLeads(cursoId, { page, limit, search }),
+    queryKey: ['curso-leads', cursoId, page, limit, search, estadoFilter, trabajadorFilter],
+    queryFn: () => fetchCursoLeads(cursoId, { page, limit, search, estado: estadoFilter, trabajador: trabajadorFilter }),
     enabled: !!cursoId,
     placeholderData: (previousData) => previousData,
   });
@@ -91,8 +100,33 @@ export default function CursoLeadsPage() {
               placeholder="Buscar por nombre o teléfono..."
               className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all"
             />
-
           </div>
+
+
+          {/* Filtro Estado */}
+          <select
+            value={estadoFilter}
+            onChange={(e) => { setEstadoFilter(e.target.value); setPage(1); }}
+            className="py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all text-slate-700"
+          >
+            <option value="Todos">Todos los estados</option>
+            {statuses?.map(s => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+
+          {/* Filtro Trabajador */}
+          <select
+            value={trabajadorFilter}
+            onChange={(e) => { setTrabajadorFilter(e.target.value); setPage(1); }}
+            className="py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all text-slate-700"
+          >
+            <option value="Todos">Todos</option>
+            <option value="Trabajando">Trabajando</option>
+            <option value="No trabajando">No trabajando</option>
+          </select>
+
+
           <button
             onClick={() => setIsAddOpen(true)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
