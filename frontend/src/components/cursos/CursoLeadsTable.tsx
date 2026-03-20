@@ -11,8 +11,10 @@ type SortField = 'nombre' | 'fecha_formulario' | 'ultimo_contacto';
 type SortDir = 'asc' | 'desc';
 
 function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
-  if (field !== sortField) return <ChevronUp className="w-3 h-3 opacity-20" />;
-  return sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />;
+  if (field !== sortField) return <ChevronUp className="w-3 h-3 text-slate-400" />;
+  return sortDir === 'asc'
+    ? <ChevronUp className="w-3 h-3 text-indigo-500" />
+    : <ChevronDown className="w-3 h-3 text-indigo-500" />;
 }
 
 interface CursoLeadsTableProps {
@@ -57,9 +59,9 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
       return dateString;
     }
   }
-  
-  
-    const sorted = [...leads].sort((a, b) => {
+
+
+  const sorted = [...leads].sort((a, b) => {
     if (sortField === 'nombre') {
       return sortDir === 'asc'
         ? (a.nombre || '').localeCompare(b.nombre || '')
@@ -76,7 +78,7 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
         <thead className="bg-slate-100">
           <tr className="border-b border-slate-200">
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 cursor-pointer hover:text-slate-900 select-none"
-                onClick={() => handleSort('nombre')}>
+              onClick={() => handleSort('nombre')}>
               <div className="flex items-center gap-1">
                 Nombre <SortIcon field="nombre" sortField={sortField} sortDir={sortDir} />
               </div>
@@ -84,13 +86,13 @@ export function CursoLeadsTable({ cursoId, leads, isLoading }: CursoLeadsTablePr
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">Contacto</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">Estado</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 cursor-pointer hover:text-slate-900 select-none"
-                onClick={() => handleSort('fecha_formulario')}>
+              onClick={() => handleSort('fecha_formulario')}>
               <div className="flex items-center gap-1">
                 Creado <SortIcon field="fecha_formulario" sortField={sortField} sortDir={sortDir} />
               </div>
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 cursor-pointer hover:text-slate-900 select-none"
-                onClick={() => handleSort('ultimo_contacto')}>
+              onClick={() => handleSort('ultimo_contacto')}>
               <div className="flex items-center gap-1">
                 Último Contacto <SortIcon field="ultimo_contacto" sortField={sortField} sortDir={sortDir} />
               </div>
