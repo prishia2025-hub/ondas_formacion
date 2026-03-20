@@ -82,36 +82,43 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
           </div>
         ) : notas && notas.length > 0 ? (
           <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
-            {notas.slice().reverse().map((nota) => (
-              <div key={nota.id_nota} className="relative flex items-start gap-4 group is-active">
+            {notas
+              .slice()
+              .sort((a, b) => {
+                const dateA = a.fecha ? new Date(a.fecha).getTime() : 0;
+                const dateB = b.fecha ? new Date(b.fecha).getTime() : 0;
+                return dateB - dateA;
+              })
+              .map((nota) => (
+                <div key={nota.id_nota} className="relative flex items-start gap-4 group is-active">
 
-                {/* dot igual que antes */}
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-200 text-slate-500 shrink-0 z-10 mt-1">
-                  <span className="w-2.5 h-2.5 bg-accent-from rounded-full" />
-                </div>
-
-                {/* Tarjeta con max-w y margen derecho para respirar */}
-                <div className="flex-1 max-w-2xl mr-4 p-4 rounded-xl border border-border bg-white shadow-sm">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-slate-800">{nota.titulo || 'Nota'}</span>
-                      <span className="text-xs text-slate-500 font-medium">{formatDate(nota.fecha)}</span>
-                    </div>
-                    <button
-                      onClick={() => setConfirmDeleteId(nota.id_nota)}
-                      disabled={deleteMutation.isPending}
-                      title="Eliminar nota"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                  {/* dot igual que antes */}
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-200 text-slate-500 shrink-0 z-10 mt-1">
+                    <span className="w-2.5 h-2.5 bg-accent-from rounded-full" />
                   </div>
-                  <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{nota.contenido}</p>
+
+                  {/* Tarjeta con max-w y margen derecho para respirar */}
+                  <div className="flex-1 max-w-2xl mr-4 p-4 rounded-xl border border-border bg-white shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-slate-800">{nota.titulo || 'Nota'}</span>
+                        <span className="text-xs text-slate-500 font-medium">{formatDate(nota.fecha)}</span>
+                      </div>
+                      <button
+                        onClick={() => setConfirmDeleteId(nota.id_nota)}
+                        disabled={deleteMutation.isPending}
+                        title="Eliminar nota"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{nota.contenido}</p>
+                  </div>
+
                 </div>
 
-              </div>
-
-            ))}
+              ))}
           </div>
         ) : (
           <div className="text-center py-12">
