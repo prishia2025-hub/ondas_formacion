@@ -3,10 +3,10 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Search, Plus } from 'lucide-react';
 import { fetchCurso } from '@/api/cursos';
-import { fetchCursoLeads, addLeadToCurso } from '@/api/cursoLeads';
+import { fetchCursoLeads, addLeadToCurso, removeLeadFromCurso, type CursoLead } from '@/api/cursoLeads';
 import { CursoLeadsTable } from '@/components/cursos/CursoLeadsTable';
 import { Skeleton } from '@/components/ui/SkeletonCard';
-import { createLead, type LeadFormData } from '@/api/leads';
+import { createLead, updateLead, type LeadFormData, type Lead } from '@/api/leads';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { fetchStatuses } from '@/api/statuses';
 
@@ -18,6 +18,13 @@ export default function CursoLeadsPage() {
   const [search, setSearch] = useState('');
   const [estadoFilter, setEstadoFilter] = useState('Todos');
   const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  // Estado para editar
+  const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
     queryKey: ['cursos', cursoId],
@@ -33,7 +40,9 @@ export default function CursoLeadsPage() {
 
   const { data: leadsResponse, isLoading: isLeadsLoading } = useQuery({
     queryKey: ['curso-leads', cursoId, page, limit, search, estadoFilter, trabajadorFilter],
-    queryFn: () => fetchCursoLeads(cursoId, { page, limit, search, estado: estadoFilter, trabajador: trabajadorFilter }),
+    queryFn: () => fetchCursoLeads(cursoId, {
+      page, limit, search, estado: estadoFilter, trabajador: trabajadorFilter
+    }),
     enabled: !!cursoId,
     placeholderData: (previousData) => previousData,
   });
@@ -42,14 +51,10 @@ export default function CursoLeadsPage() {
   const totalPages = leadsResponse?.pages || 1;
   const totalLeads = leadsResponse?.total || 0;
 
-  const queryClient = useQueryClient();
-  const [isAddOpen, setIsAddOpen] = useState(false);
-
+  // Mutación: crear lead y vincularlo al curso
   const createMutation = useMutation({
     mutationFn: async (data: LeadFormData) => {
-      // 1. Crea el lead
       const newLead = await createLead(data);
-      // 2. Lo vincula automáticamente al curso actual
       await addLeadToCurso(cursoId, newLead.id_lead);
       return newLead;
     },
@@ -59,6 +64,34 @@ export default function CursoLeadsPage() {
     },
   });
 
+  // Mutación: editar datos del lead
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['curso-leads', cursoId] });
+      setIsEditOpen(false);
+      setLeadToEdit(undefined);
+    },
+  });
+
+  // Mutación: quitar lead del curso
+  const removeMutation = useMutation({
+    mutationFn: (leadId: number) => removeLeadFromCurso(cursoId, leadId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['curso-leads', cursoId] });
+    },
+  });
+
+  // Handlers
+  const handleEditLead = (lead: CursoLead) => {
+    // CursoLead incluye los campos de Lead, lo casteamos para el modal
+    setLeadToEdit(lead as unknown as Lead);
+    setIsEditOpen(true);
+  };
+
+  const handleDeleteLead = (lead: CursoLead) => {
+    removeMutation.mutate(lead.id_lead);
+  };
 
   return (
     <div className="space-y-6">
@@ -73,49 +106,38 @@ export default function CursoLeadsPage() {
       </div>
 
       <div className="mb-6">
-
-        {/* Título */}
         <div className="mb-4">
           {isCursoLoading ? <Skeleton className="h-8 w-64" /> : <h1 className="text-2xl font-bold text-text-primary">{curso?.nombre}</h1>}
           <p className="text-sm text-text-secondary mt-1">
             {isLeadsLoading && !leadsResponse
               ? <Skeleton className="h-4 w-48" />
-              : ` ${totalLeads} leads totales`
+              : `${totalLeads} leads totales`
             }
           </p>
         </div>
 
-        {/* 🔍 Barra de búsqueda */}
+        {/* Barra de búsqueda y filtros */}
         <div className="flex items-center gap-3">
-
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
               type="text"
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1); // resetear a página 1 al buscar
-              }}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Buscar por nombre o teléfono..."
               className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all"
             />
           </div>
 
-
-          {/* Filtro Estado */}
           <select
             value={estadoFilter}
             onChange={(e) => { setEstadoFilter(e.target.value); setPage(1); }}
             className="py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all text-slate-700"
           >
             <option value="Todos">Todos los estados</option>
-            {statuses?.map(s => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
+            {statuses?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
 
-          {/* Filtro Trabajador */}
           <select
             value={trabajadorFilter}
             onChange={(e) => { setTrabajadorFilter(e.target.value); setPage(1); }}
@@ -126,7 +148,6 @@ export default function CursoLeadsPage() {
             <option value="No trabajando">No trabajando</option>
           </select>
 
-
           <button
             onClick={() => setIsAddOpen(true)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
@@ -135,15 +156,16 @@ export default function CursoLeadsPage() {
             Añadir Lead
           </button>
         </div>
-
       </div>
-
 
       <div className="w-full lg:w-[75%] xl:w-[80%] mx-auto">
         <CursoLeadsTable
           cursoId={cursoId}
           leads={leads}
           isLoading={isLeadsLoading}
+          onDeleteLead={handleDeleteLead}
+          onEditLead={handleEditLead}
+          isDeleting={removeMutation.isPending}
         />
       </div>
 
@@ -168,6 +190,7 @@ export default function CursoLeadsPage() {
         </div>
       )}
 
+      {/* Modal: crear lead */}
       <LeadFormModal
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
@@ -175,6 +198,14 @@ export default function CursoLeadsPage() {
         isPending={createMutation.isPending}
       />
 
+      {/* Modal: editar lead */}
+      <LeadFormModal
+        isOpen={isEditOpen}
+        onClose={() => { setIsEditOpen(false); setLeadToEdit(undefined); }}
+        onSubmit={(data) => leadToEdit && updateMutation.mutate({ id: leadToEdit.id_lead, data })}
+        leadToEdit={leadToEdit}
+        isPending={updateMutation.isPending}
+      />
     </div>
   );
 }
