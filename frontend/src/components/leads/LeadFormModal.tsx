@@ -59,7 +59,7 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
     const { name, value, type } = e.target;
     // @ts-ignore
     const checked = type === "checkbox" ? e.target.checked : undefined;
-    
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -115,7 +115,7 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
             onChange={handleChange}
             className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50 bg-white"
           >
-            {statuses?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            {statuses?.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
             {!statuses && <option value="Nuevo">Nuevo</option>}
           </select>
         </div>
