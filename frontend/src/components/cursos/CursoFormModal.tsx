@@ -20,6 +20,8 @@ export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPendi
     activo: true,
     lleno: false,
     para_trabajadores: false,
+    horas_totales: undefined,
+    horario: "",
   });
 
   useEffect(() => {
@@ -33,6 +35,8 @@ export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPendi
         activo: cursoToEdit.activo,
         lleno: cursoToEdit.lleno,
         para_trabajadores: cursoToEdit.para_trabajadores || false,
+        horas_totales: cursoToEdit.horas_totales,
+        horario: cursoToEdit.horario || "",
       });
     } else {
       setFormData({
@@ -44,6 +48,8 @@ export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPendi
         activo: true,
         lleno: false,
         para_trabajadores: false,
+        horas_totales: undefined,
+        horario: "",
       });
     }
   }, [cursoToEdit, isOpen]);
@@ -121,6 +127,31 @@ export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPendi
               value={formData.fecha_fin}
               onChange={handleChange}
               className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">Horas Totales</label>
+            <input
+              type="number"
+              name="horas_totales"
+              value={formData.horas_totales || ""}
+              onChange={handleChange}
+              className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50"
+              placeholder="Ej. 120"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">Horario</label>
+            <input
+              type="text"
+              name="horario"
+              value={formData.horario}
+              onChange={handleChange}
+              className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50"
+              placeholder="Ej. Lunes y Miércoles 18:00"
             />
           </div>
         </div>
