@@ -127,7 +127,11 @@ def manage_leads():
 def lead_detail(id):
     lead = Lead.query.get_or_404(id)
     if request.method == 'GET':
-        return jsonify(lead.to_dict())
+        lead_dict = lead.to_dict()
+        rel = CursoLead.query.filter_by(id_lead=id).order_by(CursoLead.ultimo_contacto.desc()).first()
+        lead_dict['estado'] = rel.estado if rel else 'Nuevo'
+        return jsonify(lead_dict)
+
     
     if request.method == 'PUT':
         data = request.json

@@ -13,7 +13,7 @@ interface LeadFormModalProps {
 }
 
 export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending }: LeadFormModalProps) {
-  const { data: statuses } = useQuery({
+  const { data: statuses, isLoading: isStatusesLoading } = useQuery({
     queryKey: ['statuses'],
     queryFn: fetchStatuses,
     staleTime: Infinity,
@@ -29,7 +29,7 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
   });
 
   useEffect(() => {
-    if (leadToEdit) {
+    if (leadToEdit && statuses) {
       setFormData({
         nombre: leadToEdit.nombre,
         telefono: leadToEdit.telefono || "",
@@ -38,17 +38,17 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
         estado: leadToEdit.estado || "Nuevo",
         nota_inicial: "", // only for creation really but we keep it
       });
-    } else {
+    } else if (!leadToEdit) {
       setFormData({
         nombre: "",
         telefono: "",
         mail: "",
         trabajador: false,
-        estado: "Nuevo",
+        estado: statuses?.[0]?.name || "Nuevo",
         nota_inicial: "",
       });
     }
-  }, [leadToEdit, isOpen]);
+  }, [leadToEdit, isOpen, statuses]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,8 +115,8 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
             onChange={handleChange}
             className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50 bg-white"
           >
+            {isStatusesLoading && <option value="">Cargando...</option>}
             {statuses?.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-            {!statuses && <option value="Nuevo">Nuevo</option>}
           </select>
         </div>
 
