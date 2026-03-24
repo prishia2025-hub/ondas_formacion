@@ -13,6 +13,7 @@ interface CursoLeadsTableProps {
   onDeleteLead: (lead: CursoLead) => void;
   onEditLead: (lead: CursoLead) => void;
   isDeleting?: boolean;
+  currentPage: number;
 }
 
 export function CursoLeadsTable({
@@ -22,6 +23,7 @@ export function CursoLeadsTable({
   onDeleteLead,
   onEditLead,
   isDeleting = false,
+  currentPage,
 }: CursoLeadsTableProps) {
   const navigate = useNavigate();
   const [leadToConfirm, setLeadToConfirm] = useState<CursoLead | null>(null);
@@ -70,7 +72,7 @@ export function CursoLeadsTable({
             {leads.map((lead) => (
               <tr
                 key={lead.id_lead}
-                onClick={() => navigate(`/cursos/${cursoId}/lead/${lead.id_lead}`)}
+                onClick={() => navigate(`/cursos/${cursoId}/lead/${lead.id_lead}?fromPage=${currentPage}`)}
                 className="cursor-pointer hover:bg-slate-50 transition-colors"
               >
               <td className="px-4 py-3 font-medium text-text-primary">

@@ -9,6 +9,29 @@ import { Skeleton } from '@/components/ui/SkeletonCard';
 import { createLead, updateLead, type LeadFormData, type Lead } from '@/api/leads';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { fetchStatuses } from '@/api/statuses';
+import { useEffect } from 'react';
+
+import { useSearchParams } from 'react-router-dom';
+
+export default function CursoLeadsPage() {
+  const { id_curso } = useParams<{ id_curso: string }>();
+  const cursoId = Number(id_curso);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialPage = Number(searchParams.get('page') || 1);
+
+  const [page, setPage] = useState(initialPage);
+  const [limit] = useState(10);
+  const [search, setSearch] = useState('');
+  const [estadoFilter, setEstadoFilter] = useState('Todos');
+  const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', String(page));
+    setSearchParams(params, { replace: true });
+  }, [page, searchParams, setSearchParams]);
+
 
 export default function CursoLeadsPage() {
   const { id_curso } = useParams<{ id_curso: string }>();
@@ -166,6 +189,7 @@ export default function CursoLeadsPage() {
           onDeleteLead={handleDeleteLead}
           onEditLead={handleEditLead}
           isDeleting={removeMutation.isPending}
+          currentPage={page}
         />
       </div>
 

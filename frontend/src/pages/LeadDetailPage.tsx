@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, Mail, Phone, Calendar, Briefcase, Info, BookOpen } from 'lucide-react';
 import { fetchLead } from '@/api/leads';
@@ -17,9 +17,15 @@ import { LeadFormModal } from '@/components/leads/LeadFormModal';
 
 export default function LeadDetailPage() {
   const { id_lead, id_curso } = useParams<{ id_lead: string; id_curso?: string }>();
+  const [searchParams] = useSearchParams();
+  const fromPage = searchParams.get('fromPage');
   const leadId = Number(id_lead);
   const cursoId = id_curso ? Number(id_curso) : undefined;
 
+  const backLink = cursoId
+    ? `/cursos/${cursoId}${fromPage ? `?page=${fromPage}` : ''}`
+    : '/leads';
+  
   const { data: lead, isLoading: isLeadLoading } = useQuery({
     queryKey: ['lead', leadId],
     queryFn: () => fetchLead(leadId),
@@ -86,7 +92,6 @@ export default function LeadDetailPage() {
     return <div className="p-8 text-center text-slate-500">Lead no encontrado.</div>;
   }
 
-  const backLink = cursoId ? `/cursos/${cursoId}` : '/leads';
   const backText = cursoId ? `Volver a ${curso?.nombre || 'Curso'}` : 'Volver a Leads';
 
   return (
