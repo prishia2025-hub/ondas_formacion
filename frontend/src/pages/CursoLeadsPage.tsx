@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Search, Plus } from 'lucide-react';
 import { fetchCurso } from '@/api/cursos';
@@ -9,9 +9,6 @@ import { Skeleton } from '@/components/ui/SkeletonCard';
 import { createLead, updateLead, type LeadFormData, type Lead } from '@/api/leads';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { fetchStatuses } from '@/api/statuses';
-import { useEffect } from 'react';
-
-import { useSearchParams } from 'react-router-dom';
 
 export default function CursoLeadsPage() {
   const { id_curso } = useParams<{ id_curso: string }>();
@@ -25,29 +22,17 @@ export default function CursoLeadsPage() {
   const [search, setSearch] = useState('');
   const [estadoFilter, setEstadoFilter] = useState('Todos');
   const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set('page', String(page));
     setSearchParams(params, { replace: true });
-  }, [page, searchParams, setSearchParams]);
-
-
-export default function CursoLeadsPage() {
-  const { id_curso } = useParams<{ id_curso: string }>();
-  const cursoId = Number(id_curso);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [search, setSearch] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState('Todos');
-  const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
-  const [isAddOpen, setIsAddOpen] = useState(false);
-
-  // Estado para editar
-  const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-
-  const queryClient = useQueryClient();
+  }, [page]);
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
     queryKey: ['cursos', cursoId],
@@ -74,7 +59,6 @@ export default function CursoLeadsPage() {
   const totalPages = leadsResponse?.pages || 1;
   const totalLeads = leadsResponse?.total || 0;
 
-  // Mutación: crear lead y vincularlo al curso
   const createMutation = useMutation({
     mutationFn: async (data: LeadFormData) => {
       const newLead = await createLead(data);
@@ -87,7 +71,6 @@ export default function CursoLeadsPage() {
     },
   });
 
-  // Mutación: editar datos del lead
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data),
     onSuccess: () => {
@@ -97,7 +80,6 @@ export default function CursoLeadsPage() {
     },
   });
 
-  // Mutación: quitar lead del curso
   const removeMutation = useMutation({
     mutationFn: (leadId: number) => removeLeadFromCurso(cursoId, leadId),
     onSuccess: () => {
@@ -105,9 +87,7 @@ export default function CursoLeadsPage() {
     },
   });
 
-  // Handlers
   const handleEditLead = (lead: CursoLead) => {
-    // CursoLead incluye los campos de Lead, lo casteamos para el modal
     setLeadToEdit(lead as unknown as Lead);
     setIsEditOpen(true);
   };
@@ -115,7 +95,6 @@ export default function CursoLeadsPage() {
   const handleDeleteLead = (lead: CursoLead) => {
     removeMutation.mutate(lead.id_lead);
   };
-
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -232,4 +211,4 @@ export default function CursoLeadsPage() {
       />
     </div>
   );
- }}
+ }
