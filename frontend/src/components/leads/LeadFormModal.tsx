@@ -10,9 +10,10 @@ interface LeadFormModalProps {
   onSubmit: (data: LeadFormData) => void;
   leadToEdit?: Lead;
   isPending: boolean;
+  error?: string | null;
 }
 
-export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending }: LeadFormModalProps) {
+export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending, error }: LeadFormModalProps) {
   const { data: statuses, isLoading: isStatusesLoading } = useQuery({
     queryKey: ['statuses'],
     queryFn: fetchStatuses,
@@ -69,6 +70,11 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={leadToEdit ? "Editar Lead" : "Añadir Lead"}>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-md">
+            {error}
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1">Nombre *</label>
           <input

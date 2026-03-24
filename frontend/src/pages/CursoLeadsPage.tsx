@@ -19,9 +19,9 @@ export default function CursoLeadsPage() {
 
   const [page, setPage] = useState(initialPage);
   const [limit] = useState(10);
-  const [search, setSearch] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState('Todos');
-  const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [estadoFilter, setEstadoFilter] = useState(searchParams.get('estado') || 'Todos');
+  const [trabajadorFilter, setTrabajadorFilter] = useState(searchParams.get('trabajador') || 'Todos');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -31,8 +31,12 @@ export default function CursoLeadsPage() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set('page', String(page));
+    if (search) params.set('search', search); else params.delete('search');
+    if (estadoFilter !== 'Todos') params.set('estado', estadoFilter); else params.delete('estado');
+    if (trabajadorFilter !== 'Todos') params.set('trabajador', trabajadorFilter); else params.delete('trabajador');
+    
     setSearchParams(params, { replace: true });
-  }, [page]);
+  }, [page, search, estadoFilter, trabajadorFilter]);
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
     queryKey: ['cursos', cursoId],
@@ -199,6 +203,7 @@ export default function CursoLeadsPage() {
         onClose={() => setIsAddOpen(false)}
         onSubmit={(data) => createMutation.mutate(data)}
         isPending={createMutation.isPending}
+        error={(createMutation.error as Error)?.message}
       />
 
       {/* Modal: editar lead */}
@@ -208,6 +213,7 @@ export default function CursoLeadsPage() {
         onSubmit={(data) => leadToEdit && updateMutation.mutate({ id: leadToEdit.id_lead, data })}
         leadToEdit={leadToEdit}
         isPending={updateMutation.isPending}
+        error={(updateMutation.error as Error)?.message}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { Mail, Phone, Trash2, Pencil } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -26,6 +26,7 @@ export function CursoLeadsTable({
   currentPage,
 }: CursoLeadsTableProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [leadToConfirm, setLeadToConfirm] = useState<CursoLead | null>(null);
 
   const formatDate = (dateString?: string) => {
@@ -72,7 +73,7 @@ export function CursoLeadsTable({
             {leads.map((lead) => (
               <tr
                 key={lead.id_lead}
-                onClick={() => navigate(`/cursos/${cursoId}/lead/${lead.id_lead}?fromPage=${currentPage}`)}
+                onClick={() => navigate(`/cursos/${cursoId}/lead/${lead.id_lead}?${searchParams.toString()}`)}
                 className="cursor-pointer hover:bg-slate-50 transition-colors"
               >
               <td className="px-4 py-3 font-medium text-text-primary">

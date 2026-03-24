@@ -6,6 +6,7 @@ from models import db, Lead, Curso, CursoLead, Nota, Documento
 from dotenv import load_dotenv
 from datetime import datetime
 from flasgger import Swagger
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
 
 
@@ -119,9 +120,13 @@ def manage_leads():
         mail=data.get('mail'),
         trabajador=data.get('trabajador', False)
     )
-    db.session.add(new_lead)
-    db.session.commit()
-    return jsonify(new_lead.to_dict()), 201
+    try:
+        db.session.add(new_lead)
+        db.session.commit()
+        return jsonify(new_lead.to_dict()), 201
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"message": "El número de teléfono ya está registrado"}), 400
 
 @app.route('/api/leads/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def lead_detail(id):
@@ -144,8 +149,12 @@ def lead_detail(id):
             if rel:
                 rel.estado = data['estado']
 
-        db.session.commit()
-        return jsonify(lead.to_dict())
+        try:
+            db.session.commit()
+            return jsonify(lead.to_dict())
+        except IntegrityError:
+            db.session.rollback()
+            return jsonify({"message": "El número de teléfono ya está registrado"}), 400
     
     if request.method == 'DELETE':
         CursoLead.query.filter_by(id_lead=id).delete()

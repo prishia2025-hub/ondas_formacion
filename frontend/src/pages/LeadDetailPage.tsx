@@ -23,7 +23,7 @@ export default function LeadDetailPage() {
   const cursoId = id_curso ? Number(id_curso) : undefined;
 
   const backLink = cursoId
-    ? `/cursos/${cursoId}${fromPage ? `?page=${fromPage}` : ''}`
+    ? `/cursos/${cursoId}?${searchParams.toString()}`
     : '/leads';
   
   const { data: lead, isLoading: isLeadLoading } = useQuery({
@@ -244,6 +244,7 @@ export default function LeadDetailPage() {
         onSubmit={(data) => updateMutation.mutate(data)}
         leadToEdit={lead}
         isPending={updateMutation.isPending}
+        error={(updateMutation.error as Error)?.message}
       />
     </div>
   );
