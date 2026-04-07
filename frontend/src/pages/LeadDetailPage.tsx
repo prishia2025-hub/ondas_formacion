@@ -135,7 +135,6 @@ export default function LeadDetailPage() {
                     </span>
                   )}
                 </h1>
-                <StatusBadge status={lead.estado as any} label={lead.estado || 'Nuevo'} className="text-sm px-3 py-1" />
               </div>
               <button
                 onClick={() => setIsEditOpen(true)}
