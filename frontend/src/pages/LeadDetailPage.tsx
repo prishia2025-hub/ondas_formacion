@@ -54,7 +54,7 @@ export default function LeadDetailPage() {
 
   const queryClient = useQueryClient();
   const [isEditOpen, setIsEditOpen] = useState(false);
-
+  const [selectedCursoId, setSelectedCursoId] = useState<number | undefined>(cursoId);
   const updateMutation = useMutation({
     mutationFn: (data: LeadFormData) => updateLead(leadId, {
       nombre: data.nombre,
@@ -92,6 +92,10 @@ export default function LeadDetailPage() {
     .filter(Boolean)
     .sort()
     .at(-1) ?? null;
+
+  const filteredNotas = notas?.filter(n =>
+    selectedCursoId ? n.id_curso === selectedCursoId : true
+  );
 
   if (isLeadLoading) {
     return (
@@ -195,7 +199,11 @@ export default function LeadDetailPage() {
                 {leadCursos.map((curso) => (
                   <div
                     key={curso.id_curso}
-                    className="p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition-colors group"
+                    onClick={() => setSelectedCursoId(curso.id_curso)}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedCursoId === curso.id_curso
+                      ? 'bg-indigo-50 border-indigo-300'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <Link
@@ -237,7 +245,7 @@ export default function LeadDetailPage() {
                         Email: {curso.mail_enviado ? '✓' : '✗'}
                       </span>
                     </div>
-                    
+
                   </div>
                 ))}
               </div>
@@ -245,8 +253,7 @@ export default function LeadDetailPage() {
           </div>
           {/* NOTAS PANEL */}
           <div className="flex-1 min-h-0 overflow-hidden">
-            <NotasPanel leadId={leadId} notas={notas} isLoading={isNotasLoading} cursoId={cursoId} />
-          </div>
+            <NotasPanel leadId={leadId} notas={filteredNotas} isLoading={isNotasLoading} cursoId={selectedCursoId} />          </div>
         </div>
 
         {/* RIGHT COLUMN: Context & Docs */}
