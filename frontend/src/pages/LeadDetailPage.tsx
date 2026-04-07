@@ -8,11 +8,12 @@ import { NotasPanel } from '@/components/leads/NotasPanel';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/ui/SkeletonCard';
 import { format, parseISO } from 'date-fns';
-import { fetchLeadCursos } from '@/api/cursoLeads';
+import { updateCursoLead, fetchLeadCursos } from '@/api/cursoLeads';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateLead, type LeadFormData } from '@/api/leads';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
+import { CursoEstadoModal } from '@/components/leads/CursoEstadoModal';
 
 
 export default function LeadDetailPage() {
@@ -67,6 +68,17 @@ export default function LeadDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ['leads'] });
       await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
       setIsEditOpen(false);
+    },
+  });
+
+  const updateCursoEstadoMutation = useMutation({
+    mutationFn: ({ cursoId, estado }: { cursoId: number; estado: string }) =>
+      updateCursoLead(cursoId, leadId, { estado }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
+      await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
+      await queryClient.invalidateQueries({ queryKey: ['leads'] });
+      setEditingCursoEstado(null);
     },
   });
 
@@ -259,6 +271,20 @@ export default function LeadDetailPage() {
         leadToEdit={lead}
         isPending={updateMutation.isPending}
         error={(updateMutation.error as Error)?.message}
+      />
+      <CursoEstadoModal
+        isOpen={!!editingCursoEstado}
+        onClose={() => setEditingCursoEstado(null)}
+        initialEstado={editingCursoEstado?.estado || ''}
+        onSubmit={(estado) => {
+          if (!editingCursoEstado) return;
+          updateCursoEstadoMutation.mutate({
+            cursoId: editingCursoEstado.id_curso,
+            estado,
+          });
+        }}
+        isPending={updateCursoEstadoMutation.isPending}
+        error={(updateCursoEstadoMutation.error as Error)?.message}
       />
     </div>
   );
