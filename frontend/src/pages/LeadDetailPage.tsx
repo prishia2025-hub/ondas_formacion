@@ -87,6 +87,12 @@ export default function LeadDetailPage() {
     estado: string;
   } | null>(null);
 
+  const ultimoContactoReal = leadCursos
+    ?.map(c => c.ultimo_contacto)
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? null;
+
   if (isLeadLoading) {
     return (
       <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
@@ -165,7 +171,7 @@ export default function LeadDetailPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-500">Último contacto:</span>
                   <span className="text-sm font-medium text-slate-700">
-                    {lead.ultimo_contacto ? format(parseISO(lead.ultimo_contacto), 'dd/MM/yyyy HH:mm') : 'Nunca'}
+                    {ultimoContactoReal ? format(parseISO(ultimoContactoReal), 'dd/MM/yyyy HH:mm') : 'Nunca'}
                   </span>
                 </div>
                 {/* Mock UI for flags if available in DB */}
