@@ -25,7 +25,7 @@ export default function LeadDetailPage() {
   const backLink = cursoId
     ? `/cursos/${cursoId}?${searchParams.toString()}`
     : '/leads';
-  
+
   const { data: lead, isLoading: isLeadLoading } = useQuery({
     queryKey: ['lead', leadId],
     queryFn: () => fetchLead(leadId),
@@ -70,6 +70,10 @@ export default function LeadDetailPage() {
     },
   });
 
+  const [editingCursoEstado, setEditingCursoEstado] = useState<{
+    id_curso: number;
+    estado: string;
+  } | null>(null);
 
   if (isLeadLoading) {
     return (
@@ -181,16 +185,26 @@ export default function LeadDetailPage() {
             ) : (
               <div className="space-y-3">
                 {leadCursos.map((curso) => (
-                  <Link
+                  <div
                     key={curso.id_curso}
-                    to={`/cursos/${curso.id_curso}/lead/${leadId}`}
-                    className="block p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition-colors group"
+                    className="p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition-colors group"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-sm font-medium text-slate-800 group-hover:text-accent-from leading-snug">
+                      <Link
+                        to={`/cursos/${curso.id_curso}/lead/${leadId}`}
+                        className="text-sm font-medium text-slate-800 group-hover:text-accent-from leading-snug flex-1"
+                      >
                         {curso.nombre}
-                      </span>
-                      <StatusBadge status={curso.estado as any} label={curso.estado} />
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={curso.estado as any} label={curso.estado} />
+                        <button
+                          onClick={() => setEditingCursoEstado({ id_curso: curso.id_curso, estado: curso.estado })}
+                          className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-colors"
+                        >
+                          ✏️ Estado
+                        </button>
+                      </div>
                     </div>
                     {curso.codigo && (
                       <span className="text-xs text-slate-400 font-mono mt-1 block">{curso.codigo}</span>
@@ -200,7 +214,7 @@ export default function LeadDetailPage() {
                         Último contacto: {format(parseISO(curso.ultimo_contacto), 'dd/MM/yyyy')}
                       </span>
                     )}
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}

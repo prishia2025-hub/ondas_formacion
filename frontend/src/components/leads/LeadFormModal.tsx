@@ -113,18 +113,20 @@ export function LeadFormModal({ isOpen, onClose, onSubmit, leadToEdit, isPending
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-text-primary mb-1">Estado</label>
-          <select
-            name="estado"
-            value={formData.estado}
-            onChange={handleChange}
-            className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50 bg-white"
-          >
-            {isStatusesLoading && <option value="">Cargando...</option>}
-            {statuses?.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-          </select>
-        </div>
+        {!leadToEdit && (
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1">Estado</label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50 bg-white"
+            >
+              {isStatusesLoading && <option value="">Cargando...</option>}
+              {statuses?.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="flex items-center gap-2 cursor-pointer mt-2">
