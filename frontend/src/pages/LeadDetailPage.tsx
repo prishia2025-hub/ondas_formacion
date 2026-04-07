@@ -174,15 +174,6 @@ export default function LeadDetailPage() {
                     {ultimoContactoReal ? format(parseISO(ultimoContactoReal), 'dd/MM/yyyy HH:mm') : 'Nunca'}
                   </span>
                 </div>
-                {/* Mock UI for flags if available in DB */}
-                <div className="flex gap-2 mt-auto">
-                  <span className="text-xs font-medium px-2.5 py-1 bg-green-50 text-green-700 rounded-full border border-green-200">
-                    WhatsApp: ✓
-                  </span>
-                  <span className="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full border border-slate-200">
-                    Email: ✗
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -231,6 +222,22 @@ export default function LeadDetailPage() {
                         Último contacto: {format(parseISO(curso.ultimo_contacto), 'dd/MM/yyyy')}
                       </span>
                     )}
+
+                    <div className="flex gap-2 mt-1">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${curso.whatsapp_enviado
+                        ? 'bg-green-50 text-green-700 border-green-200'
+                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                        }`}>
+                        WhatsApp: {curso.whatsapp_enviado ? '✓' : '✗'}
+                      </span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${curso.mail_enviado
+                        ? 'bg-green-50 text-green-700 border-green-200'
+                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                        }`}>
+                        Email: {curso.mail_enviado ? '✓' : '✗'}
+                      </span>
+                    </div>
+                    
                   </div>
                 ))}
               </div>

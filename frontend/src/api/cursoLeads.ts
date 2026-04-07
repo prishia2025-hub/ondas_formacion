@@ -20,6 +20,8 @@ export interface LeadCursoEntry {
   activo?: boolean;
   fecha_inicio?: string;
   fecha_fin?: string;
+  whatsapp_enviado?: boolean;
+  mail_enviado?: boolean;
 }
 
 export async function fetchCursoLeads(
