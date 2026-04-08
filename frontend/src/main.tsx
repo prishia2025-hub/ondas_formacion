@@ -6,6 +6,7 @@ import AppLayout from './components/layout/AppLayout';
 import CursosPage from './pages/CursosPage';
 import CursoLeadsPage from './pages/CursoLeadsPage';
 import LeadDetailPage from './pages/LeadDetailPage';
+import AllLeadsPage from './pages/AllLeadsPage';
 import './index.css';
 
 // Initialize React Query client with 30s staleTime as requested
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="cursos" element={<CursosPage />} />
             <Route path="cursos/:id_curso" element={<CursoLeadsPage />} />
             <Route path="cursos/:id_curso/lead/:id_lead" element={<LeadDetailPage />} />
+            <Route path="leads" element={<AllLeadsPage />} />
             <Route path="leads/:id_lead" element={<LeadDetailPage />} />
           </Route>
         </Routes>
