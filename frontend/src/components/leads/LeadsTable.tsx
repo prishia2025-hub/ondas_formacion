@@ -2,36 +2,43 @@ import { Link } from 'react-router-dom';
 import { Mail, Phone, ExternalLink, Edit2, ChevronUp, ChevronDown } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Skeleton } from '../ui/SkeletonCard';
-import { useState } from 'react';
+//import { useState } from 'react';
+import { format, parseISO } from 'date-fns';
 import type { Lead } from '@/api/leads';
 
-type SortField = 'nombre' | 'estado';
-type SortDir = 'asc' | 'desc';
+//type SortField = 'nombre' | 'fecha_creacion';
+//type SortDir = 'asc' | 'desc';
 
 interface LeadsTableProps {
   leads?: Lead[];
   isLoading: boolean;
   onEdit: (lead: Lead) => void;
+  sortField: 'nombre' | 'fecha_creacion' | null;
+  sortDir: 'asc' | 'desc';
+  onSort: (field: 'nombre' | 'fecha_creacion') => void;
 }
 
-function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
+function SortIcon({ field, sortField, sortDir }: {
+  field: 'nombre' | 'fecha_creacion';
+  sortField: 'nombre' | 'fecha_creacion' | null;
+  sortDir: 'asc' | 'desc';
+}) {
   if (field !== sortField) return <ChevronUp className="w-3 h-3 opacity-20" />;
   return sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />;
 }
 
-export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
+export function LeadsTable({ leads, isLoading, onEdit, sortField, sortDir, onSort }: LeadsTableProps) {
+  //const [sortField, setSortField] = useState<SortField>('nombre');
+  //const [sortDir, setSortDir] = useState<SortDir>('asc');
 
-  const [sortField, setSortField] = useState<SortField>('nombre');
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
-
-  const handleSort = (field: SortField) => {
+  /*const handleSort = (field: SortField) => {
     if (field === sortField) {
       setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
       setSortDir('asc');
     }
-  };
+  };*/
 
   if (isLoading) {
     return (
@@ -56,11 +63,19 @@ export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
   }
 
   const sorted = [...leads].sort((a, b) => {
-    let valA = '', valB = '';
-    if (sortField === 'nombre') { valA = a.nombre; valB = b.nombre; }
-    if (sortField === 'estado') { valA = a.estado || ''; valB = b.estado || ''; }
-    return sortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    if (sortField === 'nombre') {
+      return sortDir === 'asc'
+        ? a.nombre.localeCompare(b.nombre, 'es')
+        : b.nombre.localeCompare(a.nombre, 'es');
+    }
+    // fecha_creacion
+    const da = new Date(a.fecha_creacion ?? 0).getTime();
+    const db = new Date(b.fecha_creacion ?? 0).getTime();
+    return sortDir === 'asc' ? da - db : db - da;
   });
+
+  const formatFecha = (fecha?: string) =>
+    fecha ? format(parseISO(fecha), 'dd/MM/yyyy HH:mm') : '—';
 
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
@@ -68,22 +83,44 @@ export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
         <table className="w-full text-sm text-left">
           <thead className="bg-slate-50 text-slate-600 font-medium border-b border-border">
             <tr>
-              <th className="px-4 py-3">Nombre</th>
+              {/* Nombre — ordenable */}
+              <th
+                className="px-4 py-3 cursor-pointer select-none hover:text-slate-900"
+                onClick={() => onSort('nombre')}
+              >
+                <span className="flex items-center gap-1">
+                  Nombre
+                  <SortIcon field="nombre" sortField={sortField} sortDir={sortDir} />
+                </span>
+              </th>
               <th className="px-4 py-3">Contacto</th>
               <th className="px-4 py-3">Estado</th>
+              {/* Creado — ordenable */}
+              <th
+                className="px-4 py-3 cursor-pointer select-none hover:text-slate-900"
+                onClick={() => onSort('fecha_creacion')}
+              >
+                <span className="flex items-center gap-1">
+                  Creado
+                  <SortIcon field="fecha_creacion" sortField={sortField} sortDir={sortDir} />
+                </span>
+              </th>
+              <th className="px-4 py-3">Último Contacto</th>
               <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {sorted.map((lead) => (
+            {leads.map((lead) => (
               <tr key={lead.id_lead} className="hover:bg-slate-50 transition-colors group">
                 <td className="px-4 py-3 font-medium text-slate-900">
                   <div className="flex items-center gap-2">
                     {lead.nombre}
                     {lead.trabajador && (
-                      <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Trabajador</span>
+                      <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                        Trabajador
+                      </span>
                     )}
-                    {(lead.courses_count??0) > 1 && (
+                    {(lead.courses_count ?? 0) > 1 && (
                       <span className="text-xs font-semibold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
                         {lead.courses_count} cursos
                       </span>
@@ -108,6 +145,12 @@ export function LeadsTable({ leads, isLoading, onEdit }: LeadsTableProps) {
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={lead.estado as any} label={lead.estado || 'Nuevo'} />
+                </td>
+                <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                  {formatFecha(lead.fecha_creacion)}
+                </td>
+                <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                  {formatFecha(lead.ultimo_contacto)}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-3">

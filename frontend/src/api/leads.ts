@@ -7,7 +7,8 @@ export interface Lead {
   mail?: string;
   trabajador: boolean;
   // Relational data might be included depending on the endpoint
-  estado?: string; 
+  estado?: string;
+  fecha_creacion?: string;
   ultimo_contacto?: string;
   courses_count?: number;
 }
@@ -17,13 +18,24 @@ export type LeadFormData = Omit<Lead, 'id_lead' | 'estado' | 'ultimo_contacto'> 
   nota_inicial?: string;
 };
 
-export async function fetchLeads(params?: { page?: number; limit?: number; search?: string; estado?: string; trabajador?: string }): Promise<PaginatedResponse<Lead>> {
+export async function fetchLeads(params?: { 
+  page?: number; 
+  limit?: number; 
+  search?: string; 
+  estado?: string; 
+  trabajador?: string;
+  sort_by?: 'nombre' | 'fecha_creacion';   
+  sort_dir?: 'asc' | 'desc';   
+ }): Promise<PaginatedResponse<Lead>> {
+
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.search) queryParams.append('search', params.search);
   if (params?.estado) queryParams.append('estado', params.estado);
   if (params?.trabajador) queryParams.append('trabajador', params.trabajador);
+  if (params?.sort_by)   queryParams.append('sort_by', params.sort_by);   
+  if (params?.sort_dir)  queryParams.append('sort_dir', params.sort_dir); 
 
   const queryString = queryParams.toString();
   const endpoint = queryString ? `/api/leads?${queryString}` : '/api/leads';

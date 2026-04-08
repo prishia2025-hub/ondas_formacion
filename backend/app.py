@@ -270,7 +270,15 @@ def manage_cursos():
         elif filtro_estado == 'inactivos':
             query = query.filter(Curso.activo == False)
 
-        query = query.order_by(Curso.id_curso.desc())
+        sort_by  = request.args.get('sort_by', '', type=str)
+        sort_dir = request.args.get('sort_dir', 'asc', type=str)
+
+        if sort_by == 'nombre':
+            query = query.order_by(Curso.nombre.asc() if sort_dir == 'asc' else Curso.nombre.desc())
+        elif sort_by == 'fecha_creacion':
+            query = query.order_by(Curso.fecha_creacion.asc() if sort_dir == 'asc' else Curso.fecha_creacion.desc())
+        else:
+            query = query.order_by(Curso.id_curso.desc())
 
         if limit > 0:
             pagination = query.paginate(page=page, per_page=limit, error_out=False)

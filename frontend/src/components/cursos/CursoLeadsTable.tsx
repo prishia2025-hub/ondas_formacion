@@ -14,6 +14,9 @@ interface CursoLeadsTableProps {
   onEditLead: (lead: CursoLead) => void;
   isDeleting?: boolean;
   currentPage: number;
+  sortField: 'nombre' | 'fecha_creacion' | null;
+  sortDir: 'asc' | 'desc';
+  onSort: (field: 'nombre' | 'fecha_creacion') => void;
 }
 
 export function CursoLeadsTable({

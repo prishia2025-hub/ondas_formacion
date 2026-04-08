@@ -25,6 +25,16 @@ export default function CursoLeadsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(null);
+
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  function handleSort(field: 'nombre' | 'fecha_creacion') {
+    if (sortField !== field) { setSortField(field); setSortDir('asc'); return; }
+    if (sortDir === 'asc') { setSortDir('desc'); return; }
+    setSortField(null);
+  }
+
 
   const queryClient = useQueryClient();
 
@@ -34,7 +44,7 @@ export default function CursoLeadsPage() {
     if (search) params.set('search', search); else params.delete('search');
     if (estadoFilter !== 'Todos') params.set('estado', estadoFilter); else params.delete('estado');
     if (trabajadorFilter !== 'Todos') params.set('trabajador', trabajadorFilter); else params.delete('trabajador');
-    
+
     setSearchParams(params, { replace: true });
   }, [page, search, estadoFilter, trabajadorFilter]);
 
@@ -51,9 +61,9 @@ export default function CursoLeadsPage() {
   });
 
   const { data: leadsResponse, isLoading: isLeadsLoading } = useQuery({
-    queryKey: ['curso-leads', cursoId, page, limit, search, estadoFilter, trabajadorFilter],
+    queryKey: ['curso-leads', cursoId, page, limit, search, estadoFilter, trabajadorFilter, sortField, sortDir],
     queryFn: () => fetchCursoLeads(cursoId, {
-      page, limit, search, estado: estadoFilter, trabajador: trabajadorFilter
+      page, limit, search, estado: estadoFilter, trabajador: trabajadorFilter, sort_by: sortField ?? undefined, sort_dir: sortDir,
     }),
     enabled: !!cursoId,
     placeholderData: (previousData) => previousData,
@@ -99,6 +109,8 @@ export default function CursoLeadsPage() {
   const handleDeleteLead = (lead: CursoLead) => {
     removeMutation.mutate(lead.id_lead);
   };
+
+
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -173,6 +185,9 @@ export default function CursoLeadsPage() {
           onEditLead={handleEditLead}
           isDeleting={removeMutation.isPending}
           currentPage={page}
+          sortField={sortField}
+          sortDir={sortDir}
+          onSort={handleSort}
         />
       </div>
 
@@ -217,4 +232,4 @@ export default function CursoLeadsPage() {
       />
     </div>
   );
- }
+}
