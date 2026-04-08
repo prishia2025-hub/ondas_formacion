@@ -63,8 +63,6 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
             </th>
 
             <th className="text-left px-4 py-3 font-medium text-slate-500">Contacto</th>
-            <th className="text-left px-4 py-3 font-medium text-slate-500">Estado</th>
-
             {/* Creado — clicable para ordenar */}
             <th className="text-left px-4 py-3 font-medium text-slate-500">
               <button
