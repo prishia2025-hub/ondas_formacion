@@ -8,18 +8,21 @@ services:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME}
+      PORT: ${HOST_PORT_BACKEND}
     ports:
-      - "${HOST_PORT_BACKEND}:${CONTAINER_PORT_BACKEND:-5000}"
+      - "${HOST_PORT_BACKEND}:${HOST_PORT_BACKEND}"
     restart: always
 
   frontend:
     build: ./frontend
     container_name: ${COMPOSE_PROJECT_NAME}_frontend
+    environment:
+      PORT: ${HOST_PORT_FRONTEND}
+      BACKEND_PORT: ${HOST_PORT_BACKEND}
     volumes:
       - .:/app/public
     ports:
-      - "${HOST_PORT_FRONTEND}:${CONTAINER_PORT_FRONTEND:-3000}"
+      - "${HOST_PORT_FRONTEND}:${HOST_PORT_FRONTEND}"
     depends_on:
       - web
     restart: always
-
