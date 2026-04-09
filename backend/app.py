@@ -102,6 +102,8 @@ def manage_leads():
             l_dict = lead.to_dict()
             rel = CursoLead.query.filter_by(id_lead=lead.id_lead).order_by(CursoLead.ultimo_contacto.desc()).first()
             l_dict['estado'] = rel.estado if rel else 'Nuevo'
+            l_dict['ultimo_contacto'] = rel.ultimo_contacto.isoformat() if rel and rel.ultimo_contacto else None
+            l_dict['fecha_creacion'] = rel.fecha_formulario.isoformat() if rel and rel.fecha_formulario else None
             l_dict['courses_count'] = course_counts.get(lead.id_lead, 0)  
             leads_result.append(l_dict)
 
