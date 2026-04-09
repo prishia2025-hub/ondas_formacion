@@ -213,6 +213,26 @@ export default function LeadDetailPage() {
                         {curso.nombre}
                       </Link>
                       <div className="flex items-center gap-2">
+                        
+                        {curso.origen && (
+                          <div className="flex gap-1 mt-1 flex-wrap">
+                            {curso.origen.split(' ').map(t => {
+                              const u = t.toUpperCase();
+                              if (u !== 'META' && u !== 'TIKTOK') return null;
+                              return (
+                                <span
+                                  key={t}
+                                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${u === 'META' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'
+                                    }`}
+                                >
+                                  {u === 'META' ? 'META' : 'TikTok'}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
+
+
                         <StatusBadge status={curso.estado as any} label={curso.estado} />
                         <button
                           onClick={() => setEditingCursoEstado({ id_curso: curso.id_curso, estado: curso.estado })}
@@ -245,25 +265,6 @@ export default function LeadDetailPage() {
                         Email: {curso.mail_enviado ? '✓' : '✗'}
                       </span>
                     </div>
-
-                    {curso.origen && (
-                      <div className="flex gap-1 mt-1 flex-wrap">
-                        {curso.origen.split(' ').map(t => {
-                          const u = t.toUpperCase();
-                          if (u !== 'META' && u !== 'TIKTOK') return null;
-                          return (
-                            <span
-                              key={t}
-                              className={`text-xs px-2 py-0.5 rounded-full font-medium ${u === 'META' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'
-                                }`}
-                            >
-                              {u === 'META' ? 'META' : 'TikTok'}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    )}
-
                   </div>
                 ))}
               </div>
