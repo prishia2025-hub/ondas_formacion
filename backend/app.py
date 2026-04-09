@@ -443,6 +443,7 @@ def manage_curso_leads(id_curso):
             lead = Lead.query.get(rel.id_lead)
             if lead:
                 rel_dict.update(lead.to_dict())
+            rel_dict['origen'] = rel.origen
             rel_dict['courses_count'] = course_counts.get(rel.id_lead, 0)
             results.append(rel_dict)
 
