@@ -8,6 +8,7 @@ export interface Lead {
   trabajador: boolean;
   // Relational data might be included depending on the endpoint
   estado?: string;
+  //origen?: string;
   fecha_creacion?: string;
   ultimo_contacto?: string;
   courses_count?: number;
@@ -24,6 +25,7 @@ export async function fetchLeads(params?: {
   search?: string; 
   estado?: string; 
   trabajador?: string;
+  origen?: string;
   sort_by?: 'nombre' | 'fecha_creacion';   
   sort_dir?: 'asc' | 'desc';   
  }): Promise<PaginatedResponse<Lead>> {
@@ -33,6 +35,7 @@ export async function fetchLeads(params?: {
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.search) queryParams.append('search', params.search);
   if (params?.estado) queryParams.append('estado', params.estado);
+  if (params?.origen) queryParams.append('origen', params.origen);
   if (params?.trabajador) queryParams.append('trabajador', params.trabajador);
   if (params?.sort_by)   queryParams.append('sort_by', params.sort_by);   
   if (params?.sort_dir)  queryParams.append('sort_dir', params.sort_dir); 

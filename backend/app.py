@@ -61,6 +61,7 @@ def manage_leads():
         search = request.args.get('search', '', type=str)
         estado = request.args.get('estado', 'Todos', type=str)
         trabajador = request.args.get('trabajador', 'Todos', type=str)
+        origen = request.args.get('origen', 'Todos', type=str)
 
         query = Lead.query
 
@@ -77,6 +78,13 @@ def manage_leads():
 
         if estado != 'Todos':
             query = query.join(CursoLead).filter(CursoLead.estado == estado).distinct()
+
+        if origen != 'Todos':                                          
+            if estado == 'Todos':                                      
+                query = query.join(CursoLead, CursoLead.id_lead == Lead.id_lead)
+            query = query.filter(
+                CursoLead.origen.ilike(f'%{origen}%')
+            ).distinct()
 
         query = query.order_by(Lead.id_lead.desc())
 
@@ -100,10 +108,25 @@ def manage_leads():
         leads_result = []
         for lead in items:
             l_dict = lead.to_dict()
-            rel = CursoLead.query.filter_by(id_lead=lead.id_lead).order_by(CursoLead.ultimo_contacto.desc()).first()
+            rels = CursoLead.query.filter_by(id_lead=lead.id_lead).order_by(CursoLead.ultimo_contacto.desc()).all()
+            rel = rels[0] if rels else None
             l_dict['estado'] = rel.estado if rel else 'Nuevo'
             l_dict['ultimo_contacto'] = rel.ultimo_contacto.isoformat() if rel and rel.ultimo_contacto else None
             l_dict['fecha_creacion'] = rel.fecha_formulario.isoformat() if rel and rel.fecha_formulario else None
+
+            #Obtener origen, deduplicarlo y normalizar 
+            tokens = set()
+            for r in rels:
+                if r.origen:
+                    for token in r.origen.split():
+                        upper = token.upper()
+                        if upper == 'META':
+                            tokens.add('META')
+                        elif upper == 'TIKTOK':
+                            tokens.add('TikTok')
+                        # tokens desconocidos se ignoran o añadir: tokens.add(token)
+            l_dict['origen'] = ' '.join(sorted(tokens)) if tokens else None 
+
             l_dict['courses_count'] = course_counts.get(lead.id_lead, 0)  
             leads_result.append(l_dict)
 

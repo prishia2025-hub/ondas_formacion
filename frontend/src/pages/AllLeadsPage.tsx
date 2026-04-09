@@ -5,19 +5,18 @@ import { fetchLeads, createLead, updateLead, type LeadFormData, type Lead } from
 import { AllLeadsTable } from '@/components/leads/AllLeadsTable';
 import { Skeleton } from '@/components/ui/SkeletonCard';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
-import { fetchStatuses } from '@/api/statuses';
 
 export default function AllLeadsPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState('Todos');
   const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
   const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [origenFilter, setOrigenFilter] = useState('Todos');
 
   const queryClient = useQueryClient();
 
@@ -27,19 +26,12 @@ export default function AllLeadsPage() {
     setSortField(null);
   }
 
-  const { data: statuses } = useQuery({
-    queryKey: ['statuses'],
-    queryFn: fetchStatuses,
-    staleTime: Infinity,
-  });
-
   const { data: leadsResponse, isLoading: isLeadsLoading } = useQuery({
-    queryKey: ['all-leads', page, limit, search, estadoFilter, trabajadorFilter, sortField, sortDir],
+    queryKey: ['all-leads', page, limit, search, trabajadorFilter, sortField, sortDir],
     queryFn: () => fetchLeads({
       page,
       limit,
       search,
-      estado: estadoFilter !== 'Todos' ? estadoFilter : undefined,
       trabajador: trabajadorFilter !== 'Todos' ? trabajadorFilter : undefined,
       sort_by: sortField ?? undefined,
       sort_dir: sortDir,
@@ -100,14 +92,15 @@ export default function AllLeadsPage() {
           />
         </div>
 
-        {/* Filtro Estado */}
+        {/* Filtro origen */}
         <select
-          value={estadoFilter}
-          onChange={(e) => { setEstadoFilter(e.target.value); setPage(1); }}
+          value={origenFilter}
+          onChange={(e) => { setOrigenFilter(e.target.value); setPage(1); }}
           className="py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all text-slate-700"
         >
-          <option value="Todos">Todos los estados</option>
-          {statuses?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          <option value="Todos">Todos los orígenes</option>
+          <option value="META">META</option>
+          <option value="TikTok">TikTok</option>
         </select>
 
         {/* Filtro Trabajador */}

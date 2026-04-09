@@ -65,6 +65,7 @@ class CursoLead(db.Model):
     mail_enviado = db.Column(db.Boolean, default=False)
     whatsapp_enviado = db.Column(db.Boolean, default=False)
     mail_ia = db.Column(db.Boolean, default=False)
+    origen = db.Column(db.String(50), default='META')
 
     def to_dict(self):
         return {
@@ -75,7 +76,8 @@ class CursoLead(db.Model):
             "ultimo_contacto": self.ultimo_contacto.isoformat() if self.ultimo_contacto else None,
             "mail_enviado": self.mail_enviado,
             "whatsapp_enviado": self.whatsapp_enviado,
-            "mail_ia": self.mail_ia
+            "mail_ia": self.mail_ia,
+            "origen": self.origen
         }
 
 class Nota(db.Model):
