@@ -12,22 +12,25 @@ export default function AllLeadsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(Number(searchParams.get('page') || 1));
   const [limit] = useState(10);
-  const [search, setSearch] = useState('');
-  const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [trabajadorFilter, setTrabajadorFilter] = useState(searchParams.get('trabajador') || 'Todos');
   const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [origenFilter, setOrigenFilter] = useState('Todos');
-
+const [origenFilter, setOrigenFilter] = useState(searchParams.get('origen') || 'Todos');
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set('page', String(page));
+    if (search) params.set('search', search); else params.delete('search');
+    if (origenFilter !== 'Todos') params.set('origen', origenFilter); else params.delete('origen');
+    if (trabajadorFilter !== 'Todos') params.set('trabajador', trabajadorFilter); else params.delete('trabajador');
+
     setSearchParams(params, { replace: true });
-  }, [page]);
+  }, [page, search, origenFilter, trabajadorFilter]);
 
   function handleSort(field: 'nombre' | 'fecha_creacion') {
     if (sortField !== field) { setSortField(field); setSortDir('asc'); return; }
