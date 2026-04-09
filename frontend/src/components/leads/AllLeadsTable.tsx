@@ -30,6 +30,7 @@ const formatFecha = (fecha?: string) =>
   fecha ? format(parseISO(fecha), 'dd/MM/yyyy HH:mm') : '—';
 
 
+
 function getEstadoStyle(estado: string): string {
   switch (estado) {
     case 'Inscrito':              return 'bg-emerald-100 text-emerald-700';
@@ -57,9 +58,10 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-50 border-b border-slate-200">
+    <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm text-left">
+        <thead className="bg-slate-50 text-slate-600 font-medium border-b border-border">
           <tr>
             {/* Nombre — clicable para ordenar */}
             <th className="text-left px-4 py-3 font-medium text-slate-500">
@@ -93,7 +95,7 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
             <th className="text-left px-4 py-3 font-medium text-slate-500">Acciones</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-border">
           {leads.map((lead) => (
             <tr
               key={lead.id_lead}
@@ -105,7 +107,7 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
                 <span className="font-medium text-slate-800">{lead.nombre}</span>
                 <div className="flex gap-1 mt-0.5 flex-wrap">
                   {lead.trabajador && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-medium">
+                      <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                       Trabajador
                     </span>
                   )}
@@ -174,6 +176,7 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 }
