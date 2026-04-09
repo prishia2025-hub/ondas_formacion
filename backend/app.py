@@ -126,6 +126,16 @@ def manage_leads():
                             tokens.add('TikTok')
                         # tokens desconocidos se ignoran o añadir: tokens.add(token)
             l_dict['origen'] = ' '.join(sorted(tokens)) if tokens else None 
+            
+            cursos_lead = []
+            for r in rels:
+                curso = Curso.query.get(r.id_curso)
+                if curso:
+                    cursos_lead.append({
+                        'codigo': curso.codigo or str(curso.id_curso),
+                        'estado': r.estado
+                    })
+            l_dict['cursos_lead'] = cursos_lead
 
             l_dict['courses_count'] = course_counts.get(lead.id_lead, 0)  
             leads_result.append(l_dict)

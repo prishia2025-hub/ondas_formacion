@@ -29,6 +29,19 @@ function SortIcon({ field, sortField, sortDir }: {
 const formatFecha = (fecha?: string) =>
   fecha ? format(parseISO(fecha), 'dd/MM/yyyy HH:mm') : '—';
 
+
+function getEstadoStyle(estado: string): string {
+  switch (estado) {
+    case 'Inscrito':              return 'bg-emerald-100 text-emerald-700';
+    case 'Contactado':            return 'bg-cyan-100 text-cyan-700';
+    case 'Reserva':               return 'bg-violet-100 text-violet-700';
+    case 'Pendiente de documentación': return 'bg-amber-100 text-amber-700';
+    case 'No interesado':         return 'bg-slate-100 text-slate-500';
+    case 'Nuevo':
+    default:                      return 'bg-blue-100 text-blue-600';
+  }
+}
+
 export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, onSort }: AllLeadsTableProps) {
   const navigate = useNavigate();
 
@@ -73,6 +86,9 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
 
             {/* Último Contacto — igual que CursoLeadsTable */}
             <th className="text-left px-4 py-3 font-medium text-slate-500">Último Contacto</th>
+
+            {/* Cursos */}
+            <th className="text-left px-4 py-3 font-medium text-slate-500">Cursos</th>
 
             <th className="text-left px-4 py-3 font-medium text-slate-500">Acciones</th>
           </tr>
@@ -123,6 +139,23 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
               {/* Último Contacto */}
               <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
                 {formatFecha(lead.ultimo_contacto)}
+              </td>
+
+              {/* Cursos */}
+              <td className="px-4 py-3">
+                <div className="flex flex-wrap gap-1">
+                  {(lead.cursos_lead ?? []).map((c) => (
+                    <span
+                      key={c.codigo}
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${getEstadoStyle(c.estado)}`}
+                    >
+                      {c.codigo}
+                    </span>
+                  ))}
+                  {(!lead.cursos_lead || lead.cursos_lead.length === 0) && (
+                    <span className="text-slate-400 text-xs">—</span>
+                  )}
+                </div>
               </td>
 
               {/* Acciones */}

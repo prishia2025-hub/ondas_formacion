@@ -6,12 +6,12 @@ export interface Lead {
   telefono?: string;
   mail?: string;
   trabajador: boolean;
-  // Relational data might be included depending on the endpoint
   estado?: string;
-  //origen?: string;
+  origen?: string;
   fecha_creacion?: string;
   ultimo_contacto?: string;
   courses_count?: number;
+  cursos_lead?: { codigo: string; estado: string }[];
 }
 
 export type LeadFormData = Omit<Lead, 'id_lead' | 'estado' | 'ultimo_contacto'> & {
