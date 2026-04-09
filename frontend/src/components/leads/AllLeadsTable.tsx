@@ -107,12 +107,12 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
                 <span className="font-medium text-slate-800">{lead.nombre}</span>
                 <div className="flex gap-1 mt-0.5 flex-wrap">
                   {lead.trabajador && (
-                      <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
                       Trabajador
                     </span>
                   )}
                   {(lead.courses_count ?? 0) > 1 && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
+                    <span className="text-xs font-semibold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
                       {lead.courses_count} cursos
                     </span>
                   )}
