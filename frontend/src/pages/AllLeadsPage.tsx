@@ -27,11 +27,12 @@ export default function AllLeadsPage() {
   }
 
   const { data: leadsResponse, isLoading: isLeadsLoading } = useQuery({
-    queryKey: ['all-leads', page, limit, search, trabajadorFilter, sortField, sortDir],
+    queryKey: ['all-leads', page, limit, search, origenFilter, trabajadorFilter, sortField, sortDir],
     queryFn: () => fetchLeads({
       page,
       limit,
       search,
+      origen: origenFilter !== 'Todos' ? origenFilter : undefined,
       trabajador: trabajadorFilter !== 'Todos' ? trabajadorFilter : undefined,
       sort_by: sortField ?? undefined,
       sort_dir: sortDir,
