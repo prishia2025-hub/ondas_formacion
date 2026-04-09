@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { Mail, Phone, Pencil, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -29,8 +29,6 @@ function SortIcon({ field, sortField, sortDir }: {
 const formatFecha = (fecha?: string) =>
   fecha ? format(parseISO(fecha), 'dd/MM/yyyy HH:mm') : '—';
 
-
-const location = useLocation();
 
 function getEstadoStyle(estado: string): string {
   switch (estado) {
