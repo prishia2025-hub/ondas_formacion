@@ -94,6 +94,7 @@ export function LeadsTable({ leads, isLoading, onEdit, sortField, sortDir, onSor
                 </span>
               </th>
               <th className="px-4 py-3">Contacto</th>
+              <th className="px-4 py-3">Origen</th>
               <th className="px-4 py-3">Estado</th>
               {/* Creado — ordenable */}
               <th
@@ -142,6 +143,25 @@ export function LeadsTable({ leads, isLoading, onEdit, sortField, sortDir, onSor
                       </div>
                     )}
                   </div>
+                </td>
+
+                <td className="px-4 py-3">
+                  {lead.origen
+                    ? lead.origen.split(' ').map(t => {
+                      const u = t.toUpperCase();
+                      if (u !== 'META' && u !== 'TIKTOK') return null;
+                      return (
+                        <span
+                          key={t}
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${u === 'META' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'
+                            }`}
+                        >
+                          {u === 'META' ? 'META' : 'TikTok'}
+                        </span>
+                      );
+                    })
+                    : <span className="text-slate-400 text-xs">—</span>
+                  }
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={lead.estado as any} label={lead.estado || 'Nuevo'} />
