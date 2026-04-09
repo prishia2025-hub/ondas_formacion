@@ -26,11 +26,8 @@ function SortIcon({ field, sortField, sortDir }: {
 }
 
 // Formatea una fecha ISO a dd/MM/yyyy HH:mm
-function formatDate(dateString?: string) {
-  if (!dateString) return '-';
-  try { return format(parseISO(dateString), 'dd/MM/yyyy HH:mm'); }
-  catch { return dateString; }
-}
+const formatFecha = (fecha?: string) =>
+  fecha ? format(parseISO(fecha), 'dd/MM/yyyy HH:mm') : '—';
 
 export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, onSort }: AllLeadsTableProps) {
   const navigate = useNavigate();
@@ -120,12 +117,12 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
 
               {/* Creado */}
               <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                {formatDate(lead.fecha_creacion)}
+                {formatFecha(lead.fecha_creacion)}
               </td>
 
               {/* Último Contacto */}
               <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                {formatDate(lead.ultimo_contacto)}
+                {formatFecha(lead.ultimo_contacto)}
               </td>
 
               {/* Acciones */}
