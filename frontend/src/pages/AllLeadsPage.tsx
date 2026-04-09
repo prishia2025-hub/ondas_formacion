@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus } from 'lucide-react';
 import { fetchLeads, createLead, updateLead, type LeadFormData, type Lead } from '@/api/leads';
 import { AllLeadsTable } from '@/components/leads/AllLeadsTable';
 import { Skeleton } from '@/components/ui/SkeletonCard';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
+import { useSearchParams } from 'react-router-dom';
+
 
 export default function AllLeadsPage() {
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [page, setPage] = useState(Number(searchParams.get('page') || 1));
   const [limit] = useState(10);
   const [search, setSearch] = useState('');
   const [trabajadorFilter, setTrabajadorFilter] = useState('Todos');
@@ -19,6 +22,12 @@ export default function AllLeadsPage() {
   const [origenFilter, setOrigenFilter] = useState('Todos');
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', String(page));
+    setSearchParams(params, { replace: true });
+  }, [page]);
 
   function handleSort(field: 'nombre' | 'fecha_creacion') {
     if (sortField !== field) { setSortField(field); setSortDir('asc'); return; }

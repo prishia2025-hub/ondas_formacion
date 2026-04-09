@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { Mail, Phone, Pencil, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -29,6 +29,8 @@ function SortIcon({ field, sortField, sortDir }: {
 const formatFecha = (fecha?: string) =>
   fecha ? format(parseISO(fecha), 'dd/MM/yyyy HH:mm') : '—';
 
+
+const location = useLocation();
 
 function getEstadoStyle(estado: string): string {
   switch (estado) {
@@ -97,7 +99,7 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
           {leads.map((lead) => (
             <tr
               key={lead.id_lead}
-              onClick={() => navigate(`/leads/${lead.id_lead}`)}
+              onClick={() => navigate(`/leads/${lead.id_lead}${location.search}`)}
               className="cursor-pointer hover:bg-slate-50 transition-colors"
             >
               {/* Nombre + badges */}

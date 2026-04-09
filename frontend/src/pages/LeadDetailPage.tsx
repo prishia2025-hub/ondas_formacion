@@ -25,7 +25,7 @@ export default function LeadDetailPage() {
 
   const backLink = cursoId
     ? `/cursos/${cursoId}?${searchParams.toString()}`
-    : '/leads';
+    : `/leads?${searchParams.toString()}`;
 
   const { data: lead, isLoading: isLeadLoading } = useQuery({
     queryKey: ['lead', leadId],
