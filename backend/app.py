@@ -275,6 +275,7 @@ def get_lead_cursos(id_lead):
             entry['estado'] = rel.estado
             entry['ultimo_contacto'] = rel.ultimo_contacto.isoformat() if rel.ultimo_contacto else None
             entry['fecha_formulario'] = rel.fecha_formulario.isoformat() if rel.fecha_formulario else None
+            entry['origen'] = rel.origen
             result.append(entry)
     return jsonify(result)
 
