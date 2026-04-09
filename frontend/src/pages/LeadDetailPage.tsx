@@ -178,6 +178,35 @@ export default function LeadDetailPage() {
                     {ultimoContactoReal ? format(parseISO(ultimoContactoReal), 'dd/MM/yyyy HH:mm') : 'Nunca'}
                   </span>
                 </div>
+                {/* Badge Origen */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">Origen:</span>
+                  <div className="flex gap-1 flex-wrap justify-end">
+                    {(() => {
+                      const tokens = new Set<string>();
+                      leadCursos?.forEach(c => {
+                        c.origen?.split(' ').forEach(t => {
+                          const u = t.toUpperCase();
+                          if (u === 'META') tokens.add('META');
+                          else if (u === 'TIKTOK') tokens.add('TikTok');
+                        });
+                      });
+                      return tokens.size > 0
+                        ? [...tokens].map(t => (
+                          <span
+                            key={t}
+                            className={`text-xs px-2 py-0.5 rounded-full font-medium ${t === 'META' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'
+                              }`}
+                          >
+                            {t}
+                          </span>
+                        ))
+                        : <span className="text-sm text-slate-400">—</span>;
+                    })()}
+                  </div>
+                </div>
+
+
               </div>
             </div>
           </div>

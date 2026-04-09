@@ -22,6 +22,7 @@ export interface LeadCursoEntry {
   fecha_fin?: string;
   whatsapp_enviado?: boolean;
   mail_enviado?: boolean;
+  origen?: string;
 }
 
 export async function fetchCursoLeads(
