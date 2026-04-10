@@ -206,12 +206,17 @@ export default function CursoLeadsPage() {
         />
       </div>
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onPageChange={(p) => setPage(p)}
-        isLoading={isLeadsLoading}
-      />
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => setPage(p)}
+            isLoading={isLeadsLoading}
+          />
+        </div>
+      )}
 
       {/* Modal: crear lead */}
       <LeadFormModal
