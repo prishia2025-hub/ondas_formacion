@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 interface PaginationProps {
   page: number;
   totalPages: number;
@@ -6,6 +8,23 @@ interface PaginationProps {
 }
 
 export function Pagination({ page, totalPages, onPageChange, isLoading }: PaginationProps) {
+  const [inputValue, setInputValue] = useState(String(page));
+
+  // Sincroniza el input si la página cambia desde fuera
+  useEffect(() => {
+    setInputValue(String(page));
+  }, [page]);
+
+  const handleJump = () => {
+    const parsed = parseInt(inputValue, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= totalPages) {
+      onPageChange(parsed);
+    } else {
+      // Valor inválido → resetea al valor actual
+      setInputValue(String(page));
+    }
+  };
+
   if (totalPages <= 1) return null;
 
   return (
@@ -20,19 +39,20 @@ export function Pagination({ page, totalPages, onPageChange, isLoading }: Pagina
         ← Anterior
       </button>
 
-      {/* Select de página */}
+      {/* Input de página */}
       <div className="flex items-center gap-2 text-sm text-slate-600">
         <span>Página</span>
-        <select
-          value={page}
-          onChange={(e) => onPageChange(Number(e.target.value))}
+        <input
+          type="number"
+          min={1}
+          max={totalPages}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onBlur={handleJump}
+          onKeyDown={(e) => e.key === 'Enter' && handleJump()}
           disabled={isLoading}
-          className="px-2 py-1.5 text-sm font-medium text-slate-700 bg-white border border-border rounded-md shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer disabled:opacity-40"
-        >
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
+          className="w-14 px-2 py-1.5 text-sm font-medium text-center text-slate-700 bg-white border border-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
         <span>de {totalPages}</span>
       </div>
 
