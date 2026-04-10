@@ -6,6 +6,7 @@ import { AllLeadsTable } from '@/components/leads/AllLeadsTable';
 import { Skeleton } from '@/components/ui/SkeletonCard';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { useSearchParams } from 'react-router-dom';
+import { Pagination } from '@/components/ui/Pagination';
 
 
 export default function AllLeadsPage() {
@@ -148,22 +149,13 @@ const [origenFilter, setOrigenFilter] = useState(searchParams.get('origen') || '
 
       {/* Paginación */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1 || isLeadsLoading}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
-          >
-            Anterior
-          </button>
-          <span className="text-sm text-slate-500">Página {page} de {totalPages}</span>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages || isLeadsLoading}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
-          >
-            Siguiente
-          </button>
+        <div className="flex items-center justify-center gap-3">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => setPage(p)}
+            isLoading={isLeadsLoading}
+          />
         </div>
       )}
 
