@@ -9,6 +9,8 @@ import { Skeleton } from '@/components/ui/SkeletonCard';
 import { createLead, updateLead, type LeadFormData, type Lead } from '@/api/leads';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { fetchStatuses } from '@/api/statuses';
+import { Pagination } from '@/components/ui/Pagination';
+
 
 export default function CursoLeadsPage() {
   const { id_curso } = useParams<{ id_curso: string }>();
@@ -25,6 +27,7 @@ export default function CursoLeadsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [origenFilter, setOrigenFilter] = useState(searchParams.get('origen') || 'Todos');
   const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(null);
 
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -44,9 +47,10 @@ export default function CursoLeadsPage() {
     if (search) params.set('search', search); else params.delete('search');
     if (estadoFilter !== 'Todos') params.set('estado', estadoFilter); else params.delete('estado');
     if (trabajadorFilter !== 'Todos') params.set('trabajador', trabajadorFilter); else params.delete('trabajador');
+    if (origenFilter !== 'Todos') params.set('origen', origenFilter); else params.delete('origen');
 
     setSearchParams(params, { replace: true });
-  }, [page, search, estadoFilter, trabajadorFilter]);
+  }, [page, search, estadoFilter, origenFilter, trabajadorFilter]);
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
     queryKey: ['cursos', cursoId],
@@ -61,9 +65,9 @@ export default function CursoLeadsPage() {
   });
 
   const { data: leadsResponse, isLoading: isLeadsLoading } = useQuery({
-    queryKey: ['curso-leads', cursoId, page, limit, search, estadoFilter, trabajadorFilter, sortField, sortDir],
+    queryKey: ['curso-leads', cursoId, page, limit, search, origenFilter, estadoFilter, trabajadorFilter, sortField, sortDir],
     queryFn: () => fetchCursoLeads(cursoId, {
-      page, limit, search, estado: estadoFilter, trabajador: trabajadorFilter, sort_by: sortField ?? undefined, sort_dir: sortDir,
+      page, limit, search, origen: origenFilter, estado: estadoFilter, trabajador: trabajadorFilter, sort_by: sortField ?? undefined, sort_dir: sortDir,
     }),
     enabled: !!cursoId,
     placeholderData: (previousData) => previousData,
@@ -147,6 +151,17 @@ export default function CursoLeadsPage() {
             />
           </div>
 
+          {/* Filtro origen */}
+          <select
+            value={origenFilter}
+            onChange={(e) => { setOrigenFilter(e.target.value); setPage(1); }}
+            className="py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all text-slate-700"
+          >
+            <option value="Todos">Todos los orígenes</option>
+            <option value="META">META</option>
+            <option value="TikTok">TikTok</option>
+          </select>
+
           <select
             value={estadoFilter}
             onChange={(e) => { setEstadoFilter(e.target.value); setPage(1); }}
@@ -191,26 +206,12 @@ export default function CursoLeadsPage() {
         />
       </div>
 
-      {/* Paginación */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1 || isLeadsLoading}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
-          >
-            Anterior
-          </button>
-          <span className="text-sm text-text-secondary">Página {page} de {totalPages}</span>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages || isLeadsLoading}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
-          >
-            Siguiente
-          </button>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={(p) => setPage(p)}
+        isLoading={isLeadsLoading}
+      />
 
       {/* Modal: crear lead */}
       <LeadFormModal

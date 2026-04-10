@@ -33,6 +33,7 @@ export async function fetchCursoLeads(
     search?: string 
     estado?: string;
     trabajador?: string;
+    origen?: string;
     sort_by?: 'nombre' | 'fecha_creacion';  
     sort_dir?: 'asc' | 'desc';             
     }
