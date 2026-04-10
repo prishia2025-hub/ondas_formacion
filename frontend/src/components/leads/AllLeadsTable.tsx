@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { Mail, Phone, Pencil, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
-import { StatusBadge } from '../ui/StatusBadge';
 import { Skeleton } from '../ui/SkeletonCard';
 import type { Lead } from '@/api/leads';
 
@@ -14,16 +13,6 @@ interface AllLeadsTableProps {
   onSort?: (field: 'nombre' | 'fecha_creacion') => void;
 }
 
-// Icono de ordenación para la cabecera
-function SortIcon({ field, sortField, sortDir }: {
-  field: 'nombre' | 'fecha_creacion';
-  sortField?: 'nombre' | 'fecha_creacion' | null;
-  sortDir?: 'asc' | 'desc';
-}) {
-  if (sortField !== field) return <ChevronsUpDown className="w-3.5 h-3.5 ml-1 text-slate-300" />;
-  if (sortDir === 'asc') return <ChevronUp className="w-3.5 h-3.5 ml-1 text-indigo-500" />;
-  return <ChevronDown className="w-3.5 h-3.5 ml-1 text-indigo-500" />;
-}
 
 // Formatea una fecha ISO a dd/MM/yyyy HH:mm
 const formatFecha = (fecha?: string) =>
@@ -70,7 +59,6 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
                 className="flex items-center hover:text-slate-800 transition-colors"
               >
                 Nombre
-                <SortIcon field="nombre" sortField={sortField} sortDir={sortDir} />
               </button>
             </th>
 
@@ -82,7 +70,6 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
                 className="flex items-center hover:text-slate-800 transition-colors"
               >
                 Creado
-                <SortIcon field="fecha_creacion" sortField={sortField} sortDir={sortDir} />
               </button>
             </th>
 
