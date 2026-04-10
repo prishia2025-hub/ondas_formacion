@@ -67,6 +67,7 @@ export function CursoLeadsTable({
               <th className="px-4 py-3 text-left font-semibold">Nombre</th>
               <th className="px-4 py-3 text-left font-semibold">Contacto</th>
               <th className="px-4 py-3 text-left font-semibold">Estado</th>
+              <th className="px-4 py-3 text-left font-semibold">Origen</th>
               <th className="px-4 py-3 text-left font-semibold">Creado</th>
               <th className="px-4 py-3 text-left font-semibold">Último Contacto</th>
               <th className="px-4 py-3 text-center font-semibold">Acciones</th>
@@ -79,19 +80,19 @@ export function CursoLeadsTable({
                 onClick={() => navigate(`/cursos/${cursoId}/lead/${lead.id_lead}?${searchParams.toString()}`)}
                 className="cursor-pointer hover:bg-slate-50 transition-colors"
               >
-              <td className="px-4 py-3 font-medium text-text-primary">
-                <span>{lead.nombre}</span>
-                {lead.trabajador && (
-                  <span className="ml-2 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
-                    Trabajador
-                  </span>
-                )}
-                {(lead.courses_count ?? 0) > 1 && (
-                  <span className="text-xs font-semibold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
-                    {lead.courses_count} cursos
-                  </span>
-                )}
-              </td>
+                <td className="px-4 py-3 font-medium text-text-primary">
+                  <span>{lead.nombre}</span>
+                  {lead.trabajador && (
+                    <span className="ml-2 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                      Trabajador
+                    </span>
+                  )}
+                  {(lead.courses_count ?? 0) > 1 && (
+                    <span className="text-xs font-semibold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
+                      {lead.courses_count} cursos
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <div className="space-y-1">
                     {lead.telefono && (
@@ -108,6 +109,23 @@ export function CursoLeadsTable({
                     )}
                   </div>
                 </td>
+
+                <td className="px-4 py-3">
+                  {lead.origen
+                    ? lead.origen.split(' ').map(t => {
+                      const u = t.toUpperCase();
+                      if (u !== 'META' && u !== 'TIKTOK') return null;
+                      return (
+                        <span key={t} className={`text-xs px-2 py-0.5 rounded-full font-medium ${u === 'META' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'
+                          }`}>
+                          {u === 'META' ? 'META' : 'TikTok'}
+                        </span>
+                      );
+                    })
+                    : <span className="text-slate-400 text-xs">—</span>
+                  }
+                </td>
+                
                 <td className="px-4 py-3">
                   <StatusBadge status={lead.estado as any} label={lead.estado} />
                 </td>
