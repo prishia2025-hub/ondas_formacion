@@ -398,6 +398,7 @@ def manage_curso_leads(id_curso):
         search = request.args.get('search', '', type=str)
         estado = request.args.get('estado', 'Todos', type=str)       
         trabajador = request.args.get('trabajador', 'Todos', type=str)  
+        origen = request.args.get('origen', 'Todos', type=str)
 
         query = CursoLead.query.filter_by(id_curso=id_curso)
 
@@ -416,6 +417,9 @@ def manage_curso_leads(id_curso):
 
         if estado != 'Todos':                                        
             query = query.filter(CursoLead.estado == estado)
+
+        if origen != 'Todos':
+            query = query.filter(CursoLead.origen.ilike(f'%{origen}%'))
 
         query = query.order_by(CursoLead.fecha_formulario.desc())
 

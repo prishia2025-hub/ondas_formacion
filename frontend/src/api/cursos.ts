@@ -18,11 +18,12 @@ export interface Curso {
 
 export type CursoFormData = Omit<Curso, 'id_curso'>;
 
-export async function fetchCursos(params?: { page?: number; limit?: number; estado?: string }): Promise<PaginatedResponse<Curso>> {
+export async function fetchCursos(params?: { page?: number; limit?: number; estado?: string; origen?: string }): Promise<PaginatedResponse<Curso>> {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.estado) queryParams.append('estado', params.estado);
+  if (params?.origen) queryParams.append('origen', params.origen);
 
   const queryString = queryParams.toString();
   const endpoint = queryString ? `/api/cursos?${queryString}` : '/api/cursos';
