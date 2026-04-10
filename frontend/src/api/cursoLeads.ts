@@ -44,6 +44,7 @@ export async function fetchCursoLeads(
   if (params?.search) queryParams.append('search', params.search);
   if (params?.estado) queryParams.append('estado', params.estado);
   if (params?.trabajador) queryParams.append('trabajador', params.trabajador);
+  if (params?.origen)     queryParams.append('origen', params.origen);
   if (params?.sort_by)   queryParams.append('sort_by', params.sort_by);   
   if (params?.sort_dir)  queryParams.append('sort_dir', params.sort_dir); 
   const queryString = queryParams.toString();
