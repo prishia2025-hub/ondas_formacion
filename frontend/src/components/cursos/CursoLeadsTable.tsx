@@ -111,6 +111,10 @@ export function CursoLeadsTable({
                 </td>
 
                 <td className="px-4 py-3">
+                  <StatusBadge status={lead.estado as any} label={lead.estado} />
+                </td>
+
+                <td className="px-4 py-3">
                   {lead.origen
                     ? lead.origen.split(' ').map(t => {
                       const u = t.toUpperCase();
@@ -125,10 +129,7 @@ export function CursoLeadsTable({
                     : <span className="text-slate-400 text-xs">—</span>
                   }
                 </td>
-                
-                <td className="px-4 py-3">
-                  <StatusBadge status={lead.estado as any} label={lead.estado} />
-                </td>
+
                 <td className="px-4 py-3 text-slate-600">{formatDate(lead.fecha_formulario)}</td>
                 <td className="px-4 py-3 text-slate-600">{formatDate(lead.ultimo_contacto)}</td>
 
