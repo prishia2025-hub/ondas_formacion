@@ -191,7 +191,7 @@ export default function CursoLeadsPage() {
         </div>
       </div>
 
-      <div className="w-full lg:w-[75%] xl:w-[80%] mx-auto">
+      <div className="w-full lg:w-[85%] xl:w-[90%] mx-auto">
         <CursoLeadsTable
           cursoId={cursoId}
           leads={leads}
