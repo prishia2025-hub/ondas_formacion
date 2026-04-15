@@ -15,12 +15,12 @@ export default function AllLeadsPage() {
   const [limit] = useState(10);
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [trabajadorFilter, setTrabajadorFilter] = useState(searchParams.get('trabajador') || 'Todos');
-  const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(null);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>('fecha_creacion');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
-const [origenFilter, setOrigenFilter] = useState(searchParams.get('origen') || 'Todos');
+  const [origenFilter, setOrigenFilter] = useState(searchParams.get('origen') || 'Todos');
   const queryClient = useQueryClient();
 
   useEffect(() => {
