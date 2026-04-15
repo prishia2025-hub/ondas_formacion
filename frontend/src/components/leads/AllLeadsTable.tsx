@@ -46,11 +46,13 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
     );
   }
 
-const sorted = [...leads].sort((a, b) => {
+
+
+/*const sorted = [...leads].sort((a, b) => {
   const da = new Date(a.fecha_creacion ?? 0).getTime();
   const db = new Date(b.fecha_creacion ?? 0).getTime();
   return db - da; // desc: más recientes primero
-});
+});*/
 
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
@@ -89,7 +91,7 @@ const sorted = [...leads].sort((a, b) => {
           </tr>
         </thead>
           <tbody className="divide-y divide-border">
-          {sorted.map((lead) => (
+          {leads.map((lead) => (
             <tr
               key={lead.id_lead}
               onClick={() => navigate(`/leads/${lead.id_lead}${location.search}`)}

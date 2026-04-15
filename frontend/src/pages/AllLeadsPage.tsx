@@ -15,8 +15,12 @@ export default function AllLeadsPage() {
   const [limit] = useState(10);
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [trabajadorFilter, setTrabajadorFilter] = useState(searchParams.get('trabajador') || 'Todos');
-  const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>('fecha_creacion');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(
+    (searchParams.get('sort_by') as 'nombre' | 'fecha_creacion') || 'fecha_creacion'
+  );
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(
+    (searchParams.get('sort_dir') as 'asc' | 'desc') || 'desc'
+  );
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -30,8 +34,11 @@ export default function AllLeadsPage() {
     if (origenFilter !== 'Todos') params.set('origen', origenFilter); else params.delete('origen');
     if (trabajadorFilter !== 'Todos') params.set('trabajador', trabajadorFilter); else params.delete('trabajador');
 
+    if (sortField) params.set('sort_by', sortField); else params.delete('sort_by');
+    params.set('sort_dir', sortDir);
+
     setSearchParams(params, { replace: true });
-  }, [page, search, origenFilter, trabajadorFilter]);
+  }, [page, search, origenFilter, trabajadorFilter, sortField, sortDir]);
 
   function handleSort(field: 'nombre' | 'fecha_creacion') {
     if (sortField !== field) { setSortField(field); setSortDir('asc'); return; }
@@ -78,6 +85,8 @@ export default function AllLeadsPage() {
     setLeadToEdit(lead);
     setIsEditOpen(true);
   };
+
+  
 
   return (
     <div className="space-y-6 p-6">
