@@ -86,7 +86,18 @@ def manage_leads():
                 CursoLead.origen.ilike(f'%{origen}%')
             ).distinct()
 
-        query = query.order_by(Lead.id_lead.desc())
+        #query = query.order_by(Lead.id_lead.desc())
+
+        subq = (
+            db.session.query(
+                CursoLead.id_lead,
+                func.max(CursoLead.fecha_formulario).label('max_fecha')
+            )
+            .group_by(CursoLead.id_lead)
+            .subquery()
+        )
+        query = query.outerjoin(subq, Lead.id_lead == subq.c.id_lead)
+        query = query.order_by(subq.c.max_fecha.desc().nullslast())
 
         if limit > 0:
             pagination = query.paginate(page=page, per_page=limit, error_out=False)
