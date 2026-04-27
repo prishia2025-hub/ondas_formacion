@@ -12,7 +12,7 @@ import { Pagination } from '@/components/ui/Pagination';
 export default function AllLeadsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(Number(searchParams.get('page') || 1));
-  const [limit] = useState(10);
+  const [limit] = useState(15);
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [trabajadorFilter, setTrabajadorFilter] = useState(searchParams.get('trabajador') || 'Todos');
   const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(
