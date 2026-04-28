@@ -97,7 +97,7 @@ def manage_leads():
             .subquery()
         )
         query = query.outerjoin(subq, Lead.id_lead == subq.c.id_lead)
-        query = query.order_by(subq.c.max_fecha.desc().nullslast())
+        query = query.order_by(subq.c.max_fecha.desc().nullslast(), Lead.id_lead.desc())
 
         if limit > 0:
             pagination = query.paginate(page=page, per_page=limit, error_out=False)
@@ -432,7 +432,7 @@ def manage_curso_leads(id_curso):
         if origen != 'Todos':
             query = query.filter(CursoLead.origen.ilike(f'%{origen}%'))
 
-        query = query.order_by(CursoLead.fecha_formulario.desc())
+        query = query.order_by(CursoLead.fecha_formulario.desc(), CursoLead.id_lead.desc())
 
         if limit > 0:
             pagination = query.paginate(page=page, per_page=limit, error_out=False)
