@@ -17,12 +17,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Cookie helpers
-const setCookie = (name: string, value: string, days: number = 7) => {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax; Secure`;
-};
-
 const getCookie = (name: string) => {
   return document.cookie.split('; ').reduce((r, v) => {
     const parts = v.split('=');
@@ -30,8 +24,15 @@ const getCookie = (name: string) => {
   }, '');
 };
 
+const setCookie = (name: string, value: string, days: number = 7) => {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  const secure = location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax${secure}`;
+};
+
 const removeCookie = (name: string) => {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax; Secure`;
+  const secure = location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax${secure}`;
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -79,15 +80,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [token]);
 
-  const login = useCallback(async (username: string, password: string) => {
-    const data = await apiFetch<{ token: string; user: User }>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password }),
-    });
-
-    setToken(data.token);
-    setUser(data.user);
-  }, []);
+const login = useCallback(async (username: string, password: string) => {
+  const data = await apiFetch<{ token: string; nombre: string; rol: 'admin' | 'operador'; id?: number }>(
+    '/api/auth/login',
+    { method: 'POST', body: JSON.stringify({ username, password }) }
+  );
+  setToken(data.token);
+  setUser({
+    id: data.id ?? 0,
+    nombre: data.nombre,
+    rol: data.rol,
+  });
+}, []);
 
   const logout = useCallback(() => {
     setToken(null);
