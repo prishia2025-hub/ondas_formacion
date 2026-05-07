@@ -9,6 +9,7 @@ services:
       DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME}
       PORT: ${HOST_PORT_BACKEND}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     ports:
       - "${HOST_PORT_BACKEND}:${HOST_PORT_BACKEND}"
     restart: always

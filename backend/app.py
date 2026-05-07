@@ -2,8 +2,12 @@ import os
 import io
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from models import db, Lead, Curso, CursoLead, Nota, Documento
+from models import db, Lead, Curso, CursoLead, Nota, Documento, Usuario
 from dotenv import load_dotenv
+from flask_jwt_extended import (
+    JWTManager, create_access_token,
+    jwt_required, get_jwt_identity
+)
 from datetime import datetime
 from flasgger import Swagger
 from sqlalchemy.exc import IntegrityError
@@ -14,6 +18,9 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=8)
+jwt = JWTManager(app)
 Swagger(app, template={
     "info": {
         "title": "Ondasformación CRM API",
@@ -34,6 +41,39 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+PERMISOS_POR_ROL = {
+    'admin': [
+        'leads.ver', 'leads.crear', 'leads.editar', 'leads.eliminar',
+        'cursos.ver', 'cursos.crear', 'cursos.editar', 'cursos.eliminar',
+        'usuarios.gestionar', 'dashboard.ver'
+    ],
+    'operador': [
+        'leads.ver', 'leads.crear', 'leads.editar', 'leads.eliminar',
+        'cursos.ver', 'cursos.crear', 'cursos.editar', 'cursos.eliminar',
+        'dashboard.ver'
+    ]
+}
+
+def tiene_permiso(rol, permiso):
+    return permiso in PERMISOS_POR_ROL.get(rol, [])
+
+
+RUTAS_PUBLICAS = ['/api/auth/login', '/apidocs', '/apispec']
+
+@app.before_request
+def verificar_auth():
+    # Dejar pasar OPTIONS (CORS preflight) y rutas públicas
+    if request.method == 'OPTIONS':
+        return
+    if any(request.path.startswith(r) for r in RUTAS_PUBLICAS):
+        return
+    # Verificar token en todas las demás rutas
+    from flask_jwt_extended import verify_jwt_in_request
+    try:
+        verify_jwt_in_request()
+    except Exception:
+        return jsonify({'error': 'Token inválido o no proporcionado'}), 401
+
 # Sync all sequences on startup to prevent duplicate primary key errors
 # This handles cases where data was imported/restored with explicit IDs
 with app.app_context():
@@ -52,6 +92,89 @@ with app.app_context():
             print(f"Warning: Could not sync sequence {seq}: {e}")
     db.session.commit()
     print("✅ All sequences synchronized")
+
+# ── Auth ─────────────────────────────────────────────────────────────────────
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.json
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({'error': 'Username y password requeridos'}), 400
+
+    user = Usuario.query.filter_by(username=data['username'], activo=True).first()
+    if not user or not user.check_password(data['password']):
+        return jsonify({'error': 'Credenciales incorrectas'}), 401
+
+    token = create_access_token(identity={
+        'id':     user.id_usuario,
+        'rol':    user.rol,
+        'nombre': user.nombre
+    })
+    return jsonify({
+        'token':  token,
+        'nombre': user.nombre,
+        'rol':    user.rol
+    })
+
+@app.route('/api/auth/me', methods=['GET'])
+def me():
+    return jsonify(get_jwt_identity())
+
+
+# ── Usuarios (solo admin) ─────────────────────────────────────────────────────
+
+@app.route('/api/usuarios', methods=['GET', 'POST'])
+def manage_usuarios():
+    user = get_jwt_identity()
+    if not tiene_permiso(user['rol'], 'usuarios.gestionar'):
+        return jsonify({'error': 'Acceso restringido a administradores'}), 403
+
+    if request.method == 'GET':
+        usuarios = Usuario.query.order_by(Usuario.id_usuario).all()
+        return jsonify([u.to_dict() for u in usuarios])
+
+    data = request.json
+    if Usuario.query.filter_by(username=data['username']).first():
+        return jsonify({'error': 'El username ya existe'}), 409
+    if Usuario.query.filter_by(email=data['email']).first():
+        return jsonify({'error': 'El email ya existe'}), 409
+
+    nuevo = Usuario(
+        username=data['username'],
+        email=data['email'],
+        nombre=data['nombre'],
+        rol=data.get('rol', 'operador')
+    )
+    nuevo.set_password(data['password'])
+    db.session.add(nuevo)
+    db.session.commit()
+    return jsonify(nuevo.to_dict()), 201
+
+@app.route('/api/usuarios/<int:id>', methods=['PUT', 'DELETE'])
+def usuario_detail(id):
+    user = get_jwt_identity()
+    if not tiene_permiso(user['rol'], 'usuarios.gestionar'):
+        return jsonify({'error': 'Acceso restringido a administradores'}), 403
+
+    usuario = Usuario.query.get_or_404(id)
+
+    if request.method == 'PUT':
+        data = request.json
+        usuario.nombre = data.get('nombre', usuario.nombre)
+        usuario.email  = data.get('email', usuario.email)
+        usuario.rol    = data.get('rol', usuario.rol)
+        usuario.activo = data.get('activo', usuario.activo)
+        if data.get('password'):
+            usuario.set_password(data['password'])
+        db.session.commit()
+        return jsonify(usuario.to_dict())
+
+    if request.method == 'DELETE':
+        usuario.activo = False  # baja lógica, no borrado físico
+        db.session.commit()
+        return jsonify({'message': 'Usuario desactivado'}), 200
+
+
 
 @app.route('/api/leads', methods=['GET', 'POST'])
 def manage_leads():
@@ -728,3 +851,5 @@ def get_dashboard():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", "5000"))
     app.run(host='0.0.0.0', port=port)
+
+
