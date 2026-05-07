@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
-import { apiFetch, setAuthToken } from './api-client';
+import { apiFetch } from './api-client';
 
 interface User {
   id: string | number;
@@ -48,13 +48,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sync token with api-client for requests
   useEffect(() => {
-    setAuthToken(token);
-    if (token) {
-      setCookie('auth_token', token);
-    } else {
+    if (!token) return;
+
+    apiFetch<{ id: string | number; nombre: string; rol: 'admin' | 'operador' }>(
+      '/api/auth/me',
+      {},
+      token
+    ).catch(() => {
+      // El token no es válido → limpiar sesión
+      setToken(null);
+      setUser(null);
       removeCookie('auth_token');
-    }
-  }, [token]);
+      removeCookie('auth_user');
+    });
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -63,6 +70,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       removeCookie('auth_user');
     }
   }, [user]);
+
+  useEffect(() => {
+    if (token) {
+      setCookie('auth_token', token);
+    } else {
+      removeCookie('auth_token');
+    }
+  }, [token]);
 
   const login = useCallback(async (username: string, password: string) => {
     const data = await apiFetch<{ token: string; user: User }>('/api/auth/login', {

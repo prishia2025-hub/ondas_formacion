@@ -8,11 +8,11 @@ const getCookie = (name: string) => {
   }, '');
 };
 
-let authToken: string | null = getCookie('auth_token') || null;
+/*let authToken: string | null = getCookie('auth_token') || null;
 
 export const setAuthToken = (token: string | null) => {
   authToken = token;
-};
+};*/
 
 
 export async function apiFetch<T>(
@@ -23,7 +23,7 @@ export async function apiFetch<T>(
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
   
-  const finalToken = token || authToken;
+  const finalToken = token ?? getCookie('auth_token') ?? null;
   if (finalToken) {
     headers.set('Authorization', `Bearer ${finalToken}`);
   }
