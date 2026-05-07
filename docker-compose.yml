@@ -1,17 +1,33 @@
 services:
+  db:
+    image: postgres:18-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./backup.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    restart: always
+
   web:
     build: ./backend
     container_name: ${COMPOSE_PROJECT_NAME}_backend
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT:-5432}
+      DB_HOST: db
+      DB_PORT: 5432
       DB_NAME: ${DB_NAME}
       PORT: ${HOST_PORT_BACKEND}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     ports:
       - "${HOST_PORT_BACKEND}:${HOST_PORT_BACKEND}"
+    depends_on:
+      - db
     restart: always
 
   frontend:
@@ -27,3 +43,6 @@ services:
     depends_on:
       - web
     restart: always
+
+volumes:
+  pgdata:
