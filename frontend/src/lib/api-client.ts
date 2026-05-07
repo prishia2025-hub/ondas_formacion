@@ -1,10 +1,19 @@
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-let authToken: string | null = null;
+const getCookie = (name: string) => {
+  if (typeof document === 'undefined') return '';
+  return document.cookie.split('; ').reduce((r, v) => {
+    const parts = v.split('=');
+    return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+  }, '');
+};
+
+let authToken: string | null = getCookie('auth_token') || null;
 
 export const setAuthToken = (token: string | null) => {
   authToken = token;
 };
+
 
 export async function apiFetch<T>(
   path: string,
