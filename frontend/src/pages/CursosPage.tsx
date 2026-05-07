@@ -6,11 +6,13 @@ import { CursoGrid } from '@/components/cursos/CursoGrid';
 import { CursoFormModal } from '@/components/cursos/CursoFormModal';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
+import { useApi } from '@/lib/useApi';
 
 
 export default function CursosPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { fetchWithAuth } = useApi();
 
   const [filter, setFilter] = useState<'activos' | 'inactivos' | 'todos'>('activos');
   const [page, setPage] = useState(1);
@@ -20,31 +22,23 @@ export default function CursosPage() {
 
   const { data: cursosResponse, isLoading } = useQuery({
     queryKey: ['cursos', page, limit, filter],
-    queryFn: () => fetchCursos({ page, limit, estado: filter }),
+    queryFn: () => fetchCursos(fetchWithAuth, { page, limit, estado: filter }),
     placeholderData: (previousData) => previousData,
   });
+
 
   const cursos = cursosResponse?.items || [];
   const totalPages = cursosResponse?.pages || 1;
   const totalCursos = cursosResponse?.total || 0;
 
   const createMutation = useMutation({
-    mutationFn: createCurso,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cursos'] });
-      handleCloseModal();
-    },
+    mutationFn: (data: CursoFormData) => createCurso(fetchWithAuth, data),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: CursoFormData }) => updateCurso(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cursos'] });
-      handleCloseModal();
-    },
+    mutationFn: ({ id, data }: { id: number; data: CursoFormData }) =>
+      updateCurso(fetchWithAuth, id, data),
   });
-
-  // Client side filtering removed since it's handled by the backend
 
   const handleOpenNew = () => {
     setCursoToEdit(undefined);
