@@ -1,4 +1,4 @@
-import { fetchApi, type PaginatedResponse } from './base';
+import type {  PaginatedResponse, Fetcher } from './base';
 
 export interface Curso {
   id_curso: number;
@@ -18,40 +18,42 @@ export interface Curso {
 
 export type CursoFormData = Omit<Curso, 'id_curso'>;
 
-export async function fetchCursos(params?: { page?: number; limit?: number; estado?: string; origen?: string }, token?: string | null): Promise<PaginatedResponse<Curso>> {
+
+export async function fetchCursos(
+  fetch: Fetcher,
+  params?: { page?: number; limit?: number; estado?: string }
+): Promise<PaginatedResponse<Curso>> {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.estado) queryParams.append('estado', params.estado);
-  if (params?.origen) queryParams.append('origen', params.origen);
 
-  const queryString = queryParams.toString();
-  const endpoint = queryString ? `/api/cursos?${queryString}` : '/api/cursos';
-
-  return fetchApi<PaginatedResponse<Curso>>(endpoint, undefined, token);
+  const qs = queryParams.toString();
+  return fetch(`/api/cursos${qs ? `?${qs}` : ''}`);
 }
 
-export async function fetchCurso(id: number, token?: string | null): Promise<Curso> {
-  return fetchApi<Curso>(`/api/cursos/${id}`, undefined, token);
-}
-
-export async function createCurso(data: CursoFormData, token?: string | null): Promise<Curso> {
-  return fetchApi<Curso>('/api/cursos', {
+export async function createCurso(fetch: Fetcher, data: CursoFormData): Promise<Curso> {
+  return fetch('/api/cursos', {
     method: 'POST',
     body: JSON.stringify(data),
-  }, token);
+  });
 }
 
-export async function updateCurso(id: number, data: Partial<CursoFormData>, token?: string | null): Promise<Curso> {
-  return fetchApi<Curso>(`/api/cursos/${id}`, {
+export async function fetchCurso(fetch: Fetcher, id: number): Promise<Curso> {
+  return fetch(`/api/cursos/${id}`);
+}
+
+
+export async function updateCurso(fetch: Fetcher, id: number, data: Partial<CursoFormData>): Promise<Curso> {
+  return fetch(`/api/cursos/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
-  }, token);
+  });
 }
 
-export async function deleteCurso(id: number, token?: string | null): Promise<void> {
-  return fetchApi<void>(`/api/cursos/${id}`, {
+export async function deleteCurso(fetch: Fetcher, id: number): Promise<void> {
+  return fetch(`/api/cursos/${id}`, {
     method: 'DELETE',
-  }, token);
+  });
 }
 
