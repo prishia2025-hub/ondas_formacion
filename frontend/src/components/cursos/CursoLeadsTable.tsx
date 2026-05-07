@@ -5,6 +5,8 @@ import { StatusBadge } from '../ui/StatusBadge';
 import { Skeleton } from '../ui/SkeletonCard';
 import type { CursoLead } from '@/api/cursoLeads';
 import { useState } from 'react';
+import { useAuth } from '@/lib/auth';
+
 
 interface CursoLeadsTableProps {
   cursoId: number;
@@ -26,10 +28,11 @@ export function CursoLeadsTable({
   onDeleteLead,
   onEditLead,
   isDeleting = false,
-  currentPage,
 }: CursoLeadsTableProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
+
   const [leadToConfirm, setLeadToConfirm] = useState<CursoLead | null>(null);
 
   const formatDate = (dateString?: string) => {
@@ -70,8 +73,9 @@ export function CursoLeadsTable({
               <th className="px-4 py-3 text-left font-semibold">Origen</th>
               <th className="px-4 py-3 text-left font-semibold">Creado</th>
               <th className="px-4 py-3 text-left font-semibold">Último Contacto</th>
-              <th className="px-4 py-3 text-center font-semibold">Acciones</th>
+              {user?.rol === 'admin' && <th className="px-4 py-3 text-center font-semibold">Acciones</th>}
             </tr>
+
           </thead>
           <tbody className="divide-y divide-slate-100">
             {leads.map((lead) => (
@@ -134,27 +138,30 @@ export function CursoLeadsTable({
                 <td className="px-4 py-3 text-slate-600">{formatDate(lead.ultimo_contacto)}</td>
 
                 {/* ── Columna Acciones ── */}
-                <td
-                  className="px-4 py-3 text-center"
-                  onClick={(e) => e.stopPropagation()} // evita navegar al detalle
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <button
-                      title="Editar lead"
-                      onClick={() => onEditLead(lead)}
-                      className="p-1.5 rounded-md text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      title="Quitar del curso"
-                      onClick={() => setLeadToConfirm(lead)}
-                      className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+                {user?.rol === 'admin' && (
+                  <td
+                    className="px-4 py-3 text-center"
+                    onClick={(e) => e.stopPropagation()} // evita navegar al detalle
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        title="Editar lead"
+                        onClick={() => onEditLead(lead)}
+                        className="p-1.5 rounded-md text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        title="Quitar del curso"
+                        onClick={() => setLeadToConfirm(lead)}
+                        className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                )}
+
               </tr>
             ))}
           </tbody>

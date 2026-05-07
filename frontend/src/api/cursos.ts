@@ -18,7 +18,7 @@ export interface Curso {
 
 export type CursoFormData = Omit<Curso, 'id_curso'>;
 
-export async function fetchCursos(params?: { page?: number; limit?: number; estado?: string; origen?: string }): Promise<PaginatedResponse<Curso>> {
+export async function fetchCursos(params?: { page?: number; limit?: number; estado?: string; origen?: string }, token?: string | null): Promise<PaginatedResponse<Curso>> {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
   if (params?.limit) queryParams.append('limit', params.limit.toString());
@@ -28,29 +28,30 @@ export async function fetchCursos(params?: { page?: number; limit?: number; esta
   const queryString = queryParams.toString();
   const endpoint = queryString ? `/api/cursos?${queryString}` : '/api/cursos';
 
-  return fetchApi<PaginatedResponse<Curso>>(endpoint);
+  return fetchApi<PaginatedResponse<Curso>>(endpoint, undefined, token);
 }
 
-export async function fetchCurso(id: number): Promise<Curso> {
-  return fetchApi<Curso>(`/api/cursos/${id}`);
+export async function fetchCurso(id: number, token?: string | null): Promise<Curso> {
+  return fetchApi<Curso>(`/api/cursos/${id}`, undefined, token);
 }
 
-export async function createCurso(data: CursoFormData): Promise<Curso> {
+export async function createCurso(data: CursoFormData, token?: string | null): Promise<Curso> {
   return fetchApi<Curso>('/api/cursos', {
     method: 'POST',
     body: JSON.stringify(data),
-  });
+  }, token);
 }
 
-export async function updateCurso(id: number, data: Partial<CursoFormData>): Promise<Curso> {
+export async function updateCurso(id: number, data: Partial<CursoFormData>, token?: string | null): Promise<Curso> {
   return fetchApi<Curso>(`/api/cursos/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
-  });
+  }, token);
 }
 
-export async function deleteCurso(id: number): Promise<void> {
+export async function deleteCurso(id: number, token?: string | null): Promise<void> {
   return fetchApi<void>(`/api/cursos/${id}`, {
     method: 'DELETE',
-  });
+  }, token);
 }
+

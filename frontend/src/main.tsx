@@ -7,6 +7,9 @@ import CursosPage from './pages/CursosPage';
 import CursoLeadsPage from './pages/CursoLeadsPage';
 import LeadDetailPage from './pages/LeadDetailPage';
 import AllLeadsPage from './pages/AllLeadsPage';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { AuthProvider } from './lib/auth';
 import './index.css';
 
 // Initialize React Query client with 30s staleTime as requested
@@ -22,18 +25,27 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<AppLayout />}>
-            <Route index element={<Navigate to="/cursos" replace />} />
-            <Route path="cursos" element={<CursosPage />} />
-            <Route path="cursos/:id_curso" element={<CursoLeadsPage />} />
-            <Route path="cursos/:id_curso/lead/:id_lead" element={<LeadDetailPage />} />
-            <Route path="leads" element={<AllLeadsPage />} />
-            <Route path="leads/:id_lead" element={<LeadDetailPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<AppLayout />}>
+                <Route index element={<Navigate to="/cursos" replace />} />
+                <Route path="cursos" element={<CursosPage />} />
+                <Route path="cursos/:id_curso" element={<CursoLeadsPage />} />
+                <Route path="cursos/:id_curso/lead/:id_lead" element={<LeadDetailPage />} />
+                <Route path="leads" element={<AllLeadsPage />} />
+                <Route path="leads/:id_lead" element={<LeadDetailPage />} />
+              </Route>
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   </StrictMode>
 );
+

@@ -28,7 +28,7 @@ export async function fetchLeads(params?: {
   origen?: string;
   sort_by?: 'nombre' | 'fecha_creacion';   
   sort_dir?: 'asc' | 'desc';   
- }): Promise<PaginatedResponse<Lead>> {
+ }, token?: string | null): Promise<PaginatedResponse<Lead>> {
 
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
@@ -43,29 +43,30 @@ export async function fetchLeads(params?: {
   const queryString = queryParams.toString();
   const endpoint = queryString ? `/api/leads?${queryString}` : '/api/leads';
 
-  return fetchApi<PaginatedResponse<Lead>>(endpoint);
+  return fetchApi<PaginatedResponse<Lead>>(endpoint, undefined, token);
 }
 
-export async function fetchLead(id: number): Promise<Lead> {
-  return fetchApi<Lead>(`/api/leads/${id}`);
+export async function fetchLead(id: number, token?: string | null): Promise<Lead> {
+  return fetchApi<Lead>(`/api/leads/${id}`, undefined, token);
 }
 
-export async function createLead(data: LeadFormData): Promise<Lead> {
+export async function createLead(data: LeadFormData, token?: string | null): Promise<Lead> {
   return fetchApi<Lead>('/api/leads', {
     method: 'POST',
     body: JSON.stringify(data),
-  });
+  }, token);
 }
 
-export async function updateLead(id: number, data: Partial<LeadFormData>): Promise<Lead> {
+export async function updateLead(id: number, data: Partial<LeadFormData>, token?: string | null): Promise<Lead> {
   return fetchApi<Lead>(`/api/leads/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
-  });
+  }, token);
 }
 
-export async function deleteLead(id: number): Promise<void> {
+export async function deleteLead(id: number, token?: string | null): Promise<void> {
   return fetchApi<void>(`/api/leads/${id}`, {
     method: 'DELETE',
-  });
+  }, token);
 }
+

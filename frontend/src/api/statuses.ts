@@ -6,6 +6,7 @@ export interface Status {
   color: string;
 }
 
-export async function fetchStatuses(): Promise<Status[]> {
-  return fetchApi<Status[]>('/api/statuses');
+export async function fetchStatuses(token?: string | null): Promise<Status[]> {
+  return fetchApi<Status[]>('/api/statuses', undefined, token);
 }
+

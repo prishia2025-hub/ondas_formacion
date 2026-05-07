@@ -36,7 +36,8 @@ export async function fetchCursoLeads(
     origen?: string;
     sort_by?: 'nombre' | 'fecha_creacion';  
     sort_dir?: 'asc' | 'desc';             
-    }
+    },
+  token?: string | null
   ): Promise<PaginatedResponse<CursoLead>> {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.append('page', params.page.toString());
@@ -50,29 +51,30 @@ export async function fetchCursoLeads(
   const queryString = queryParams.toString();
   const endpoint = queryString ? `/api/cursos/${cursoId}/leads?${queryString}` : `/api/cursos/${cursoId}/leads`;
 
-  return fetchApi<PaginatedResponse<CursoLead>>(endpoint);
+  return fetchApi<PaginatedResponse<CursoLead>>(endpoint, undefined, token);
 }
 
-export async function addLeadToCurso(cursoId: number, leadId: number, data?: any): Promise<void> {
+export async function addLeadToCurso(cursoId: number, leadId: number, data?: any, token?: string | null): Promise<void> {
   return fetchApi<void>(`/api/cursos/${cursoId}/leads`, {
     method: 'POST',
     body: JSON.stringify({ id_lead: leadId, ...data }),
-  });
+  }, token);
 }
 
-export async function updateCursoLead(cursoId: number, leadId: number, data: any): Promise<void> {
+export async function updateCursoLead(cursoId: number, leadId: number, data: any, token?: string | null): Promise<void> {
   return fetchApi<void>(`/api/cursos/${cursoId}/leads/${leadId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
-  });
+  }, token);
 }
 
-export async function removeLeadFromCurso(cursoId: number, leadId: number): Promise<void> {
+export async function removeLeadFromCurso(cursoId: number, leadId: number, token?: string | null): Promise<void> {
   return fetchApi<void>(`/api/cursos/${cursoId}/leads/${leadId}`, {
     method: 'DELETE',
-  });
+  }, token);
 }
 
-export async function fetchLeadCursos(leadId: number): Promise<LeadCursoEntry[]> {
-  return fetchApi<LeadCursoEntry[]>(`/api/leads/${leadId}/cursos`);
+export async function fetchLeadCursos(leadId: number, token?: string | null): Promise<LeadCursoEntry[]> {
+  return fetchApi<LeadCursoEntry[]>(`/api/leads/${leadId}/cursos`, undefined, token);
 }
+

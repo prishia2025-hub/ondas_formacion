@@ -12,12 +12,16 @@ import { updateCursoLead, fetchLeadCursos } from '@/api/cursoLeads';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateLead, type LeadFormData } from '@/api/leads';
+import { useAuth } from '@/lib/auth';
+
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { CursoEstadoModal } from '@/components/leads/CursoEstadoModal';
 
 
 export default function LeadDetailPage() {
+  const { user } = useAuth();
   const { id_lead, id_curso } = useParams<{ id_lead: string; id_curso?: string }>();
+
   const [searchParams] = useSearchParams();
   const fromPage = searchParams.get('fromPage');
   const leadId = Number(id_lead);
@@ -146,12 +150,15 @@ export default function LeadDetailPage() {
                   )}
                 </h1>
               </div>
-              <button
-                onClick={() => setIsEditOpen(true)}
-                className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
-              >
-                ✏️ Editar Lead
-              </button>
+              {user?.rol === 'admin' && (
+                <button
+                  onClick={() => setIsEditOpen(true)}
+                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+                >
+                  ✏️ Editar Lead
+                </button>
+              )}
+
 
             </div>
 
@@ -234,12 +241,15 @@ export default function LeadDetailPage() {
 
 
                         <StatusBadge status={curso.estado as any} label={curso.estado} />
-                        <button
-                          onClick={() => setEditingCursoEstado({ id_curso: curso.id_curso, estado: curso.estado })}
-                          className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-colors"
-                        >
-                          ✏️ Estado
-                        </button>
+                        {user?.rol === 'admin' && (
+                          <button
+                            onClick={() => setEditingCursoEstado({ id_curso: curso.id_curso, estado: curso.estado })}
+                            className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-colors"
+                          >
+                            ✏️ Estado
+                          </button>
+                        )}
+
                       </div>
                     </div>
                     {curso.codigo && (

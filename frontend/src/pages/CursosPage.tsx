@@ -5,9 +5,13 @@ import { fetchCursos, createCurso, updateCurso, type Curso, type CursoFormData }
 import { CursoGrid } from '@/components/cursos/CursoGrid';
 import { CursoFormModal } from '@/components/cursos/CursoFormModal';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
+
 
 export default function CursosPage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
+
   const [filter, setFilter] = useState<'activos' | 'inactivos' | 'todos'>('activos');
   const [page, setPage] = useState(1);
   const [limit] = useState(50);
@@ -107,12 +111,15 @@ export default function CursosPage() {
           </button>
         </div>
 
-        <button
-          onClick={handleOpenNew}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-from to-accent-to text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm"
-        >
-          <Plus className="w-4 h-4" /> Nuevo Curso
-        </button>
+        {user?.rol === 'admin' && (
+          <button
+            onClick={handleOpenNew}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-from to-accent-to text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> Nuevo Curso
+          </button>
+        )}
+
       </div>
 
       <CursoGrid cursos={cursos} isLoading={isLoading} onEdit={handleOpenEdit} />

@@ -3,6 +3,8 @@ import { Edit2, Users } from 'lucide-react';
 import type { Curso } from '@/api/cursos';
 import { StatusBadge } from '../ui/StatusBadge';
 import { format, parseISO } from 'date-fns';
+import { useAuth } from '@/lib/auth';
+
 
 interface CursoCardProps {
   curso: Curso;
@@ -10,7 +12,9 @@ interface CursoCardProps {
 }
 
 export function CursoCard({ curso, onEdit }: CursoCardProps) {
+  const { user } = useAuth();
   // Determine badge state
+
   let estadoType: "activo" | "lleno" | "inactivo" = "activo";
   let estadoText = "ACTIVO";
 
@@ -64,13 +68,16 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
           <span>{curso.leads_count ?? 0}</span>
         </div>
 
-        <button
-          onClick={(e) => { e.preventDefault(); onEdit(curso); }}
-          className="relative z-10 p-2 text-text-secondary hover:text-accent-from hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
-          title="Editar"
-        >
-          <Edit2 className="w-4 h-4" />
-        </button>
+        {user?.rol === 'admin' && (
+          <button
+            onClick={(e) => { e.preventDefault(); onEdit(curso); }}
+            className="relative z-10 p-2 text-text-secondary hover:text-accent-from hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
+            title="Editar"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+        )}
+
       </div>
 
       {/* Invisible link covering card except for the edit button */}

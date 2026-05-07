@@ -10,10 +10,14 @@ import { createLead, updateLead, type LeadFormData, type Lead } from '@/api/lead
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { fetchStatuses } from '@/api/statuses';
 import { Pagination } from '@/components/ui/Pagination';
+import { useAuth } from '@/lib/auth';
+
 
 
 export default function CursoLeadsPage() {
+  const { user } = useAuth();
   const { id_curso } = useParams<{ id_curso: string }>();
+
   const cursoId = Number(id_curso);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -181,13 +185,16 @@ export default function CursoLeadsPage() {
             <option value="No trabajando">No trabajando</option>
           </select>
 
-          <button
-            onClick={() => setIsAddOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Añadir Lead
-          </button>
+          {user?.rol === 'admin' && (
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" />
+              Añadir Lead
+            </button>
+          )}
+
         </div>
       </div>
 
