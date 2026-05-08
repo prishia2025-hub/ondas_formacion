@@ -42,6 +42,24 @@ export default function AppLayout() {
                   Leads
                 </NavLink>
               </li>
+              
+              <li className="my-2 border-t border-slate-200"></li>
+              
+              <li>
+                <NavLink
+                  to="/usuarios"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-indigo-50 text-indigo-700'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    }`
+                  }
+                >
+                  <Users size={16} />
+                  Usuarios
+                </NavLink>
+              </li>
             </ul>
           </nav>
         </aside>
