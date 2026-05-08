@@ -62,6 +62,24 @@ def tiene_permiso(rol, permiso):
 RUTAS_PUBLICAS = ['/api/auth/login', '/apidocs', '/apispec']
 
 @app.before_request
+def log_request_info():
+    if request.path.startswith('/api/'):
+        print(f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}] ---> INICIO REQUEST: {request.method} {request.path} | IP: {request.remote_addr}", flush=True)
+        if request.is_json and request.method in ['POST', 'PUT']:
+            payload = request.get_json(silent=True)
+            if payload:
+                # Ocultar contraseñas en el log por seguridad
+                if 'password' in payload:
+                    payload = {**payload, 'password': '***'}
+                print(f"Payload: {payload}", flush=True)
+
+@app.after_request
+def log_response_info(response):
+    if request.path.startswith('/api/'):
+        print(f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}] <--- FIN RESPONSE: {request.method} {request.path} | Status: {response.status_code}", flush=True)
+    return response
+
+@app.before_request
 def verificar_auth():
     # Dejar pasar OPTIONS (CORS preflight) y rutas públicas
     if request.method == 'OPTIONS':
