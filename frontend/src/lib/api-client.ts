@@ -9,7 +9,8 @@ export async function apiFetch<T>(
   headers.set('Content-Type', 'application/json');
 
   if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
+    const cleanToken = token.replace('Bearer ', '').replace(/"/g, '').trim();
+    headers.set('Authorization', `Bearer ${cleanToken}`);
   }
 
   const response = await fetch(`${API_URL}${path}`, { ...options, headers });
