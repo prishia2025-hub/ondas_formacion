@@ -16,10 +16,12 @@ import { useAuth } from '@/lib/auth';
 
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { CursoEstadoModal } from '@/components/leads/CursoEstadoModal';
+import { useApi } from '@/lib/useApi';
 
 
 export default function LeadDetailPage() {
   const { user, token } = useAuth();
+  const api = useApi();
   const { id_lead, id_curso } = useParams<{ id_lead: string; id_curso?: string }>();
 
   const [searchParams] = useSearchParams();
@@ -46,7 +48,7 @@ export default function LeadDetailPage() {
   // Fetch curso info if we navigated from a course
   const { data: curso } = useQuery({
     queryKey: ['cursos', cursoId],
-    queryFn: () => fetchCurso(cursoId!),
+    queryFn: () => fetchCurso(api.fetch, cursoId!),
     enabled: !!cursoId,
   });
 

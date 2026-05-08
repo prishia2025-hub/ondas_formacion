@@ -11,11 +11,13 @@ import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { fetchStatuses } from '@/api/statuses';
 import { Pagination } from '@/components/ui/Pagination';
 import { useAuth } from '@/lib/auth';
+import { useApi } from '@/lib/useApi';
 
 
 
 export default function CursoLeadsPage() {
   const { user, token } = useAuth();
+  const api = useApi();
   const { id_curso } = useParams<{ id_curso: string }>();
 
   const cursoId = Number(id_curso);
@@ -58,7 +60,7 @@ export default function CursoLeadsPage() {
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
     queryKey: ['cursos', cursoId],
-    queryFn: () => fetchCurso(cursoId),
+    queryFn: () => fetchCurso(api.fetch, cursoId),
     enabled: !!cursoId,
   });
 
@@ -135,12 +137,12 @@ export default function CursoLeadsPage() {
       <div className="mb-6">
         <div className="mb-4">
           {isCursoLoading ? <Skeleton className="h-8 w-64" /> : <h1 className="text-2xl font-bold text-text-primary">{curso?.nombre}</h1>}
-          <p className="text-sm text-text-secondary mt-1">
+          <div className="text-sm text-text-secondary mt-1">
             {isLeadsLoading && !leadsResponse
               ? <Skeleton className="h-4 w-48" />
               : `${totalLeads} leads totales`
             }
-          </p>
+          </div>
         </div>
 
         {/* Barra de búsqueda y filtros */}
