@@ -126,11 +126,13 @@ def login():
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Credenciales incorrectas'}), 401
 
-    token = create_access_token(identity={
-        'id':     user.id_usuario,
-        'rol':    user.rol,
-        'nombre': user.nombre
-    })
+    token = create_access_token(
+        identity=str(user.id_usuario),
+        additional_claims={
+            'rol': user.rol,
+            'nombre': user.nombre
+        }
+    )
     return jsonify({
         'token':  token,
         'nombre': user.nombre,
@@ -138,20 +140,25 @@ def login():
         'id': user.id_usuario
     })
 
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt)
 
 @app.route('/api/auth/me', methods=['GET'])
-@jwt_required()   # ← añadir
+@jwt_required()
 def me():
-    return jsonify(get_jwt_identity())
+    claims = get_jwt()
+    return jsonify({
+        'id': get_jwt_identity(),
+        'rol': claims.get('rol'),
+        'nombre': claims.get('nombre')
+    })
 
 
 # ── Usuarios (solo admin) ─────────────────────────────────────────────────────
 
 @app.route('/api/usuarios', methods=['GET', 'POST'])
 def manage_usuarios():
-    user = get_jwt_identity()
-    if not tiene_permiso(user['rol'], 'usuarios.gestionar'):
+    claims = get_jwt()
+    if not tiene_permiso(claims.get('rol'), 'usuarios.gestionar'):
         return jsonify({'error': 'Acceso restringido a administradores'}), 403
 
     if request.method == 'GET':
@@ -177,8 +184,8 @@ def manage_usuarios():
 
 @app.route('/api/usuarios/<int:id>', methods=['PUT', 'DELETE'])
 def usuario_detail(id):
-    user = get_jwt_identity()
-    if not tiene_permiso(user['rol'], 'usuarios.gestionar'):
+    claims = get_jwt()
+    if not tiene_permiso(claims.get('rol'), 'usuarios.gestionar'):
         return jsonify({'error': 'Acceso restringido a administradores'}), 403
 
     usuario = Usuario.query.get_or_404(id)
