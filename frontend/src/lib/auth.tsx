@@ -11,6 +11,7 @@ interface AuthContextType {
   token: string | null;
   user: User | null;
   isAuthenticated: boolean;
+  isValidating: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -35,6 +36,7 @@ const removeCookie = (name: string) => {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax${secure}`;
 };
 
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Initialize state from cookies if they exist
   const [token, setToken] = useState<string | null>(() => getCookie('auth_token') || null);
@@ -47,21 +49,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
+  const [isValidating, setIsValidating] = useState<boolean>(!!getCookie('auth_token'));
+
   // Sync token with api-client for requests
   useEffect(() => {
-    if (!token) return;
+    if (!token) { setIsValidating(false); return; }
 
     apiFetch<{ id: string | number; nombre: string; rol: 'admin' | 'operador' }>(
       '/api/auth/me',
       {},
       token
-    ).catch(() => {
-      // El token no es válido → limpiar sesión
-      setToken(null);
-      setUser(null);
-      removeCookie('auth_token');
-      removeCookie('auth_user');
-    });
+    ).then(() => setIsValidating(false))
+      .catch(() => {
+        setToken(null);
+        setUser(null);
+        removeCookie('auth_token');
+        removeCookie('auth_user');
+        setIsValidating(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -80,22 +85,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [token]);
 
-const login = useCallback(async (username: string, password: string) => {
-  const data = await apiFetch<{ token: string; nombre: string; rol: 'admin' | 'operador'; id?: number }>(
-    '/api/auth/login',
-    { method: 'POST', body: JSON.stringify({ username, password }) }
-  );
-  setToken(data.token);
-  setUser({
-    id: data.id ?? 0,
-    nombre: data.nombre,
-    rol: data.rol,
-  });
-}, []);
+  const login = useCallback(async (username: string, password: string) => {
+    const data = await apiFetch<{ token: string; nombre: string; rol: 'admin' | 'operador'; id?: number }>(
+      '/api/auth/login',
+      { method: 'POST', body: JSON.stringify({ username, password }) }
+    );
+    setToken(data.token);
+    setUser({
+      id: data.id ?? 0,
+      nombre: data.nombre,
+      rol: data.rol,
+    });
+  }, []);
 
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
+    setIsValidating(false);
     removeCookie('auth_token');
     removeCookie('auth_user');
   }, []);
@@ -104,9 +110,10 @@ const login = useCallback(async (username: string, password: string) => {
     token,
     user,
     isAuthenticated: !!token,
+    isValidating,
     login,
     logout,
-  }), [token, user, login, logout]);
+  }), [token, user, isValidating, login, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

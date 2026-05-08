@@ -20,7 +20,6 @@ app = Flask(__name__)
 CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=8)
-app.config['JWT_TIMEZONE_AWARE'] = True
 app.config['JWT_DECODE_LEEWAY'] = timedelta(minutes=15)
 jwt = JWTManager(app)
 Swagger(app, template={
@@ -117,10 +116,14 @@ def login():
     return jsonify({
         'token':  token,
         'nombre': user.nombre,
-        'rol':    user.rol
+        'rol':    user.rol,
+        'id': user.id_usuario
     })
 
+from flask_jwt_extended import jwt_required
+
 @app.route('/api/auth/me', methods=['GET'])
+@jwt_required()   # ← añadir
 def me():
     return jsonify(get_jwt_identity())
 
