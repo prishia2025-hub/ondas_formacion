@@ -48,7 +48,7 @@ export default function LeadDetailPage() {
   // Fetch curso info if we navigated from a course
   const { data: curso } = useQuery({
     queryKey: ['cursos', cursoId],
-    queryFn: () => fetchCurso(api.fetch, cursoId!),
+    queryFn: () => fetchCurso(api.fetchWithAuth, cursoId!),
     enabled: !!cursoId,
   });
 

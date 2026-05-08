@@ -60,7 +60,7 @@ export default function CursoLeadsPage() {
 
   const { data: curso, isLoading: isCursoLoading } = useQuery({
     queryKey: ['cursos', cursoId],
-    queryFn: () => fetchCurso(api.fetch, cursoId),
+    queryFn: () => fetchCurso(api.fetchWithAuth, cursoId),
     enabled: !!cursoId,
   });
 
