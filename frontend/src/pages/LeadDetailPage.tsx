@@ -19,7 +19,7 @@ import { CursoEstadoModal } from '@/components/leads/CursoEstadoModal';
 
 
 export default function LeadDetailPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { id_lead, id_curso } = useParams<{ id_lead: string; id_curso?: string }>();
 
   const [searchParams] = useSearchParams();
@@ -33,14 +33,14 @@ export default function LeadDetailPage() {
 
   const { data: lead, isLoading: isLeadLoading } = useQuery({
     queryKey: ['lead', leadId],
-    queryFn: () => fetchLead(leadId),
-    enabled: !!leadId,
+    queryFn: () => fetchLead(leadId, token),
+    enabled: !!leadId && !!token,
   });
 
   const { data: notas, isLoading: isNotasLoading } = useQuery({
     queryKey: ['notas', leadId],
-    queryFn: () => fetchLeadNotas(leadId),
-    enabled: !!leadId,
+    queryFn: () => fetchLeadNotas(leadId, token),
+    enabled: !!leadId && !!token,
   });
 
   // Fetch curso info if we navigated from a course
@@ -52,8 +52,8 @@ export default function LeadDetailPage() {
 
   const { data: leadCursos, isLoading: isCursosLoading } = useQuery({
     queryKey: ['lead-cursos', leadId],
-    queryFn: () => fetchLeadCursos(leadId),
-    enabled: !!leadId,
+    queryFn: () => fetchLeadCursos(leadId, token),
+    enabled: !!leadId && !!token,
   });
 
   const queryClient = useQueryClient();
@@ -66,7 +66,7 @@ export default function LeadDetailPage() {
       mail: data.mail,
       trabajador: data.trabajador,
       estado: data.estado,
-    }),
+    }, token),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['leads'] });
@@ -77,7 +77,7 @@ export default function LeadDetailPage() {
 
   const updateCursoEstadoMutation = useMutation({
     mutationFn: ({ cursoId, estado }: { cursoId: number; estado: string }) =>
-      updateCursoLead(cursoId, leadId, { estado }),
+      updateCursoLead(cursoId, leadId, { estado }, token),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });

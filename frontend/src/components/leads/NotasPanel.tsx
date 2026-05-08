@@ -4,6 +4,7 @@ import { Send, Plus, X, Trash2 } from 'lucide-react';
 import { createNota, deleteNota, type Nota, type NotaFormData } from '@/api/notas';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from '../ui/SkeletonCard';
+import { useAuth } from '@/lib/auth';
 
 interface NotasPanelProps {
   leadId: number;
@@ -13,6 +14,7 @@ interface NotasPanelProps {
 }
 
 export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProps) {
+  const { token } = useAuth();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
@@ -24,7 +26,7 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: Omit<NotaFormData, 'id_lead'>) => createNota(leadId, data),
+    mutationFn: (data: Omit<NotaFormData, 'id_lead'>) => createNota(leadId, data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notas', leadId] });
       setIsOpen(false);
@@ -33,7 +35,7 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id_nota: number) => deleteNota(leadId, id_nota),
+    mutationFn: (id_nota: number) => deleteNota(leadId, id_nota, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notas', leadId] });
     },

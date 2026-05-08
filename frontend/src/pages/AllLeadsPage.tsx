@@ -7,9 +7,11 @@ import { Skeleton } from '@/components/ui/SkeletonCard';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { useSearchParams } from 'react-router-dom';
 import { Pagination } from '@/components/ui/Pagination';
+import { useAuth } from '@/lib/auth';
 
 
 export default function AllLeadsPage() {
+  const { token } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(Number(searchParams.get('page') || 1));
   const [limit] = useState(15);
@@ -56,7 +58,8 @@ export default function AllLeadsPage() {
       trabajador: trabajadorFilter !== 'Todos' ? trabajadorFilter : undefined,
       sort_by: sortField ?? undefined,
       sort_dir: sortDir,
-    }),
+    }, token),
+    enabled: !!token,
     placeholderData: (previousData) => previousData,
   });
 
@@ -65,7 +68,7 @@ export default function AllLeadsPage() {
   const totalLeads = leadsResponse?.total || 0;
 
   const createMutation = useMutation({
-    mutationFn: (data: LeadFormData) => createLead(data),
+    mutationFn: (data: LeadFormData) => createLead(data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-leads'] });
       setIsAddOpen(false);
@@ -73,7 +76,7 @@ export default function AllLeadsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data),
+    mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-leads'] });
       setIsEditOpen(false);

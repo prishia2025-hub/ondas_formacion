@@ -39,6 +39,7 @@ export default function LeadsPage() {
     queryKey: ['leads', page, limit, debouncedSearch, filterEstado, filterTrabajador],
     queryFn: () => fetchLeads({ page, limit, search: debouncedSearch, estado: filterEstado, trabajador: filterTrabajador }, token),
     placeholderData: (previousData) => previousData, // keep previous data while fetching
+    enabled: !!token,
   });
 
   const leads = leadsResponse?.items || [];
@@ -49,6 +50,7 @@ export default function LeadsPage() {
     queryKey: ['statuses'],
     queryFn: () => fetchStatuses(token),
     staleTime: Infinity,
+    enabled: !!token,
   });
 
   const createMutation = useMutation({

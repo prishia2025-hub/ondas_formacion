@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../ui/Modal';
 import { fetchStatuses } from '@/api/statuses';
+import { useAuth } from '@/lib/auth';
 
 interface CursoEstadoModalProps {
   isOpen: boolean;
@@ -20,10 +21,12 @@ export function CursoEstadoModal({
   isPending,
   error,
 }: CursoEstadoModalProps) {
+  const { token } = useAuth();
   const { data: statuses, isLoading: isStatusesLoading } = useQuery({
     queryKey: ['statuses'],
-    queryFn: fetchStatuses,
+    queryFn: () => fetchStatuses(token),
     staleTime: Infinity,
+    enabled: !!token,
   });
 
   const [estado, setEstado] = useState(initialEstado);

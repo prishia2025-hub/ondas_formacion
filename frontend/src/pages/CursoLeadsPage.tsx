@@ -15,7 +15,7 @@ import { useAuth } from '@/lib/auth';
 
 
 export default function CursoLeadsPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { id_curso } = useParams<{ id_curso: string }>();
 
   const cursoId = Number(id_curso);
@@ -64,16 +64,17 @@ export default function CursoLeadsPage() {
 
   const { data: statuses } = useQuery({
     queryKey: ['statuses'],
-    queryFn: fetchStatuses,
+    queryFn: () => fetchStatuses(token),
     staleTime: Infinity,
+    enabled: !!token,
   });
 
   const { data: leadsResponse, isLoading: isLeadsLoading } = useQuery({
     queryKey: ['curso-leads', cursoId, page, limit, search, origenFilter, estadoFilter, trabajadorFilter, sortField, sortDir],
     queryFn: () => fetchCursoLeads(cursoId, {
       page, limit, search, origen: origenFilter, estado: estadoFilter, trabajador: trabajadorFilter, sort_by: sortField ?? undefined, sort_dir: sortDir,
-    }),
-    enabled: !!cursoId,
+    }, token),
+    enabled: !!cursoId && !!token,
     placeholderData: (previousData) => previousData,
   });
 
@@ -83,8 +84,8 @@ export default function CursoLeadsPage() {
 
   const createMutation = useMutation({
     mutationFn: async (data: LeadFormData) => {
-      const newLead = await createLead(data);
-      await addLeadToCurso(cursoId, newLead.id_lead);
+      const newLead = await createLead(data, token);
+      await addLeadToCurso(cursoId, newLead.id_lead, undefined, token);
       return newLead;
     },
     onSuccess: () => {
@@ -94,7 +95,7 @@ export default function CursoLeadsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data),
+    mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['curso-leads', cursoId] });
       setIsEditOpen(false);
@@ -103,7 +104,7 @@ export default function CursoLeadsPage() {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (leadId: number) => removeLeadFromCurso(cursoId, leadId),
+    mutationFn: (leadId: number) => removeLeadFromCurso(cursoId, leadId, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['curso-leads', cursoId] });
     },
