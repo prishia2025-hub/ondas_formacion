@@ -5,9 +5,11 @@ import { fetchLeads, createLead, updateLead, type Lead, type LeadFormData } from
 import { fetchStatuses } from '@/api/statuses';
 import { LeadsTable } from '@/components/leads/LeadsTable';
 import { LeadFormModal } from '@/components/leads/LeadFormModal';
+import { useAuth } from '@/lib/auth';
 
 export default function LeadsPage() {
   const queryClient = useQueryClient();
+  const { token } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   
@@ -35,7 +37,7 @@ export default function LeadsPage() {
 
   const { data: leadsResponse, isLoading } = useQuery({
     queryKey: ['leads', page, limit, debouncedSearch, filterEstado, filterTrabajador],
-    queryFn: () => fetchLeads({ page, limit, search: debouncedSearch, estado: filterEstado, trabajador: filterTrabajador }),
+    queryFn: () => fetchLeads({ page, limit, search: debouncedSearch, estado: filterEstado, trabajador: filterTrabajador }, token),
     placeholderData: (previousData) => previousData, // keep previous data while fetching
   });
 
@@ -45,12 +47,12 @@ export default function LeadsPage() {
 
   const { data: statuses } = useQuery({
     queryKey: ['statuses'],
-    queryFn: fetchStatuses,
+    queryFn: () => fetchStatuses(token),
     staleTime: Infinity,
   });
 
   const createMutation = useMutation({
-    mutationFn: createLead,
+    mutationFn: (data: LeadFormData) => createLead(data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       handleCloseModal();
@@ -58,7 +60,7 @@ export default function LeadsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data),
+    mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       handleCloseModal();
@@ -133,7 +135,7 @@ export default function LeadsPage() {
           >
             <option value="Todos">Todos</option>
             {statuses?.map(s => (
-              <option key={s} value={s}>{s}</option>
+              <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
         </div>
