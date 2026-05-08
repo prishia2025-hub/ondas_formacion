@@ -20,6 +20,8 @@ app = Flask(__name__)
 CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=8)
+app.config['JWT_TIMEZONE_AWARE'] = True
+app.config['JWT_DECODE_LEEWAY'] = timedelta(minutes=15)
 jwt = JWTManager(app)
 Swagger(app, template={
     "info": {
@@ -71,7 +73,9 @@ def verificar_auth():
     from flask_jwt_extended import verify_jwt_in_request
     try:
         verify_jwt_in_request()
-    except Exception:
+    except Exception as e:
+        # Esto imprimirá el error real (Expirado, Firma inválida, etc.) en tu terminal de Docker
+        print(f"DEBUG AUTH: Error validando token: {str(e)}") 
         return jsonify({'error': 'Token inválido o no proporcionado'}), 401
 
 # Sync all sequences on startup to prevent duplicate primary key errors
