@@ -9,6 +9,7 @@ import LeadDetailPage from './pages/LeadDetailPage';
 import AllLeadsPage from './pages/AllLeadsPage';
 import AllUsersPage from './pages/AllUsersPage';
 import UserDetailPage from './pages/UserDetailPage';
+import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './lib/auth';
@@ -40,8 +41,10 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="cursos/:id_curso/lead/:id_lead" element={<LeadDetailPage />} />
                 <Route path="leads" element={<AllLeadsPage />} />
                 <Route path="leads/:id_lead" element={<LeadDetailPage />} />
+                <Route path="perfil" element={<ProfilePage />} />
                 
                 <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+
                   <Route path="usuarios" element={<AllUsersPage />} />
                   <Route path="usuarios/:id_usuario" element={<UserDetailPage />} />
                 </Route>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 
@@ -56,9 +56,14 @@ export default function Header() {
                 <p className="text-sm font-semibold text-text-primary">{user?.nombre}</p>
                 <p className="text-xs text-text-secondary uppercase">{user?.rol}</p>
               </div>
-              <button className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-slate-50 flex items-center gap-2">
+              <Link 
+                to="/perfil"
+                onClick={() => setMenuOpen(false)}
+                className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-slate-50 flex items-center gap-2"
+              >
                 <Settings className="w-4 h-4" /> Configuración
-              </button>
+              </Link>
+
               <button 
                 onClick={logout}
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 flex items-center gap-2"

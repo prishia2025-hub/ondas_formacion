@@ -22,7 +22,19 @@ export async function fetchUsers(token?: string | null): Promise<User[]> {
   return apiFetch<User[]>('/api/usuarios', {}, token);
 }
 
+export async function fetchMe(token?: string | null): Promise<User> {
+  return apiFetch<User>('/api/auth/me', {}, token);
+}
+
+export async function updateMe(data: Partial<UserFormData>, token?: string | null): Promise<User> {
+  return apiFetch<User>('/api/auth/me', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }, token);
+}
+
 export async function fetchUser(id: number, token?: string | null): Promise<User> {
+
   return apiFetch<User>(`/api/usuarios/${id}`, {}, token);
 }
 

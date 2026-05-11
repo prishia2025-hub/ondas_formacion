@@ -142,15 +142,32 @@ def login():
 
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt)
 
-@app.route('/api/auth/me', methods=['GET'])
+@app.route('/api/auth/me', methods=['GET', 'PUT'])
 @jwt_required()
 def me():
-    claims = get_jwt()
-    return jsonify({
-        'id': get_jwt_identity(),
-        'rol': claims.get('rol'),
-        'nombre': claims.get('nombre')
-    })
+    user_id = get_jwt_identity()
+    usuario = Usuario.query.get(user_id)
+    if not usuario:
+        return jsonify({'error': 'Usuario no encontrado'}), 404
+
+    if request.method == 'GET':
+        return jsonify(usuario.to_dict())
+
+    if request.method == 'PUT':
+        data = request.json
+        if not data:
+            return jsonify({'error': 'Datos no proporcionados'}), 400
+
+        # El username no se puede cambiar
+        usuario.nombre = data.get('nombre', usuario.nombre)
+        usuario.email = data.get('email', usuario.email)
+        
+        if data.get('password'):
+            usuario.set_password(data['password'])
+        
+        db.session.commit()
+        return jsonify(usuario.to_dict())
+
 
 
 # ── Usuarios (solo admin) ─────────────────────────────────────────────────────
