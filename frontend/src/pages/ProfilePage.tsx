@@ -6,7 +6,7 @@ import { User, Mail, Shield, AtSign, Lock, Save, CheckCircle2 } from 'lucide-rea
 import { Skeleton } from '@/components/ui/SkeletonCard';
 
 export default function ProfilePage() {
-  const { token, login } = useAuth();
+  const { token, logout } = useAuth();
   const queryClient = useQueryClient();
   const [success, setSuccess] = useState(false);
 
@@ -38,10 +38,14 @@ export default function ProfilePage() {
 
   const updateMutation = useMutation({
     mutationFn: (data: Partial<UserFormData>) => updateMe(data, token),
-    onSuccess: (updatedUser) => {
+    onSuccess: (_, variables) => {
+      // If password was changed, logout for security
+      if (variables.password) {
+        logout();
+        return;
+      }
+
       queryClient.invalidateQueries({ queryKey: ['me'] });
-      // Update local auth context if needed (e.g., if name changed)
-      // login(token!, updatedUser); 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
       setFormData(prev => ({ ...prev, password: '' }));
