@@ -39,13 +39,12 @@ export async function fetchUser(id: number, token?: string | null): Promise<User
 }
 
 export async function createUser(data: UserFormData, token?: string | null): Promise<User> {
-  // En creación, el password es obligatorio para el backend (aunque podemos poner uno por defecto aquí si queremos)
-  const payload = { ...data, password: data.password || 'Ondas2025!' };
   return apiFetch<User>('/api/usuarios', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: JSON.stringify(data),
   }, token);
 }
+
 
 export async function updateUser(id: number, data: Partial<UserFormData>, token?: string | null): Promise<User> {
   return apiFetch<User>(`/api/usuarios/${id}`, {

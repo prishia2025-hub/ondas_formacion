@@ -6,6 +6,7 @@ export interface UserFormData {
   email: string;
   username: string;
   rol: 'admin' | 'operador';
+  password?: string;
 }
 
 interface User {
@@ -31,6 +32,7 @@ export function UserFormModal({ isOpen, onClose, onSubmit, userToEdit, isPending
     email: "",
     username: "",
     rol: "operador",
+    password: "",
   });
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export function UserFormModal({ isOpen, onClose, onSubmit, userToEdit, isPending
         email: userToEdit.email,
         username: userToEdit.username,
         rol: userToEdit.rol,
+        password: "",
       });
     } else {
       setFormData({
@@ -47,6 +50,7 @@ export function UserFormModal({ isOpen, onClose, onSubmit, userToEdit, isPending
         email: "",
         username: "",
         rol: "operador",
+        password: "",
       });
     }
   }, [userToEdit, isOpen]);
@@ -126,6 +130,21 @@ export function UserFormModal({ isOpen, onClose, onSubmit, userToEdit, isPending
           </div>
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-text-primary mb-1">
+            {userToEdit ? "Nueva Contraseña (Opcional)" : "Contraseña *"}
+          </label>
+          <input
+            type="password"
+            name="password"
+            required={!userToEdit}
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-from/50"
+            placeholder={userToEdit ? "Dejar en blanco para no cambiar" : "••••••••"}
+          />
+        </div>
+
         <div className="pt-4 flex justify-end gap-2">
           <button
             type="button"
@@ -147,3 +166,4 @@ export function UserFormModal({ isOpen, onClose, onSubmit, userToEdit, isPending
     </Modal>
   );
 }
+
