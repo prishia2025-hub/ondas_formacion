@@ -307,8 +307,8 @@ def manage_leads():
             rels = CursoLead.query.filter_by(id_lead=lead.id_lead).order_by(CursoLead.ultimo_contacto.desc()).all()
             rel = rels[0] if rels else None
             l_dict['estado'] = rel.estado if rel else 'Nuevo'
-            l_dict['ultimo_contacto'] = rel.ultimo_contacto.isoformat() if rel and rel.ultimo_contacto else None
-            l_dict['fecha_creacion'] = rel.fecha_formulario.isoformat() if rel and rel.fecha_formulario else None
+            l_dict['ultimo_contacto'] = rel.ultimo_contacto.isoformat() + "Z" if rel and rel.ultimo_contacto else None
+            l_dict['fecha_creacion'] = rel.fecha_formulario.isoformat() + "Z" if rel and rel.fecha_formulario else None
 
             #Obtener origen, deduplicarlo y normalizar 
             tokens = set()
@@ -473,8 +473,8 @@ def get_lead_cursos(id_lead):
         if curso:
             entry = curso.to_dict()
             entry['estado'] = rel.estado
-            entry['ultimo_contacto'] = rel.ultimo_contacto.isoformat() if rel.ultimo_contacto else None
-            entry['fecha_formulario'] = rel.fecha_formulario.isoformat() if rel.fecha_formulario else None
+            entry['ultimo_contacto'] = rel.ultimo_contacto.isoformat() + "Z" if rel.ultimo_contacto else None
+            entry['fecha_formulario'] = rel.fecha_formulario.isoformat() + "Z" if rel.fecha_formulario else None
             entry['origen'] = rel.origen
             result.append(entry)
     return jsonify(result)
@@ -617,6 +617,9 @@ def manage_curso_leads(id_curso):
 
         if estado != 'Todos':                                        
             query = query.filter(CursoLead.estado == estado)
+        else:
+            query = query.filter(CursoLead.estado != 'No interesado')
+
 
         if origen != 'Todos':
             query = query.filter(CursoLead.origen.ilike(f'%{origen}%'))
@@ -875,8 +878,8 @@ def get_dashboard():
                     l_entry['estado'] = r.estado
                     l_entry['mail_enviado'] = r.mail_enviado
                     l_entry['whatsapp_enviado'] = r.whatsapp_enviado
-                    l_entry['fecha_formulario'] = r.fecha_formulario.isoformat() if r.fecha_formulario else None
-                    l_entry['ultimo_contacto'] = r.ultimo_contacto.isoformat() if r.ultimo_contacto else None
+                    l_entry['fecha_formulario'] = r.fecha_formulario.isoformat() + "Z" if r.fecha_formulario else None
+                    l_entry['ultimo_contacto'] = r.ultimo_contacto.isoformat() + "Z" if r.ultimo_contacto else None
                     l_entry['notes'] = notes_by_lead_course.get((r.id_lead, c.id_curso), [])
                     l_entry['documents'] = docs_by_lead_course.get((r.id_lead, c.id_curso), [])
                     c_dict['leads'].append(l_entry)
@@ -893,8 +896,8 @@ def get_dashboard():
                 l_copy['estado'] = l_rels[0].estado
                 l_copy['mail_enviado'] = l_rels[0].mail_enviado
                 l_copy['whatsapp_enviado'] = l_rels[0].whatsapp_enviado
-                l_copy['fecha_formulario'] = l_rels[0].fecha_formulario.isoformat() if l_rels[0].fecha_formulario else None
-                l_copy['ultimo_contacto'] = l_rels[0].ultimo_contacto.isoformat() if l_rels[0].ultimo_contacto else None
+                l_copy['fecha_formulario'] = l_rels[0].fecha_formulario.isoformat() + "Z" if l_rels[0].fecha_formulario else None
+                l_copy['ultimo_contacto'] = l_rels[0].ultimo_contacto.isoformat() + "Z" if l_rels[0].ultimo_contacto else None
             else:
                 l_copy['estado'] = "Nuevo"
                 l_copy['mail_enviado'] = False

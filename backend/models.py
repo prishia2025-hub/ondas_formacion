@@ -73,8 +73,8 @@ class CursoLead(db.Model):
             "id_curso": self.id_curso,
             "id_lead": self.id_lead,
             "estado": self.estado,
-            "fecha_formulario": self.fecha_formulario.isoformat() if self.fecha_formulario else None,
-            "ultimo_contacto": self.ultimo_contacto.isoformat() if self.ultimo_contacto else None,
+            "fecha_formulario": self.fecha_formulario.isoformat() + "Z" if self.fecha_formulario else None,
+            "ultimo_contacto": self.ultimo_contacto.isoformat() + "Z" if self.ultimo_contacto else None,
             "mail_enviado": self.mail_enviado,
             "whatsapp_enviado": self.whatsapp_enviado,
             "mail_ia": self.mail_ia,
@@ -99,7 +99,7 @@ class Nota(db.Model):
             "id_lead": self.id_lead,
             "id_curso": self.id_curso,
             "contenido": self.contenido,
-            "fecha": self.fecha.isoformat() if self.fecha else None,
+            "fecha": self.fecha.isoformat() + "Z" if self.fecha else None,
             "titulo": self.titulo,
             "autor": self.autor.username if self.autor else "-"
         }
@@ -118,7 +118,7 @@ class Documento(db.Model):
             "id_documento": self.id_documento,
             "id_lead": self.id_lead,
             "id_curso": self.id_curso,
-            "fecha_creacion": self.fecha_creacion.isoformat() if self.fecha_creacion else None
+            "fecha_creacion": self.fecha_creacion.isoformat() + "Z" if self.fecha_creacion else None
         }
 
 
@@ -149,5 +149,5 @@ class Usuario(db.Model):
             'nombre':     self.nombre,
             'rol':        self.rol,
             'activo':     self.activo,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() + "Z" if self.created_at else None
         }
