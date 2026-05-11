@@ -3,6 +3,7 @@ import { Search, Plus } from 'lucide-react';
 import { AllUsersTable } from '@/components/users/AllUsersTable';
 import { Pagination } from '@/components/ui/Pagination';
 import { UserFormModal } from '@/components/users/UserFormModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 // Mock data for visual purposes
 const MOCK_USERS = [
@@ -21,12 +22,20 @@ export default function AllUsersPage() {
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<any>(undefined);
+  const [userToDelete, setUserToDelete] = useState<any>(undefined);
 
   const handleEdit = (user: any) => {
     setUserToEdit(user);
     setIsEditOpen(true);
   };
+
+  const handleDeleteClick = (user: any) => {
+    setUserToDelete(user);
+    setIsDeleteOpen(true);
+  };
+
 
   return (
     <div className="space-y-6 p-6">
@@ -75,8 +84,9 @@ export default function AllUsersPage() {
         users={MOCK_USERS}
         isLoading={isLoading}
         onEdit={handleEdit}
-        onDelete={(user) => console.log('Delete', user)}
+        onDelete={handleDeleteClick}
       />
+
 
 
       {/* Paginación */}
@@ -105,7 +115,18 @@ export default function AllUsersPage() {
         onSubmit={(data) => { console.log('Update User', data); setIsEditOpen(false); }}
         isPending={false}
       />
+
+      <ConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={() => { setIsDeleteOpen(false); setUserToDelete(undefined); }}
+        onConfirm={() => { console.log('Deleting user', userToDelete); setIsDeleteOpen(false); }}
+        title="Eliminar Usuario"
+        description={`¿Estás seguro de que deseas eliminar al usuario "${userToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        variant="danger"
+      />
     </div>
   );
 }
+
 
