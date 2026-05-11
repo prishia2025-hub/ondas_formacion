@@ -1,6 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Mail, User, Shield, AtSign } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
+import { useState } from 'react';
+import { UserFormModal } from '@/components/users/UserFormModal';
 
 // Mock user data for visual purposes
 const MOCK_USER = {
@@ -14,6 +16,7 @@ const MOCK_USER = {
 export default function UserDetailPage() {
   const { id_usuario } = useParams<{ id_usuario: string }>();
   const { user: currentUser } = useAuth();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   // For visual purposes, we use the mock user
   const user = MOCK_USER;
@@ -49,11 +52,15 @@ export default function UserDetailPage() {
             </div>
           </div>
           {currentUser?.rol === 'admin' && (
-            <button className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+            <button 
+              onClick={() => setIsEditOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+            >
               ✏️ Editar Usuario
             </button>
           )}
         </div>
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
@@ -78,15 +85,17 @@ export default function UserDetailPage() {
             </div>
           </div>
 
-          <div className="space-y-4">
-             {/* Espacio para más campos en el futuro */}
-             <div className="p-4 bg-indigo-50/30 rounded-lg border border-indigo-100/50 flex flex-col justify-center items-center text-center h-full min-h-[140px]">
-                <Shield className="w-8 h-8 text-indigo-200 mb-2" />
-                <p className="text-sm text-indigo-400 font-medium italic">Configuración de seguridad y permisos próximamente</p>
-             </div>
-          </div>
         </div>
       </div>
+
+      <UserFormModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        userToEdit={user}
+        onSubmit={(data) => { console.log('Update User', data); setIsEditOpen(false); }}
+        isPending={false}
+      />
     </div>
   );
 }
+

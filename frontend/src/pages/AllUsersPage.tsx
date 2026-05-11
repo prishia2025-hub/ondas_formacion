@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { AllUsersTable } from '@/components/users/AllUsersTable';
 import { Pagination } from '@/components/ui/Pagination';
+import { UserFormModal } from '@/components/users/UserFormModal';
 
 // Mock data for visual purposes
 const MOCK_USERS = [
@@ -17,6 +18,15 @@ export default function AllUsersPage() {
   const [totalPages] = useState(1);
   const [totalUsers] = useState(MOCK_USERS.length);
   const [isLoading] = useState(false);
+
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<any>(undefined);
+
+  const handleEdit = (user: any) => {
+    setUserToEdit(user);
+    setIsEditOpen(true);
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -53,6 +63,7 @@ export default function AllUsersPage() {
 
         {/* Botón Añadir */}
         <button
+          onClick={() => setIsAddOpen(true)}
           className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
         >
           <Plus className="w-4 h-4" /> Añadir Usuario
@@ -63,9 +74,10 @@ export default function AllUsersPage() {
       <AllUsersTable
         users={MOCK_USERS}
         isLoading={isLoading}
-        onEdit={(user) => console.log('Edit', user)}
+        onEdit={handleEdit}
         onDelete={(user) => console.log('Delete', user)}
       />
+
 
       {/* Paginación */}
       {totalPages > 1 && (
@@ -78,6 +90,22 @@ export default function AllUsersPage() {
           />
         </div>
       )}
+
+      <UserFormModal
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onSubmit={(data) => { console.log('Create User', data); setIsAddOpen(false); }}
+        isPending={false}
+      />
+
+      <UserFormModal
+        isOpen={isEditOpen}
+        onClose={() => { setIsEditOpen(false); setUserToEdit(undefined); }}
+        userToEdit={userToEdit}
+        onSubmit={(data) => { console.log('Update User', data); setIsEditOpen(false); }}
+        isPending={false}
+      />
     </div>
   );
 }
+
