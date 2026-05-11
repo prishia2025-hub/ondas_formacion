@@ -3,23 +3,44 @@ import { ChevronLeft, Mail, User, Shield, AtSign } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useState } from 'react';
 import { UserFormModal } from '@/components/users/UserFormModal';
-
-// Mock user data for visual purposes
-const MOCK_USER = {
-  id_usuario: 1,
-  username: 'admin',
-  email: 'admin@ondasformacion.com',
-  nombre: 'Admin Sistema',
-  rol: 'admin' as const,
-};
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchUser, updateUser, type UserFormData } from '@/api/users';
+import { Skeleton } from '@/components/ui/SkeletonCard';
 
 export default function UserDetailPage() {
   const { id_usuario } = useParams<{ id_usuario: string }>();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, token } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const userId = Number(id_usuario);
 
-  // For visual purposes, we use the mock user
-  const user = MOCK_USER;
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId, token),
+    enabled: !!userId && !!token,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: UserFormData) => updateUser(userId, data, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user', userId] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setIsEditOpen(false);
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="max-w-3xl mx-auto p-6 space-y-6">
+        <Skeleton className="h-6 w-32" />
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <div className="p-8 text-center text-slate-500">Usuario no encontrado.</div>;
+  }
 
   const backLink = '/usuarios';
   const backText = 'Volver a Usuarios';
@@ -61,7 +82,6 @@ export default function UserDetailPage() {
           )}
         </div>
 
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3 text-slate-700 p-4 bg-slate-50 rounded-lg border border-slate-100">
@@ -84,7 +104,6 @@ export default function UserDetailPage() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -92,10 +111,12 @@ export default function UserDetailPage() {
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         userToEdit={user}
-        onSubmit={(data) => { console.log('Update User', data); setIsEditOpen(false); }}
-        isPending={false}
+        onSubmit={(data) => updateMutation.mutate(data)}
+        isPending={updateMutation.isPending}
+        error={(updateMutation.error as Error)?.message}
       />
     </div>
   );
 }
+
 

@@ -182,7 +182,7 @@ def manage_usuarios():
     db.session.commit()
     return jsonify(nuevo.to_dict()), 201
 
-@app.route('/api/usuarios/<int:id>', methods=['PUT', 'DELETE'])
+@app.route('/api/usuarios/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def usuario_detail(id):
     claims = get_jwt()
     if not tiene_permiso(claims.get('rol'), 'usuarios.gestionar'):
@@ -190,7 +190,11 @@ def usuario_detail(id):
 
     usuario = Usuario.query.get_or_404(id)
 
+    if request.method == 'GET':
+        return jsonify(usuario.to_dict())
+
     if request.method == 'PUT':
+
         data = request.json
         usuario.nombre = data.get('nombre', usuario.nombre)
         usuario.email  = data.get('email', usuario.email)
