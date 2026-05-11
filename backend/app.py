@@ -211,14 +211,23 @@ def usuario_detail(id):
         return jsonify(usuario.to_dict())
 
     if request.method == 'PUT':
-
         data = request.json
+        
+        # Si se intenta cambiar el username, verificar que no exista ya
+        new_username = data.get('username')
+        if new_username and new_username != usuario.username:
+            if Usuario.query.filter_by(username=new_username).first():
+                return jsonify({'error': 'El username ya existe'}), 409
+            usuario.username = new_username
+
         usuario.nombre = data.get('nombre', usuario.nombre)
         usuario.email  = data.get('email', usuario.email)
         usuario.rol    = data.get('rol', usuario.rol)
         usuario.activo = data.get('activo', usuario.activo)
+        
         if data.get('password'):
             usuario.set_password(data['password'])
+            
         db.session.commit()
         return jsonify(usuario.to_dict())
 
