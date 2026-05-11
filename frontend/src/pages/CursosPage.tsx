@@ -105,14 +105,12 @@ export default function CursosPage() {
           </button>
         </div>
 
-        {user?.rol === 'admin' && (
           <button
             onClick={handleOpenNew}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-from to-accent-to text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm"
           >
             <Plus className="w-4 h-4" /> Nuevo Curso
           </button>
-        )}
 
       </div>
 

@@ -104,7 +104,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsValidating(false);
     removeCookie('auth_token');
     removeCookie('auth_user');
+    // Force a full reload to clear all state (React Query, context, etc.) 
+    // and redirect to login without keeping the previous location in history state
+    window.location.href = '/login';
   }, []);
+
 
   const value = useMemo(() => ({
     token,

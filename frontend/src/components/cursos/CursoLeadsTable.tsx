@@ -73,7 +73,7 @@ export function CursoLeadsTable({
               <th className="px-4 py-3 text-left font-semibold">Origen</th>
               <th className="px-4 py-3 text-left font-semibold">Creado</th>
               <th className="px-4 py-3 text-left font-semibold">Último Contacto</th>
-              {user?.rol === 'admin' && <th className="px-4 py-3 text-center font-semibold">Acciones</th>}
+             <th className="px-4 py-3 text-center font-semibold">Acciones</th>
             </tr>
 
           </thead>
@@ -138,7 +138,6 @@ export function CursoLeadsTable({
                 <td className="px-4 py-3 text-slate-600">{formatDate(lead.ultimo_contacto)}</td>
 
                 {/* ── Columna Acciones ── */}
-                {user?.rol === 'admin' && (
                   <td
                     className="px-4 py-3 text-center"
                     onClick={(e) => e.stopPropagation()} // evita navegar al detalle
@@ -160,7 +159,6 @@ export function CursoLeadsTable({
                       </button>
                     </div>
                   </td>
-                )}
 
               </tr>
             ))}

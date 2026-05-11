@@ -68,7 +68,6 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
           <span>{curso.leads_count ?? 0}</span>
         </div>
 
-        {user?.rol === 'admin' && (
           <button
             onClick={(e) => { e.preventDefault(); onEdit(curso); }}
             className="relative z-10 p-2 text-text-secondary hover:text-accent-from hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
@@ -76,7 +75,6 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
           >
             <Edit2 className="w-4 h-4" />
           </button>
-        )}
 
       </div>
 

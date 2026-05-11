@@ -152,14 +152,12 @@ export default function LeadDetailPage() {
                   )}
                 </h1>
               </div>
-              {user?.rol === 'admin' && (
                 <button
                   onClick={() => setIsEditOpen(true)}
                   className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
                 >
                   ✏️ Editar Lead
                 </button>
-              )}
 
 
             </div>
@@ -243,14 +241,13 @@ export default function LeadDetailPage() {
 
 
                         <StatusBadge status={curso.estado as any} label={curso.estado} />
-                        {user?.rol === 'admin' && (
                           <button
                             onClick={() => setEditingCursoEstado({ id_curso: curso.id_curso, estado: curso.estado })}
                             className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-colors"
                           >
                             ✏️ Estado
                           </button>
-                        )}
+                        
 
                       </div>
                     </div>

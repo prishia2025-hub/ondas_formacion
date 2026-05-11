@@ -161,7 +161,6 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
 
               {/* Acciones */}
               <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                {onEdit && user?.rol === 'admin' && (
                   <button
                     onClick={() => onEdit(lead)}
                     className="p-1.5 rounded-md text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
@@ -169,7 +168,6 @@ export function AllLeadsTable({ leads, isLoading, onEdit, sortField, sortDir, on
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
-                )}
               </td>
 
             </tr>

@@ -2,12 +2,10 @@ import { Link } from 'react-router-dom';
 import { Mail, Phone, ExternalLink, Edit2, ChevronUp, ChevronDown } from 'lucide-react';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Skeleton } from '../ui/SkeletonCard';
-//import { useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import type { Lead } from '@/api/leads';
 
-//type SortField = 'nombre' | 'fecha_creacion';
-//type SortDir = 'asc' | 'desc';
+
 
 interface LeadsTableProps {
   leads?: Lead[];
@@ -28,17 +26,6 @@ function SortIcon({ field, sortField, sortDir }: {
 }
 
 export function LeadsTable({ leads, isLoading, onEdit, sortField, sortDir, onSort }: LeadsTableProps) {
-  //const [sortField, setSortField] = useState<SortField>('nombre');
-  //const [sortDir, setSortDir] = useState<SortDir>('asc');
-
-  /*const handleSort = (field: SortField) => {
-    if (field === sortField) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDir('asc');
-    }
-  };*/
 
   if (isLoading) {
     return (

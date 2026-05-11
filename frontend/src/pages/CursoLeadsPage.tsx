@@ -188,7 +188,6 @@ export default function CursoLeadsPage() {
             <option value="No trabajando">No trabajando</option>
           </select>
 
-          {user?.rol === 'admin' && (
             <button
               onClick={() => setIsAddOpen(true)}
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-accent-from to-accent-to rounded-lg hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap"
@@ -196,7 +195,6 @@ export default function CursoLeadsPage() {
               <Plus className="w-4 h-4" />
               Añadir Lead
             </button>
-          )}
 
         </div>
       </div>
