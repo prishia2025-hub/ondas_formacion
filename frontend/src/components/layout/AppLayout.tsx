@@ -1,8 +1,10 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import Header from './Header';
 import { BookOpen, Users } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
 
 export default function AppLayout() {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -43,23 +45,27 @@ export default function AppLayout() {
                 </NavLink>
               </li>
               
-              <li className="my-2 border-t border-slate-200"></li>
-              
-              <li>
-                <NavLink
-                  to="/usuarios"
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-indigo-50 text-indigo-700'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    }`
-                  }
-                >
-                  <Users size={16} />
-                  Usuarios
-                </NavLink>
-              </li>
+              {user?.rol === 'admin' && (
+                <>
+                  <li className="my-2 border-t border-slate-200"></li>
+                  
+                  <li>
+                    <NavLink
+                      to="/usuarios"
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive
+                            ? 'bg-indigo-50 text-indigo-700'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                        }`
+                      }
+                    >
+                      <Users size={16} />
+                      Usuarios
+                    </NavLink>
+                  </li>
+                </>
+              )}
             </ul>
           </nav>
         </aside>
