@@ -8,6 +8,7 @@ import CursoLeadsPage from './pages/CursoLeadsPage';
 import LeadDetailPage from './pages/LeadDetailPage';
 import AllLeadsPage from './pages/AllLeadsPage';
 import AllUsersPage from './pages/AllUsersPage';
+import UserDetailPage from './pages/UserDetailPage';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './lib/auth';
@@ -42,7 +43,9 @@ createRoot(document.getElementById('root')!).render(
                 
                 <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                   <Route path="usuarios" element={<AllUsersPage />} />
+                  <Route path="usuarios/:id_usuario" element={<UserDetailPage />} />
                 </Route>
+
               </Route>
 
             </Route>

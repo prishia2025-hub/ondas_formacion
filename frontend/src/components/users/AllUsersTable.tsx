@@ -1,5 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { Skeleton } from '../ui/SkeletonCard';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   id_usuario: number;
@@ -17,6 +18,8 @@ interface AllUsersTableProps {
 }
 
 export function AllUsersTable({ users, isLoading, onEdit, onDelete }: AllUsersTableProps) {
+  const navigate = useNavigate();
+
   if (isLoading) return <Skeleton />;
 
   if (!users || users.length === 0) {
@@ -43,7 +46,12 @@ export function AllUsersTable({ users, isLoading, onEdit, onDelete }: AllUsersTa
           </thead>
           <tbody className="divide-y divide-border">
             {users.map((user) => (
-              <tr key={user.id_usuario} className="hover:bg-slate-50 transition-colors">
+              <tr
+                key={user.id_usuario}
+                onClick={() => navigate(`/usuarios/${user.id_usuario}`)}
+                className="cursor-pointer hover:bg-slate-50 transition-colors"
+              >
+
                 <td className="px-4 py-3 font-medium text-slate-800">{user.username}</td>
                 <td className="px-4 py-3 text-slate-600">{user.email}</td>
                 <td className="px-4 py-3 text-slate-600">{user.nombre}</td>
@@ -54,8 +62,9 @@ export function AllUsersTable({ users, isLoading, onEdit, onDelete }: AllUsersTa
                     {user.rol === 'admin' ? 'Administrador' : 'Operador'}
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center justify-center gap-2">
+
                     <button
                       onClick={() => onEdit?.(user)}
                       className="p-1.5 rounded-md text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
