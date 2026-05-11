@@ -432,11 +432,14 @@ def manage_lead_notas(id_lead):
         return jsonify([nota.to_dict() for nota in notas])
     
     data = request.json
+    id_autor = get_jwt_identity()
+    
     new_nota = Nota(
         id_lead=id_lead,
         id_curso=data['id_curso'],
         contenido=data['contenido'],
         titulo=data.get('titulo'),
+        id_autor=int(id_autor) if id_autor else None,
         fecha=datetime.utcnow()
     )
     db.session.add(new_nota)
@@ -448,6 +451,7 @@ def manage_lead_notas(id_lead):
         
     db.session.commit()
     return jsonify(new_nota.to_dict()), 201
+
 
     
 

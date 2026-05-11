@@ -88,7 +88,10 @@ class Nota(db.Model):
     id_curso = db.Column(db.Integer, db.ForeignKey('cursos.id_curso', ondelete='CASCADE'), nullable=False)
     contenido = db.Column(db.Text, nullable=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
-    titulo = db.Column(db.String(30))
+    titulo = db.Column(db.String(100))
+    id_autor = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario', ondelete='SET NULL'), nullable=True)
+    
+    autor = db.relationship('Usuario', backref='notas')
 
     def to_dict(self):
         return {
@@ -97,8 +100,10 @@ class Nota(db.Model):
             "id_curso": self.id_curso,
             "contenido": self.contenido,
             "fecha": self.fecha.isoformat() if self.fecha else None,
-            "titulo": self.titulo
+            "titulo": self.titulo,
+            "autor": self.autor.username if self.autor else "-"
         }
+
 
 class Documento(db.Model):
     __tablename__ = 'documentos'

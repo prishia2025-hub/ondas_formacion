@@ -7,7 +7,9 @@ export interface Nota {
   titulo?: string;
   contenido: string;
   fecha: string;
+  autor?: string;
 }
+
 
 export type NotaFormData = Omit<Nota, 'id_nota' | 'fecha'>;
 

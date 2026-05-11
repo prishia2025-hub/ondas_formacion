@@ -104,7 +104,12 @@ export function NotasPanel({ leadId, notas, isLoading, cursoId }: NotasPanelProp
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-slate-800">{nota.titulo || 'Nota'}</span>
-                        <span className="text-xs text-slate-500 font-medium">{formatDate(nota.fecha)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-500 font-medium">{formatDate(nota.fecha)}</span>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            {nota.autor || '-'}
+                          </span>
+                        </div>
                       </div>
                       <button
                         onClick={() => setConfirmDeleteId(nota.id_nota)}
