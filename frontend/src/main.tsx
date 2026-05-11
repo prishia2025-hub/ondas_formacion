@@ -39,8 +39,12 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="cursos/:id_curso/lead/:id_lead" element={<LeadDetailPage />} />
                 <Route path="leads" element={<AllLeadsPage />} />
                 <Route path="leads/:id_lead" element={<LeadDetailPage />} />
-                <Route path="usuarios" element={<AllUsersPage />} />
+                
+                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                  <Route path="usuarios" element={<AllUsersPage />} />
+                </Route>
               </Route>
+
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

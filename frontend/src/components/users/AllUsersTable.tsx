@@ -63,18 +63,21 @@ export function AllUsersTable({ users, isLoading, onEdit, onDelete }: AllUsersTa
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => onDelete?.(user)}
-                      className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {user.rol !== 'admin' && (
+                      <button
+                        onClick={() => onDelete?.(user)}
+                        className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
+
         </table>
       </div>
     </div>
