@@ -8,9 +8,10 @@ interface CursoFormModalProps {
   onSubmit: (data: CursoFormData) => void;
   cursoToEdit?: Curso;
   isPending: boolean;
+  isSuccess?: boolean;
 }
 
-export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPending }: CursoFormModalProps) {
+export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPending, isSuccess }: CursoFormModalProps) {
   const [formData, setFormData] = useState<CursoFormData>({
     nombre: "",
     codigo: "",
@@ -70,6 +71,14 @@ export function CursoFormModal({ isOpen, onClose, onSubmit, cursoToEdit, isPendi
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={cursoToEdit ? "Editar Curso" : "Nuevo Curso"}>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {isSuccess && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md text-sm font-medium flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Curso guardado correctamente
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1">Nombre del curso *</label>
           <input

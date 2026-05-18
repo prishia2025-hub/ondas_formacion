@@ -33,26 +33,38 @@ export default function CursosPage() {
 
   const createMutation = useMutation({
     mutationFn: (data: CursoFormData) => createCurso(fetchWithAuth, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cursos'] });
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: CursoFormData }) =>
       updateCurso(fetchWithAuth, id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cursos'] });
+    },
   });
 
   const handleOpenNew = () => {
     setCursoToEdit(undefined);
     setIsModalOpen(true);
+    createMutation.reset();
+    updateMutation.reset();
   };
 
   const handleOpenEdit = (curso: Curso) => {
     setCursoToEdit(curso);
     setIsModalOpen(true);
+    createMutation.reset();
+    updateMutation.reset();
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setCursoToEdit(undefined);
+    createMutation.reset();
+    updateMutation.reset();
   };
 
   const handleSubmit = (data: CursoFormData) => {
@@ -144,6 +156,7 @@ export default function CursosPage() {
         onSubmit={handleSubmit}
         cursoToEdit={cursoToEdit}
         isPending={createMutation.isPending || updateMutation.isPending}
+        isSuccess={createMutation.isSuccess || updateMutation.isSuccess}
       />
     </div>
   );
