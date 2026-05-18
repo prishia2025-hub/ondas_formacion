@@ -6,9 +6,10 @@ interface CursoGridProps {
   cursos?: Curso[];
   isLoading: boolean;
   onEdit: (curso: Curso) => void;
+  onDelete: (curso: Curso) => void;
 }
 
-export function CursoGrid({ cursos, isLoading, onEdit }: CursoGridProps) {
+export function CursoGrid({ cursos, isLoading, onEdit, onDelete }: CursoGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -33,7 +34,7 @@ export function CursoGrid({ cursos, isLoading, onEdit }: CursoGridProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {cursos.map((curso) => (
         <div key={curso.id_curso} className="relative z-10">
-          <CursoCard curso={curso} onEdit={onEdit} />
+          <CursoCard curso={curso} onEdit={onEdit} onDelete={onDelete} />
         </div>
       ))}
     </div>

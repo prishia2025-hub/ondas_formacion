@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Edit2, Users } from 'lucide-react';
+import { Edit2, Users, Trash2 } from 'lucide-react';
 import type { Curso } from '@/api/cursos';
 import { StatusBadge } from '../ui/StatusBadge';
 import { format, parseISO } from 'date-fns';
@@ -9,9 +9,10 @@ import { useAuth } from '@/lib/auth';
 interface CursoCardProps {
   curso: Curso;
   onEdit: (curso: Curso) => void;
+  onDelete: (curso: Curso) => void;
 }
 
-export function CursoCard({ curso, onEdit }: CursoCardProps) {
+export function CursoCard({ curso, onEdit, onDelete }: CursoCardProps) {
   const { user } = useAuth();
   // Determine badge state
 
@@ -68,14 +69,22 @@ export function CursoCard({ curso, onEdit }: CursoCardProps) {
           <span>{curso.leads_count ?? 0}</span>
         </div>
 
+        <div className="flex items-center gap-1 relative z-10">
           <button
             onClick={(e) => { e.preventDefault(); onEdit(curso); }}
-            className="relative z-10 p-2 text-text-secondary hover:text-accent-from hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
+            className="p-2 text-text-secondary hover:text-accent-from hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
             title="Editar"
           >
             <Edit2 className="w-4 h-4" />
           </button>
-
+          <button
+            onClick={(e) => { e.preventDefault(); onDelete(curso); }}
+            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
+            title="Eliminar"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Invisible link covering card except for the edit button */}

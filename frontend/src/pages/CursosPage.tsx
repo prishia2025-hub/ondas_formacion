@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
-import { fetchCursos, createCurso, updateCurso, type Curso, type CursoFormData } from '@/api/cursos';
+import { fetchCursos, createCurso, updateCurso, deleteCurso, type Curso, type CursoFormData } from '@/api/cursos';
 import { CursoGrid } from '@/components/cursos/CursoGrid';
 import { CursoFormModal } from '@/components/cursos/CursoFormModal';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,7 @@ export default function CursosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cursoToEdit, setCursoToEdit] = useState<Curso | undefined>(undefined);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [confirmDeleteCurso, setConfirmDeleteCurso] = useState<Curso | null>(null);
 
   const { data: cursosResponse, isLoading } = useQuery({
     queryKey: ['cursos', page, limit, filter],
@@ -50,6 +51,16 @@ export default function CursosPage() {
       setSuccessMessage("Curso guardado correctamente");
       setTimeout(() => setSuccessMessage(null), 3000);
       handleCloseModal();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteCurso(fetchWithAuth, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cursos'] });
+      setSuccessMessage("Curso eliminado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
+      setConfirmDeleteCurso(null);
     },
   });
 
@@ -142,7 +153,7 @@ export default function CursosPage() {
 
       </div>
 
-      <CursoGrid cursos={cursos} isLoading={isLoading} onEdit={handleOpenEdit} />
+      <CursoGrid cursos={cursos} isLoading={isLoading} onEdit={handleOpenEdit} onDelete={setConfirmDeleteCurso} />
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-8">
@@ -173,6 +184,35 @@ export default function CursosPage() {
         cursoToEdit={cursoToEdit}
         isPending={createMutation.isPending || updateMutation.isPending}
       />
+
+      {/* CONFIRMACIÓN ELIMINAR CURSO */}
+      {confirmDeleteCurso && (
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[320px] animate-in fade-in zoom-in-95 duration-200">
+            <h4 className="font-semibold text-slate-800 mb-2">¿Eliminar curso?</h4>
+            <p className="text-sm text-slate-500 mb-6">
+              ¿Estás seguro de que quieres eliminar el curso <strong>{confirmDeleteCurso.nombre}</strong>? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDeleteCurso(null)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  deleteMutation.mutate(confirmDeleteCurso.id_curso);
+                }}
+                disabled={deleteMutation.isPending}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
