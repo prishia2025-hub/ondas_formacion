@@ -19,6 +19,7 @@ export default function CursosPage() {
   const [limit] = useState(50);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cursoToEdit, setCursoToEdit] = useState<Curso | undefined>(undefined);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { data: cursosResponse, isLoading } = useQuery({
     queryKey: ['cursos', page, limit, filter],
@@ -35,6 +36,9 @@ export default function CursosPage() {
     mutationFn: (data: CursoFormData) => createCurso(fetchWithAuth, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cursos'] });
+      setSuccessMessage("Curso creado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
+      handleCloseModal();
     },
   });
 
@@ -43,6 +47,9 @@ export default function CursosPage() {
       updateCurso(fetchWithAuth, id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cursos'] });
+      setSuccessMessage("Curso guardado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
+      handleCloseModal();
     },
   });
 
@@ -77,6 +84,15 @@ export default function CursosPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      {successMessage && (
+        <div className="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md text-sm font-medium flex items-center gap-2 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          {successMessage}
+        </div>
+      )}
+
       <div className="mb-6 bg-indigo-50/50 border border-indigo-100 rounded-lg p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
@@ -156,7 +172,6 @@ export default function CursosPage() {
         onSubmit={handleSubmit}
         cursoToEdit={cursoToEdit}
         isPending={createMutation.isPending || updateMutation.isPending}
-        isSuccess={createMutation.isSuccess || updateMutation.isSuccess}
       />
     </div>
   );
