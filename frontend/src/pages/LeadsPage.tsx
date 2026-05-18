@@ -12,6 +12,7 @@ export default function LeadsPage() {
   const { token } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   // Filters and Pagination
   const [page, setPage] = useState(1);
@@ -20,6 +21,14 @@ export default function LeadsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterEstado, setFilterEstado] = useState('Todos');
   const [filterTrabajador, setFilterTrabajador] = useState<'Todos' | 'Trabajando' | 'No trabajando'>('Todos');
+  const [sortField, setSortField] = useState<'nombre' | 'fecha_creacion' | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  function handleSort(field: 'nombre' | 'fecha_creacion') {
+    if (sortField !== field) { setSortField(field); setSortDir('asc'); return; }
+    if (sortDir === 'asc') { setSortDir('desc'); return; }
+    setSortField(null);
+  }
 
   // Debounce search
   useEffect(() => {
@@ -36,8 +45,8 @@ export default function LeadsPage() {
   }, [filterEstado, filterTrabajador]);
 
   const { data: leadsResponse, isLoading } = useQuery({
-    queryKey: ['leads', page, limit, debouncedSearch, filterEstado, filterTrabajador],
-    queryFn: () => fetchLeads({ page, limit, search: debouncedSearch, estado: filterEstado, trabajador: filterTrabajador }, token),
+    queryKey: ['leads', page, limit, debouncedSearch, filterEstado, filterTrabajador, sortField, sortDir],
+    queryFn: () => fetchLeads({ page, limit, search: debouncedSearch, estado: filterEstado, trabajador: filterTrabajador, sort_by: sortField ?? undefined, sort_dir: sortDir }, token),
     placeholderData: (previousData) => previousData, // keep previous data while fetching
     enabled: !!token,
   });
@@ -57,6 +66,8 @@ export default function LeadsPage() {
     mutationFn: (data: LeadFormData) => createLead(data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
+      setSuccessMessage("Lead creado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
       handleCloseModal();
     },
   });
@@ -65,6 +76,8 @@ export default function LeadsPage() {
     mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
+      setSuccessMessage("Lead editado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
       handleCloseModal();
     },
   });
@@ -84,6 +97,8 @@ export default function LeadsPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setLeadToEdit(undefined);
+    createMutation.reset();
+    updateMutation.reset();
   };
 
   const handleSubmit = (data: LeadFormData) => {
@@ -102,6 +117,15 @@ export default function LeadsPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      {successMessage && (
+        <div className="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md text-sm font-medium flex items-center gap-2 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          {successMessage}
+        </div>
+      )}
+
       <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 mb-1">Todos los Leads</h1>
@@ -161,7 +185,14 @@ export default function LeadsPage() {
         </button>
       </div>
 
-      <LeadsTable leads={leads} isLoading={isLoading} onEdit={handleOpenEdit} />
+      <LeadsTable 
+        leads={leads} 
+        isLoading={isLoading} 
+        onEdit={handleOpenEdit} 
+        sortField={sortField}
+        sortDir={sortDir}
+        onSort={handleSort}
+      />
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-6">

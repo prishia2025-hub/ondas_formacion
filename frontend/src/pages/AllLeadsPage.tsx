@@ -27,6 +27,7 @@ export default function AllLeadsPage() {
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [origenFilter, setOrigenFilter] = useState(searchParams.get('origen') || 'Todos');
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -71,7 +72,10 @@ export default function AllLeadsPage() {
     mutationFn: (data: LeadFormData) => createLead(data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-leads'] });
+      setSuccessMessage("Lead creado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
       setIsAddOpen(false);
+      createMutation.reset();
     },
   });
 
@@ -79,8 +83,11 @@ export default function AllLeadsPage() {
     mutationFn: ({ id, data }: { id: number; data: LeadFormData }) => updateLead(id, data, token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-leads'] });
+      setSuccessMessage("Lead editado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
       setIsEditOpen(false);
       setLeadToEdit(undefined);
+      updateMutation.reset();
     },
   });
 
@@ -93,6 +100,14 @@ export default function AllLeadsPage() {
 
   return (
     <div className="space-y-6 p-6">
+      {successMessage && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md text-sm font-medium flex items-center gap-2 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          {successMessage}
+        </div>
+      )}
 
       {/* Título */}
       <div className="mb-4">
@@ -174,7 +189,7 @@ export default function AllLeadsPage() {
       {/* Modal crear */}
       <LeadFormModal
         isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
+        onClose={() => { setIsAddOpen(false); createMutation.reset(); }}
         onSubmit={(data) => createMutation.mutate(data)}
         isPending={createMutation.isPending}
         error={(createMutation.error as Error)?.message}
@@ -183,7 +198,7 @@ export default function AllLeadsPage() {
       {/* Modal editar */}
       <LeadFormModal
         isOpen={isEditOpen}
-        onClose={() => { setIsEditOpen(false); setLeadToEdit(undefined); }}
+        onClose={() => { setIsEditOpen(false); setLeadToEdit(undefined); updateMutation.reset(); }}
         onSubmit={(data) => leadToEdit && updateMutation.mutate({ id: leadToEdit.id_lead, data })}
         leadToEdit={leadToEdit}
         isPending={updateMutation.isPending}

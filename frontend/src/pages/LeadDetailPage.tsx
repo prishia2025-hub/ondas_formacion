@@ -61,6 +61,7 @@ export default function LeadDetailPage() {
   const queryClient = useQueryClient();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedCursoId, setSelectedCursoId] = useState<number | undefined>(cursoId);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const updateMutation = useMutation({
     mutationFn: (data: LeadFormData) => updateLead(leadId, {
       nombre: data.nombre,
@@ -73,7 +74,10 @@ export default function LeadDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['leads'] });
       await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
+      setSuccessMessage("Lead editado correctamente");
+      setTimeout(() => setSuccessMessage(null), 3000);
       setIsEditOpen(false);
+      updateMutation.reset();
     },
   });
 
@@ -134,6 +138,15 @@ export default function LeadDetailPage() {
           {backText}
         </Link>
       </div>
+
+      {successMessage && (
+        <div className="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md text-sm font-medium flex items-center gap-2 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          {successMessage}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch h-[calc(100%-48px)] min-h-0">
         {/* LEFT COLUMN: Lead Info & Notas */}
@@ -313,7 +326,7 @@ export default function LeadDetailPage() {
       </div>
       <LeadFormModal
         isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
+        onClose={() => { setIsEditOpen(false); updateMutation.reset(); }}
         onSubmit={(data) => updateMutation.mutate(data)}
         leadToEdit={lead}
         isPending={updateMutation.isPending}
