@@ -77,13 +77,15 @@ export function CursoCard({ curso, onEdit, onDelete }: CursoCardProps) {
           >
             <Edit2 className="w-4 h-4" />
           </button>
-          <button
-            onClick={(e) => { e.preventDefault(); onDelete(curso); }}
-            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
-            title="Eliminar"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          {user?.rol === 'admin' && (
+            <button
+              onClick={(e) => { e.preventDefault(); onDelete(curso); }}
+              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
+              title="Eliminar"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 

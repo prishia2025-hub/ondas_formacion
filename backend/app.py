@@ -584,6 +584,10 @@ def curso_detail(id):
         return jsonify(curso.to_dict())
     
     if request.method == 'DELETE':
+        claims = get_jwt()
+        if not tiene_permiso(claims.get('rol'), 'cursos.eliminar'):
+            return jsonify({'error': 'Acceso restringido a administradores'}), 403
+            
         CursoLead.query.filter_by(id_curso=id).delete()
         Nota.query.filter_by(id_curso=id).delete()
         db.session.delete(curso)
