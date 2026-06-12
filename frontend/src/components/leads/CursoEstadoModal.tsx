@@ -7,8 +7,10 @@ import { useAuth } from '@/lib/auth';
 interface CursoEstadoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (estado: string) => void;
+  onSubmit: (data: { estado: string; whatsapp_enviado: boolean; mail_enviado: boolean }) => void;
   initialEstado: string;
+  initialWhatsappEnviado: boolean;
+  initialMailEnviado: boolean;
   isPending: boolean;
   error?: string | null;
 }
@@ -18,6 +20,8 @@ export function CursoEstadoModal({
   onClose,
   onSubmit,
   initialEstado,
+  initialWhatsappEnviado,
+  initialMailEnviado,
   isPending,
   error,
 }: CursoEstadoModalProps) {
@@ -30,16 +34,20 @@ export function CursoEstadoModal({
   });
 
   const [estado, setEstado] = useState(initialEstado);
+  const [whatsappEnviado, setWhatsappEnviado] = useState(initialWhatsappEnviado);
+  const [mailEnviado, setMailEnviado] = useState(initialMailEnviado);
 
   useEffect(() => {
     if (isOpen) {
       setEstado(initialEstado);
+      setWhatsappEnviado(initialWhatsappEnviado);
+      setMailEnviado(initialMailEnviado);
     }
-  }, [isOpen, initialEstado]);
+  }, [isOpen, initialEstado, initialWhatsappEnviado, initialMailEnviado]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(estado);
+    onSubmit({ estado, whatsapp_enviado: whatsappEnviado, mail_enviado: mailEnviado });
   };
 
   return (
@@ -68,6 +76,28 @@ export function CursoEstadoModal({
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="flex flex-col gap-3 mt-4">
+          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-text-primary">
+            <input
+              type="checkbox"
+              checked={whatsappEnviado}
+              onChange={(e) => setWhatsappEnviado(e.target.checked)}
+              className="rounded border-border text-accent-from focus:ring-accent-from/50 w-4 h-4"
+            />
+            <span>WhatsApp enviado</span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-text-primary">
+            <input
+              type="checkbox"
+              checked={mailEnviado}
+              onChange={(e) => setMailEnviado(e.target.checked)}
+              className="rounded border-border text-accent-from focus:ring-accent-from/50 w-4 h-4"
+            />
+            <span>Email enviado</span>
+          </label>
         </div>
 
         <div className="pt-4 flex justify-end gap-2">

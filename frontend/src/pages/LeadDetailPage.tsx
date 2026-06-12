@@ -82,8 +82,8 @@ export default function LeadDetailPage() {
   });
 
   const updateCursoEstadoMutation = useMutation({
-    mutationFn: ({ cursoId, estado }: { cursoId: number; estado: string }) =>
-      updateCursoLead(cursoId, leadId, { estado }, token),
+    mutationFn: ({ cursoId, estado, whatsapp_enviado, mail_enviado }: { cursoId: number; estado: string; whatsapp_enviado: boolean; mail_enviado: boolean }) =>
+      updateCursoLead(cursoId, leadId, { estado, whatsapp_enviado, mail_enviado }, token),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
@@ -95,6 +95,8 @@ export default function LeadDetailPage() {
   const [editingCursoEstado, setEditingCursoEstado] = useState<{
     id_curso: number;
     estado: string;
+    whatsapp_enviado: boolean;
+    mail_enviado: boolean;
   } | null>(null);
 
   const ultimoContactoReal = leadCursos
@@ -255,7 +257,12 @@ export default function LeadDetailPage() {
 
                         <StatusBadge status={curso.estado as any} label={curso.estado} />
                           <button
-                            onClick={() => setEditingCursoEstado({ id_curso: curso.id_curso, estado: curso.estado })}
+                            onClick={() => setEditingCursoEstado({ 
+                              id_curso: curso.id_curso, 
+                              estado: curso.estado,
+                              whatsapp_enviado: !!curso.whatsapp_enviado,
+                              mail_enviado: !!curso.mail_enviado
+                            })}
                             className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-colors"
                           >
                             ✏️ Estado
@@ -336,11 +343,13 @@ export default function LeadDetailPage() {
         isOpen={!!editingCursoEstado}
         onClose={() => setEditingCursoEstado(null)}
         initialEstado={editingCursoEstado?.estado || ''}
-        onSubmit={(estado) => {
+        initialWhatsappEnviado={editingCursoEstado?.whatsapp_enviado || false}
+        initialMailEnviado={editingCursoEstado?.mail_enviado || false}
+        onSubmit={(data) => {
           if (!editingCursoEstado) return;
           updateCursoEstadoMutation.mutate({
             cursoId: editingCursoEstado.id_curso,
-            estado,
+            ...data,
           });
         }}
         isPending={updateCursoEstadoMutation.isPending}
