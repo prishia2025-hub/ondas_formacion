@@ -29,6 +29,7 @@ function getEstadoStyle(estado: string): string {
     case 'Reserva':               return 'bg-violet-100 text-violet-700';
     case 'Pendiente de documentación': return 'bg-amber-100 text-amber-700';
     case 'No interesado':         return 'bg-slate-100 text-slate-500';
+    case 'Baja':                  return 'bg-red-100 text-red-700';
     case 'Nuevo':
     default:                      return 'bg-blue-100 text-blue-600';
   }

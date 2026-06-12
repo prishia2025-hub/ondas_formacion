@@ -44,6 +44,10 @@ export default {
             bg: "#F8FAFC",
             text: "#94A3B8",
           },
+          baja: {
+            bg: "#FEE2E2",
+            text: "#DC2626",
+          },
         }
       },
       boxShadow: {

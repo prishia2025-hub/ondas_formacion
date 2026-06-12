@@ -42,6 +42,22 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+with app.app_context():
+    try:
+        db.create_all()
+        with db.engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            check_enum = conn.execute(db.text("""
+                SELECT 1 FROM pg_enum 
+                JOIN pg_type ON pg_enum.enumtypid = pg_type.oid 
+                WHERE pg_type.typname = 'estado_lead' AND pg_enum.enumlabel = 'Baja';
+            """)).fetchone()
+            if not check_enum:
+                conn.execute(db.text("ALTER TYPE estado_lead ADD VALUE 'Baja'"))
+                print("Successfully added 'Baja' state to 'estado_lead' enum in database.")
+    except Exception as e:
+        print(f"Error during database automatic schema update: {e}")
+
+
 PERMISOS_POR_ROL = {
     'admin': [
         'leads.ver', 'leads.crear', 'leads.editar', 'leads.eliminar',
@@ -751,7 +767,8 @@ def get_statuses():
             "Inscrito": "#10b981",
             "Reserva": "#8b5cf6",
             "No interesado": "#666",
-            "Contactado": "#06B6D4"
+            "Contactado": "#06B6D4",
+            "Baja": "#dc2626"
         }
         
         statuses = []
@@ -777,7 +794,8 @@ def get_statuses():
             {"id": "Inscrito", "name": "Inscrito", "color": "#10b981"},
             {"id": "Reserva", "name": "Reserva", "color": "#8b5cf6"},
             {"id": "No interesado", "name": "No interesado", "color": "#666"},
-            {"id": "Contactado", "name": "Contactado", "color": "#06B6D4"}
+            {"id": "Contactado", "name": "Contactado", "color": "#06B6D4"},
+            {"id": "Baja", "name": "Baja", "color": "#dc2626"}
         ]
         return jsonify(fallback)
 

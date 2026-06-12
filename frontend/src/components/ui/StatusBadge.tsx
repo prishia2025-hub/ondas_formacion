@@ -12,6 +12,7 @@ const statusVariants = cva(
         "Inscrito": "bg-status-inscrito-bg text-status-inscrito-text",
         "Reserva": "bg-status-reserva-bg text-status-reserva-text",
         "No interesado": "bg-status-nointeresado-bg text-status-nointeresado-text",
+        "Baja": "bg-status-baja-bg text-status-baja-text",
       },
       estadoCurso: {
         activo: "bg-green-100 text-green-700",
@@ -33,7 +34,7 @@ export function StatusBadge({ className, status, estadoCurso, label, estado, ...
 
   // Try to match the status string if valid, else fallback to default style
   let matchedStatus = finalStatus;
-  const validStatuses = ['Nuevo', 'Contactado', 'Pendiente de documentación', 'Inscrito', 'Reserva', 'No interesado'];
+  const validStatuses = ['Nuevo', 'Contactado', 'Pendiente de documentación', 'Inscrito', 'Reserva', 'No interesado', 'Baja'];
   
   if (finalStatus && !validStatuses.includes(finalStatus)) {
     matchedStatus = null;
