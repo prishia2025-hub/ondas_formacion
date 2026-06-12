@@ -74,6 +74,8 @@ export default function LeadDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['leads'] });
       await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
+      await queryClient.invalidateQueries({ queryKey: ['curso-leads'] });
+      await queryClient.invalidateQueries({ queryKey: ['all-leads'] });
       setSuccessMessage("Lead editado correctamente");
       setTimeout(() => setSuccessMessage(null), 3000);
       setIsEditOpen(false);
@@ -88,6 +90,8 @@ export default function LeadDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ['lead-cursos', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
       await queryClient.invalidateQueries({ queryKey: ['leads'] });
+      await queryClient.invalidateQueries({ queryKey: ['curso-leads'] });
+      await queryClient.invalidateQueries({ queryKey: ['all-leads'] });
       setEditingCursoEstado(null);
     },
   });
