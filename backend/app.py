@@ -492,6 +492,8 @@ def get_lead_cursos(id_lead):
             entry['ultimo_contacto'] = rel.ultimo_contacto.isoformat() + "Z" if rel.ultimo_contacto else None
             entry['fecha_formulario'] = rel.fecha_formulario.isoformat() + "Z" if rel.fecha_formulario else None
             entry['origen'] = rel.origen
+            entry['whatsapp_enviado'] = rel.whatsapp_enviado
+            entry['mail_enviado'] = rel.mail_enviado
             result.append(entry)
     return jsonify(result)
 
